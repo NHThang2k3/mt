@@ -22,14 +22,23 @@ function PaymentResultContent() {
 
         if (data.success) {
           setStatus('success');
-          setOrderId(data.orderId);
           
-          // Update order status in Supabase
-          if (data.orderId) {
-            await supabase
+          // data.txnRef carries the 24-char truncated UUID
+          if (data.txnRef) {
+            // Find the order that starts with this truncated UUID
+            const { data: orderData, error: fetchError } = await supabase
               .from('orders')
-              .update({ status: 'confirmed', payment_status: 'paid' })
-              .eq('id', data.orderId);
+              .select('id')
+              .like('id', `${data.txnRef}%`)
+              .single();
+
+            if (orderData) {
+              setOrderId(orderData.id);
+              await supabase
+                .from('orders')
+                .update({ status: 'confirmed', payment_status: 'paid' })
+                .eq('id', orderData.id);
+            }
           }
           
           clearCart();
