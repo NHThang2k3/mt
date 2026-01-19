@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { format } from 'date-fns';
+import qs from 'qs';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function POST(req: NextRequest) {
     const returnUrl = process.env.VNP_RETURN_URL;
 
     if (!tmnCode || !secretKey || !vnpUrl || !returnUrl) {
+      console.error('VNPay config missing:', { tmnCode: !!tmnCode, secretKey: !!secretKey, vnpUrl: !!vnpUrl, returnUrl: !!returnUrl });
       return NextResponse.json({ error: 'VNPay config missing' }, { status: 500 });
     }
 
@@ -41,13 +43,12 @@ export async function POST(req: NextRequest) {
     // Sort params
     vnp_Params = sortObject(vnp_Params);
 
-    const querystring = require('qs');
-    const signData = querystring.stringify(vnp_Params, { encode: false });
+    const signData = qs.stringify(vnp_Params, { encode: false });
     const hmac = crypto.createHmac('sha512', secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
     vnp_Params['vnp_SecureHash'] = signed;
 
-    const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
+    const paymentUrl = vnpUrl + '?' + qs.stringify(vnp_Params, { encode: false });
 
     return NextResponse.json({ paymentUrl });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import qs from 'qs';
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,8 +23,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Secret key missing' });
     }
 
-    const querystring = require('qs');
-    const signData = querystring.stringify(vnp_Params, { encode: false });
+    const signData = qs.stringify(vnp_Params, { encode: false });
     const hmac = crypto.createHmac('sha512', secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
