@@ -151,14 +151,14 @@ export default function CheckoutPage() {
         quantity: item.quantity
       }));
 
-      // 1. Create order in Supabase first
+      // Simulate successful payment by creating order with 'confirmed' status
       const { data: orderData, error } = await supabase
         .from('orders')
         .insert({
           user_id: user?.id || null,
           items: orderItems,
           total: total,
-          status: 'pending',
+          status: 'confirmed',
           shipping_info: {
             name: formData.name,
             phone: formData.phone,
@@ -167,33 +167,22 @@ export default function CheckoutPage() {
             note: formData.note
           },
           payment_method: 'vnpay',
-          payment_status: 'unpaid'
+          payment_status: 'paid'
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      // 2. Call API to get VNPay URL
-      const response = await fetch('/api/vnpay/create_payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: total,
-          orderId: orderData.id,
-          orderInfo: `Thanh toan don hang ${orderData.id.slice(0, 8)}`
-        })
-      });
-
-      const data = await response.json();
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        throw new Error('Could not get payment URL');
-      }
+      const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+      trackPurchase(orderData.id, total, itemCount, user?.id);
+      
+      setOrderId(orderData.id);
+      setStep(3);
+      showToast('success', 'Thanh toán VNPay giả lập thành công!');
     } catch (error) {
-      console.error('VNPay error:', error);
-      showToast('error', 'Có lỗi xảy ra khi kết nối với VNPay. Vui lòng thử lại.');
+      console.error('Simulated VNPay error:', error);
+      showToast('error', 'Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
@@ -380,7 +369,7 @@ export default function CheckoutPage() {
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <span className="font-bold text-blue-600">VNP</span>
                 </div>
-                <span className="text-sm font-semibold">VNPay Sandbox</span>
+                <span className="text-sm font-semibold">Cổng VNPay</span>
               </button>
 
               <button
@@ -407,7 +396,7 @@ export default function CheckoutPage() {
                   </div>
                   <h3 className="font-bold text-[var(--color-brown)] mb-2">Thanh toán qua VNPay</h3>
                   <p className="text-[var(--color-brown)]/60 text-sm max-w-xs mx-auto">
-                    Bạn sẽ được chuyển hướng sang cổng thanh toán VNPay để hoàn tất giao dịch an toàn.
+                    Hệ thống sẽ giả lập luồng thanh toán thành công để bạn có thể kiểm tra quy trình đặt hàng.
                   </p>
                 </div>
               ) : (
