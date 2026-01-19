@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
     vnp_Params = sortObject(vnp_Params);
 
-    const secretKey = process.env.VNP_HASH_SECRET;
+    const secretKey = process.env.VNP_HASH_SECRET?.trim();
     if (!secretKey) {
       return NextResponse.json({ success: false, message: 'Secret key missing' });
     }

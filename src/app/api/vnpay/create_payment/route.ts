@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { amount, orderId, orderInfo } = body;
 
-    const tmnCode = process.env.VNP_TMN_CODE;
-    const secretKey = process.env.VNP_HASH_SECRET;
-    const vnpUrl = process.env.VNP_URL;
-    const returnUrl = process.env.VNP_RETURN_URL;
+    const tmnCode = process.env.VNP_TMN_CODE?.trim();
+    const secretKey = process.env.VNP_HASH_SECRET?.trim();
+    const vnpUrl = process.env.VNP_URL?.trim();
+    const returnUrl = process.env.VNP_RETURN_URL?.trim();
 
     if (!tmnCode || !secretKey || !vnpUrl || !returnUrl) {
       console.error('VNPay config missing:', { tmnCode: !!tmnCode, secretKey: !!secretKey, vnpUrl: !!vnpUrl, returnUrl: !!returnUrl });
@@ -35,14 +35,13 @@ export async function POST(req: NextRequest) {
     vnp_Params['vnp_TxnRef'] = orderId;
     vnp_Params['vnp_OrderInfo'] = orderInfo || 'Thanh toan don hang ' + orderId;
     vnp_Params['vnp_OrderType'] = 'other';
-    vnp_Params['vnp_Amount'] = amount * 100;
+    vnp_Params['vnp_Amount'] = Math.round(amount * 100);
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
 
-    // Sort params
+    // Sort and Stringify for hashing
     vnp_Params = sortObject(vnp_Params);
-
     const signData = qs.stringify(vnp_Params, { encode: false });
     const hmac = crypto.createHmac('sha512', secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
