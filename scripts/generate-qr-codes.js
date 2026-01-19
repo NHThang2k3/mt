@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configure your domain here
-const DOMAIN = 'https://mt-six-pink.vercel.app/'; // TODO: Replace with your actual domain
+const DOMAIN = 'https://vietcharm-omni9.vercel.app/'; // TODO: Replace with your actual domain
 
 // Product codes matching products.ts
 const products = [
