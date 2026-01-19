@@ -57,7 +57,6 @@ export default function VietnamMap({
             <motion.path
               key={province.id}
               d={province.d}
-              title={province.title}
               fill={getProvinceColor(province.id)}
               stroke="#fff"
               strokeWidth="0.5"

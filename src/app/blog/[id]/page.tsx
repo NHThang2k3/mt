@@ -39,16 +39,24 @@ export default function BlogDetailPage() {
     nam: '🥥'
   };
 
-  const handleShare = () => {
-    trackShare('blog', post.id, 'unknown', user?.id);
+  const handleShare = (platform: 'facebook' | 'generic' = 'generic') => {
+    const url = window.location.href;
+    
+    if (platform === 'facebook') {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+      trackShare('blog', post.id, 'facebook', user?.id);
+      return;
+    }
+
+    trackShare('blog', post.id, 'generic', user?.id);
     if (navigator.share) {
       navigator.share({
         title: post.title,
         text: post.excerpt,
-        url: window.location.href
+        url: url
       });
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(url);
       alert('Đã sao chép link!');
     }
   };
@@ -154,11 +162,17 @@ export default function BlogDetailPage() {
                 })}</span>
               </div>
               <button
-                onClick={handleShare}
+                onClick={() => handleShare('facebook')}
                 className="flex items-center gap-2 hover:text-[var(--color-gold)] transition-colors"
               >
                 <Share2 size={16} />
-                Chia sẻ
+                Chia sẻ Facebook
+              </button>
+              <button
+                onClick={() => handleShare('generic')}
+                className="flex items-center gap-2 hover:text-[var(--color-gold)] transition-colors"
+              >
+                <span className="text-sm">Khác</span>
               </button>
             </div>
           </motion.div>

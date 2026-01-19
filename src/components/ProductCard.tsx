@@ -132,10 +132,31 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 </motion.button>
                 <motion.div
                   whileHover={{ scale: 1.1 }}
-                  className="w-12 h-12 rounded-full bg-white/90 text-[var(--color-brown)] flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75"
+                  className="w-12 h-12 rounded-full bg-white text-[var(--color-brown)] flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75"
                 >
                   <Eye size={20} />
                 </motion.div>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const url = `${window.location.protocol}//${window.location.host}/san-pham/${product.id}`;
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+                  }}
+                  className="w-12 h-12 rounded-full bg-[#1877F2] text-white flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-100"
+                >
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    width="20" 
+                    height="20" 
+                    fill="currentColor"
+                    className="lucide lucide-facebook"
+                  >
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                  </svg>
+                </motion.button>
               </div>
             </div>
           </div>

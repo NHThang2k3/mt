@@ -11,6 +11,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/components/Toast';
 import { trackProductView, trackAddToCart, trackShare } from '@/lib/analytics';
+import ProductReviews from '@/components/ProductReviews';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -194,7 +195,6 @@ export default function ProductDetailPage() {
               </motion.button>
             </div>
 
-            {/* Actions */}
             <div className="flex gap-4">
               <button className="flex items-center gap-2 text-[var(--color-brown)]/60 hover:text-[var(--color-red)] transition-colors">
                 <Heart size={18} />
@@ -202,18 +202,22 @@ export default function ProductDetailPage() {
               </button>
               <button 
                 onClick={() => {
-                  trackShare('product', product.id, 'unknown', user?.id);
-                  // Could also open share dialog here
+                  const url = window.location.href;
+                  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+                  trackShare('product', product.id, 'facebook', user?.id);
                 }}
                 className="flex items-center gap-2 text-[var(--color-brown)]/60 hover:text-[var(--color-gold)] transition-colors"
               >
                 <Share2 size={18} />
-                Chia sẻ
+                Chia sẻ Facebook
               </button>
             </div>
           </motion.div>
         </div>
       </section>
+      
+      {/* Product Reviews */}
+      <ProductReviews productId={product.id} />
 
       {/* Related Blog Post */}
       {relatedPost && (
