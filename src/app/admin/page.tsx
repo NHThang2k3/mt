@@ -63,6 +63,7 @@ export default function AdminPage() {
   const [analytics, setAnalytics] = useState<AnalyticsDaily[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRange, setSelectedRange] = useState<'7d' | '30d' | 'all'>('7d');
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
     if (!isInitialized) {
@@ -77,10 +78,10 @@ export default function AdminPage() {
   }, [user, isInitialized, router]);
 
   useEffect(() => {
-    if (user?.email === ADMIN_EMAIL) {
+    if (isInitialized && user?.email === ADMIN_EMAIL) {
       fetchAnalytics();
     }
-  }, [user, selectedRange]);
+  }, [isInitialized, user?.email, selectedRange]);
 
   const fetchAnalytics = async () => {
     setIsLoading(true);
@@ -137,16 +138,20 @@ export default function AdminPage() {
     return Math.round(((todayVal - yesterdayVal) / yesterdayVal) * 100);
   };
 
-  if (!isInitialized || !user || user.email !== ADMIN_EMAIL) {
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-4 border-[var(--color-gold)] border-t-transparent rounded-full"
+          className="w-12 h-12 border-4 border-[var(--color-gold)] border-t-transparent rounded-full"
         />
       </div>
     );
+  }
+
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return null;
   }
 
   return (

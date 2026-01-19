@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,116 +11,124 @@
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #FFF8E7 0%, #FFEFD5 100%);
       min-height: 100vh;
       padding: 40px 20px;
     }
-    
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
     }
-    
-    h1 {
+
+    header {
       text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
       color: #8B4513;
       font-size: 2.5rem;
       margin-bottom: 10px;
     }
-    
+
     .subtitle {
-      text-align: center;
       color: #A0522D;
-      margin-bottom: 40px;
     }
-    
+
+    /* Screen Grid Layout */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 30px;
+      margin-bottom: 40px;
     }
-    
+
+    /* Print Layout Container */
+    .print-area {
+      display: none;
+      /* Hidden on screen by default */
+    }
+
     .qr-card {
       background: white;
       border-radius: 20px;
-      padding: 30px;
+      padding: 24px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(139, 69, 19, 0.1);
       transition: transform 0.3s ease;
+      position: relative;
     }
-    
+
     .qr-card:hover {
       transform: translateY(-5px);
     }
-    
+
     .region-badge {
       display: inline-block;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.85rem;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
       font-weight: 600;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
-    
-    .region-bac { background: #FFE4E1; color: #CD5C5C; }
-    .region-trung { background: #E6E6FA; color: #6A5ACD; }
-    .region-nam { background: #E0FFE0; color: #228B22; }
-    
+
+    .region-bac {
+      background: #FFE4E1;
+      color: #CD5C5C;
+    }
+
+    .region-trung {
+      background: #E6E6FA;
+      color: #6A5ACD;
+    }
+
+    .region-nam {
+      background: #E0FFE0;
+      color: #228B22;
+    }
+
     .product-name {
       color: #8B4513;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
-    
+
     .qr-image {
-      width: 200px;
-      height: 200px;
-      background: #f0f0f0;
-      border-radius: 15px;
-      margin: 0 auto 20px;
+      width: 160px;
+      height: 160px;
+      background: #fdfdfd;
+      border: 1px solid #fee;
+      border-radius: 12px;
+      margin: 0 auto 15px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
     }
-    
+
     .qr-image img {
       width: 100%;
       height: 100%;
       object-fit: contain;
     }
-    
-    .qr-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      color: #666;
-      padding: 20px;
-    }
-    
-    .qr-placeholder svg {
-      width: 60px;
-      height: 60px;
-      opacity: 0.5;
-    }
-    
+
     .url-box {
       background: #FFF8DC;
-      border: 2px dashed #DAA520;
-      border-radius: 10px;
-      padding: 12px;
+      border: 1.5px dashed #DAA520;
+      border-radius: 8px;
+      padding: 8px;
       font-family: 'Consolas', monospace;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #8B4513;
       word-break: break-all;
     }
-    
+
     .instructions {
       background: white;
       border-radius: 15px;
@@ -127,139 +136,176 @@
       margin-top: 40px;
       box-shadow: 0 5px 20px rgba(139, 69, 19, 0.1);
     }
-    
+
     .instructions h2 {
       color: #8B4513;
       margin-bottom: 15px;
     }
-    
-    .instructions ol {
-      color: #5D4037;
-      padding-left: 20px;
-    }
-    
+
     .instructions li {
       margin-bottom: 10px;
+      color: #5D4037;
     }
-    
-    .instructions code {
-      background: #FFF8DC;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-family: 'Consolas', monospace;
-    }
-    
+
     .print-btn {
       display: block;
-      width: 200px;
+      width: fit-content;
       margin: 30px auto 0;
-      padding: 15px 30px;
+      padding: 16px 40px;
       background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 30px;
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      box-shadow: 0 4px 15px rgba(184, 134, 11, 0.3);
+      transition: all 0.2s ease;
     }
-    
+
     .print-btn:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(184, 134, 11, 0.4);
     }
-    
+
+    .print-btn:active {
+      transform: translateY(0);
+    }
+
     @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
       body {
         background: white;
-        padding: 20px;
+        padding: 0;
       }
+
+      .container>*:not(.print-area) {
+        display: none !important;
+      }
+
+      .print-area {
+        display: block !important;
+      }
+
+      .product-page {
+        page-break-after: always;
+        height: 100vh;
+        width: 100vw;
+        padding: 0.8cm;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 0.3cm;
+      }
+
       .qr-card {
         box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
+        border: 0.5px dashed #eee;
+        /* Light dashed border for easier cutting */
+        border-radius: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
       }
-      .print-btn, .instructions {
-        display: none;
+
+      .qr-card .region-badge,
+      .qr-card .product-name,
+      .qr-card .url-box {
+        display: none !important;
+      }
+
+      .qr-image {
+        width: 150px;
+        /* Larger QR code since it's the only thing */
+        height: 150px;
+        margin: 0 !important;
+        border: none !important;
+      }
+
+      .qr-image img {
+        width: 100%;
+        height: 100%;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <h1>🍯 QR Codes - Mứt Trái Cây 3 Miền</h1>
-    <p class="subtitle">In các mã QR này và dán lên bao bì sản phẩm</p>
-    
-    <div class="grid">
-      <!-- Miền Bắc -->
-      <div class="qr-card">
-        <span class="region-badge region-bac">🏔️ Miền Bắc</span>
-        <h3 class="product-name">Mứt Sen Tây Hồ</h3>
-        <div class="qr-image">
-          <img src="qr-bac-sen.png" alt="QR Code Mứt Sen" onerror="this.parentElement.innerHTML='<div class=qr-placeholder><svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><path d=\'M7 7h.01M17 7h.01M7 17h.01M17 17h.01\'/></svg><span>Chạy script để tạo QR</span></div>'">
-        </div>
-        <div class="url-box">/unlock?code=BAC_SEN_01</div>
-      </div>
-      
-      <div class="qr-card">
-        <span class="region-badge region-bac">🏔️ Miền Bắc</span>
-        <h3 class="product-name">Mứt Quất Hưng Yên</h3>
-        <div class="qr-image">
-          <img src="qr-bac-quat.png" alt="QR Code Mứt Quất" onerror="this.parentElement.innerHTML='<div class=qr-placeholder><svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><path d=\'M7 7h.01M17 7h.01M7 17h.01M17 17h.01\'/></svg><span>Chạy script để tạo QR</span></div>'">
-        </div>
-        <div class="url-box">/unlock?code=BAC_QUAT_01</div>
-      </div>
-      
-      <!-- Miền Trung -->
-      <div class="qr-card">
-        <span class="region-badge region-trung">🏯 Miền Trung</span>
-        <h3 class="product-name">Mứt Gừng Huế</h3>
-        <div class="qr-image">
-          <img src="qr-trung-gung.png" alt="QR Code Mứt Gừng" onerror="this.parentElement.innerHTML='<div class=qr-placeholder><svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><path d=\'M7 7h.01M17 7h.01M7 17h.01M17 17h.01\'/></svg><span>Chạy script để tạo QR</span></div>'">
-        </div>
-        <div class="url-box">/unlock?code=TRUNG_GUNG_01</div>
-      </div>
-      
-      <div class="qr-card">
-        <span class="region-badge region-trung">🏯 Miền Trung</span>
-        <h3 class="product-name">Mứt Me Đà Nẵng</h3>
-        <div class="qr-image">
-          <img src="qr-trung-me.png" alt="QR Code Mứt Me" onerror="this.parentElement.innerHTML='<div class=qr-placeholder><svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><path d=\'M7 7h.01M17 7h.01M7 17h.01M17 17h.01\'/></svg><span>Chạy script để tạo QR</span></div>'">
-        </div>
-        <div class="url-box">/unlock?code=TRUNG_ME_01</div>
-      </div>
-      
-      <!-- Miền Nam -->
-      <div class="qr-card">
-        <span class="region-badge region-nam">🌴 Miền Nam</span>
-        <h3 class="product-name">Mứt Dừa Bến Tre</h3>
-        <div class="qr-image">
-          <img src="qr-nam-dua.png" alt="QR Code Mứt Dừa" onerror="this.parentElement.innerHTML='<div class=qr-placeholder><svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><path d=\'M7 7h.01M17 7h.01M7 17h.01M17 17h.01\'/></svg><span>Chạy script để tạo QR</span></div>'">
-        </div>
-        <div class="url-box">/unlock?code=NAM_DUA_01</div>
-      </div>
-      
-      <div class="qr-card">
-        <span class="region-badge region-nam">🌴 Miền Nam</span>
-        <h3 class="product-name">Mứt Tắc Cần Thơ</h3>
-        <div class="qr-image">
-          <img src="qr-nam-tac.png" alt="QR Code Mứt Tắc" onerror="this.parentElement.innerHTML='<div class=qr-placeholder><svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><path d=\'M7 7h.01M17 7h.01M7 17h.01M17 17h.01\'/></svg><span>Chạy script để tạo QR</span></div>'">
-        </div>
-        <div class="url-box">/unlock?code=NAM_TAC_01</div>
-      </div>
+    <header>
+      <h1>🍯 QR Codes - Mứt Trái Cây 3 Miền</h1>
+      <p class="subtitle">Xem trước và in tem QR cho bao bì sản phẩm</p>
+    </header>
+
+    <!-- Preview Grid -->
+    <div id="preview-grid" class="grid">
+      <!-- Will be populated by JS -->
     </div>
-    
+
+    <!-- Area specifically for printing -->
+    <div id="print-area" class="print-area">
+      <!-- Will be populated by JS -->
+    </div>
+
     <div class="instructions">
-      <h2>📋 Hướng dẫn tạo QR Codes</h2>
+      <h2>📋 Hướng dẫn sử dụng</h2>
       <ol>
-        <li>Cài đặt thư viện qrcode: <code>npm install qrcode</code></li>
-        <li>Cập nhật domain trong file <code>scripts/generate-qr-codes.js</code></li>
-        <li>Chạy script: <code>node scripts/generate-qr-codes.js</code></li>
-        <li>Các file QR sẽ được tạo trong thư mục <code>/public/qr-codes/</code></li>
-        <li>Làm mới trang này để xem kết quả</li>
+        <li>Cài đặt thư viện: <code>npm install qrcode</code></li>
+        <li>Chạy file <code>scripts/generate-qr-codes.js</code> để tạo ảnh QR.</li>
+        <li>Kiểm tra ảnh QR hiển thị đầy đủ ở phần xem trước phía trên.</li>
+        <li>Nhấn nút <b>"In QR Codes"</b> phía dưới.</li>
+        <li>Hệ thống sẽ tự động chia trang: mỗi sản phẩm 1 trang A4, mỗi trang có 8 tem QR.</li>
       </ol>
     </div>
-    
+
     <button class="print-btn" onclick="window.print()">🖨️ In QR Codes</button>
   </div>
+
+  <script>
+    const products = [
+      { id: 'bac-sen', name: 'Mứt Sen Tây Hồ', region: 'bac', regionName: 'Miền Bắc', code: 'BAC_SEN_01', img: 'qr-bac-sen.png' },
+      { id: 'bac-quat', name: 'Mứt Quất Hưng Yên', region: 'bac', regionName: 'Miền Bắc', code: 'BAC_QUAT_01', img: 'qr-bac-quat.png' },
+      { id: 'trung-gung', name: 'Mứt Gừng Huế', region: 'trung', regionName: 'Miền Trung', code: 'TRUNG_GUNG_01', img: 'qr-trung-gung.png' },
+      { id: 'trung-me', name: 'Mứt Me Đà Nẵng', region: 'trung', regionName: 'Miền Trung', code: 'TRUNG_ME_01', img: 'qr-trung-me.png' },
+      { id: 'nam-dua', name: 'Mứt Dừa Bến Tre', region: 'nam', regionName: 'Miền Nam', code: 'NAM_DUA_01', img: 'qr-nam-dua.png' },
+      { id: 'nam-tac', name: 'Mứt Tắc Cần Thơ', region: 'nam', regionName: 'Miền Nam', code: 'NAM_TAC_01', img: 'qr-nam-tac.png' },
+    ];
+
+    function createQRCard(product) {
+      return `
+        <div class="qr-card">
+          <span class="region-badge region-${product.region}">${product.region === 'bac' ? '🏔️' : product.region === 'trung' ? '🏯' : '🌴'} ${product.regionName}</span>
+          <h3 class="product-name">${product.name}</h3>
+          <div class="qr-image">
+            <img src="${product.img}" alt="QR Code ${product.name}" onerror="this.parentElement.innerHTML='<div style=\'font-size: 10px; color: #999;\'>Chưa có ảnh QR</div>'">
+          </div>
+          <div class="url-box">/unlock?code=${product.code}</div>
+        </div>
+      `;
+    }
+
+    // Populate Preview
+    const previewGrid = document.getElementById('preview-grid');
+    previewGrid.innerHTML = products.map(p => createQRCard(p)).join('');
+
+    // Populate Print Area (8 per page)
+    const printArea = document.getElementById('print-area');
+    let printHtml = '';
+    products.forEach(product => {
+      printHtml += `<div class="product-page">`;
+      for (let i = 0; i < 12; i++) {
+        printHtml += createQRCard(product);
+      }
+      printHtml += `</div>`;
+    });
+    printArea.innerHTML = printHtml;
+  </script>
 </body>
+
 </html>

@@ -30,6 +30,7 @@ export default function CheckoutPage() {
     address: '',
     note: ''
   });
+  const [paymentMethod, setPaymentMethod] = useState<'transfer' | 'vnpay'>('vnpay');
 
   useEffect(() => {
     setMounted(true);
@@ -76,6 +77,11 @@ export default function CheckoutPage() {
   };
 
   const handleSubmit = async () => {
+    if (paymentMethod === 'vnpay') {
+      handleVNPayPayment();
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -101,28 +107,24 @@ export default function CheckoutPage() {
             email: formData.email,
             address: formData.address,
             note: formData.note
-          }
+          },
+          payment_method: 'transfer',
+          payment_status: 'unpaid'
         })
         .select()
         .single();
 
       if (error) {
         console.error('Error saving order:', error);
-        // If error, still show success to user (order will be processed manually)
-        // Generate a local order ID for display
         const localOrderId = `LOCAL_${Date.now()}`;
         setOrderId(localOrderId);
-        
-        // Track purchase for analytics
         const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
         trackPurchase(localOrderId, total, itemCount, user?.id);
-        
         setStep(3);
         showToast('success', 'Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
         return;
       }
 
-      // Track purchase for analytics
       const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
       trackPurchase(orderData.id, total, itemCount, user?.id);
       
@@ -131,9 +133,67 @@ export default function CheckoutPage() {
       showToast('success', 'Đặt hàng thành công!');
     } catch (error) {
       console.error('Error:', error);
-      // Even on error, show success to user
       setStep(3);
       showToast('success', 'Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVNPayPayment = async () => {
+    setIsSubmitting(true);
+    try {
+      const total = getTotal();
+      const orderItems = items.map(item => ({
+        id: item.product.id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity
+      }));
+
+      // 1. Create order in Supabase first
+      const { data: orderData, error } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id || null,
+          items: orderItems,
+          total: total,
+          status: 'pending',
+          shipping_info: {
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            address: formData.address,
+            note: formData.note
+          },
+          payment_method: 'vnpay',
+          payment_status: 'unpaid'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // 2. Call API to get VNPay URL
+      const response = await fetch('/api/vnpay/create_payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total,
+          orderId: orderData.id,
+          orderInfo: `Thanh toan don hang ${orderData.id.slice(0, 8)}`
+        })
+      });
+
+      const data = await response.json();
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error('Could not get payment URL');
+      }
+    } catch (error) {
+      console.error('VNPay error:', error);
+      showToast('error', 'Có lỗi xảy ra khi kết nối với VNPay. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
@@ -307,24 +367,69 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* VietQR Payment */}
-            <div className="text-center mb-6">
-              <p className="text-[var(--color-brown)]/80 mb-4">
-                Quét mã QR để chuyển khoản
-              </p>
-              <div className="inline-block p-4 bg-white rounded-2xl shadow-lg">
-                {/* Placeholder QR Code */}
-                <div className="w-48 h-48 bg-gray-100 flex items-center justify-center rounded-xl">
-                  <div className="text-center">
-                    <span className="text-4xl">📱</span>
-                    <p className="text-xs text-gray-500 mt-2">VietQR</p>
-                  </div>
+            {/* Payment Method Selection */}
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <button
+                onClick={() => setPaymentMethod('vnpay')}
+                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                  paymentMethod === 'vnpay' 
+                    ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' 
+                    : 'border-[var(--border)] hover:border-[var(--color-gold)]/30'
+                }`}
+              >
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <span className="font-bold text-blue-600">VNP</span>
                 </div>
-              </div>
-              {transferCode && (
-                <p className="mt-4 text-sm text-[var(--color-brown)]/60">
-                  Nội dung chuyển khoản: <span className="font-mono font-bold">{transferCode}</span>
-                </p>
+                <span className="text-sm font-semibold">VNPay Sandbox</span>
+              </button>
+
+              <button
+                onClick={() => setPaymentMethod('transfer')}
+                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                  paymentMethod === 'transfer' 
+                    ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' 
+                    : 'border-[var(--border)] hover:border-[var(--color-gold)]/30'
+                }`}
+              >
+                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                  <CreditCard className="text-amber-600" />
+                </div>
+                <span className="text-sm font-semibold">Chuyển khoản</span>
+              </button>
+            </div>
+
+            {/* Payment Details Content */}
+            <div className="min-h-[200px]">
+              {paymentMethod === 'vnpay' ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CreditCard size={32} />
+                  </div>
+                  <h3 className="font-bold text-[var(--color-brown)] mb-2">Thanh toán qua VNPay</h3>
+                  <p className="text-[var(--color-brown)]/60 text-sm max-w-xs mx-auto">
+                    Bạn sẽ được chuyển hướng sang cổng thanh toán VNPay để hoàn tất giao dịch an toàn.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <p className="text-[var(--color-brown)]/80 mb-4">
+                    Quét mã QR để chuyển khoản trực tiếp
+                  </p>
+                  <div className="inline-block p-4 bg-white rounded-2xl shadow-lg mb-4">
+                    <div className="w-40 h-40 bg-gray-50 flex items-center justify-center rounded-xl border border-dashed border-gray-200">
+                      <div className="text-center">
+                        <span className="text-4xl text-gray-300">📱</span>
+                        <p className="text-[10px] text-gray-400 mt-2 italic">Mã QR Chuyển Khoản</p>
+                      </div>
+                    </div>
+                  </div>
+                  {transferCode && (
+                    <div className="bg-white p-3 rounded-lg border border-[var(--border)] inline-block">
+                      <p className="text-xs text-[var(--color-brown)]/60">Nội dung chuyển khoản:</p>
+                      <p className="font-mono font-bold text-[var(--color-gold)]">{transferCode}</p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
@@ -346,7 +451,7 @@ export default function CheckoutPage() {
                     Đang xử lý...
                   </>
                 ) : (
-                  'Xác Nhận Đã Chuyển Khoản'
+                  paymentMethod === 'vnpay' ? 'Thanh Toán Ngay' : 'Xác Nhận Đã Chuyển Khoản'
                 )}
               </button>
             </div>

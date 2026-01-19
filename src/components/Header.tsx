@@ -39,19 +39,25 @@ export default function Header() {
 
   const handleSignOut = async () => {
     setIsLoggingOut(true);
-    await signOut();
-    setIsLoggingOut(false);
-    setIsMenuOpen(false);
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    } finally {
+      setIsLoggingOut(false);
+      setIsMenuOpen(false);
+    }
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg'
-          : 'bg-transparent'
-      }`}
-    >
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled || isMenuOpen
+            ? 'bg-white shadow-lg'
+            : 'bg-transparent'
+        }`}
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -147,66 +153,67 @@ export default function Header() {
             </button>
           </div>
         </div>
+        </div>
+      </header>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-[var(--border)]">
-            <nav className="flex flex-col gap-2">
-              {navLinks.map((link) => (
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="md:hidden fixed inset-0 top-20 z-40 bg-white overflow-y-auto">
+          <nav className="flex flex-col gap-2 p-4">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors text-[var(--color-brown)] font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {user ? (
+              <>
+                <div className="px-4 py-3 border-t border-[var(--border)] mt-2">
+                  <p className="font-medium text-[var(--color-brown)]">
+                    {profile?.name || user.email}
+                  </p>
+                  <p className="text-sm text-[var(--color-brown)]/60">
+                    {profile?.badges?.length || 0} danh hiệu
+                  </p>
+                </div>
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors"
+                  href="/don-hang"
+                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors text-[var(--color-brown)]"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {link.label}
+                  <Package size={18} />
+                  Đơn Hàng Của Tôi
                 </Link>
-              ))}
-              {user ? (
-                <>
-                  <div className="px-4 py-3 border-t border-[var(--border)] mt-2">
-                    <p className="font-medium text-[var(--color-brown)]">
-                      {profile?.name || user.email}
-                    </p>
-                    <p className="text-sm text-[var(--color-brown)]/60">
-                      {profile?.badges?.length || 0} danh hiệu
-                    </p>
-                  </div>
-                  <Link
-                    href="/don-hang"
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Package size={18} />
-                    Đơn Hàng Của Tôi
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    disabled={isLoggingOut}
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50"
-                  >
-                    {isLoggingOut ? (
-                      <div className="w-[18px] h-[18px] border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <LogOut size={18} />
-                    )}
-                    {isLoggingOut ? 'Đang xử lý...' : 'Đăng Xuất'}
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/dang-nhap"
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
+                <button
+                  onClick={handleSignOut}
+                  disabled={isLoggingOut}
+                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50"
                 >
-                  <User size={18} />
-                  Đăng Nhập
-                </Link>
-              )}
-            </nav>
-          </div>
-        )}
-      </div>
-    </header>
+                  {isLoggingOut ? (
+                    <div className="w-[18px] h-[18px] border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <LogOut size={18} />
+                  )}
+                  {isLoggingOut ? 'Đang xử lý...' : 'Đăng Xuất'}
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/dang-nhap"
+                className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors text-[var(--color-brown)]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={18} />
+                Đăng Nhập
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
+    </>
   );
 }

@@ -29,6 +29,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isInitialized: false,
 
   initialize: async () => {
+    if (get().isInitialized) return;
+
+    set({ isLoading: true });
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -39,11 +42,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           .eq('id', session.user.id)
           .single();
 
-        set({ user: session.user, profile, isInitialized: true });
+        set({ user: session.user, profile, isInitialized: true, isLoading: false });
         // Sync cart with user
         getCartStore().then(store => store.getState().setUserId(session.user.id));
       } else {
-        set({ isInitialized: true });
+        set({ isInitialized: true, isLoading: false });
         // Reset to guest cart
         getCartStore().then(store => store.getState().setUserId(null));
       }
@@ -56,18 +59,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             .select('*')
             .eq('id', session.user.id)
             .single();
-          set({ user: session.user, profile });
+          set({ user: session.user, profile, isInitialized: true });
           // Sync cart with user
           getCartStore().then(store => store.getState().setUserId(session.user.id));
         } else {
-          set({ user: null, profile: null });
+          set({ user: null, profile: null, isInitialized: true });
           // Reset to guest cart
           getCartStore().then(store => store.getState().setUserId(null));
         }
       });
     } catch (error) {
       console.error('Auth init error:', error);
-      set({ isInitialized: true });
+      set({ isInitialized: true, isLoading: false });
     }
   },
 
@@ -128,10 +131,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    await supabase.auth.signOut();
-    set({ user: null, profile: null });
-    // Reset cart to guest
-    getCartStore().then(store => store.getState().setUserId(null));
+    set({ isLoading: true });
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+      // Always clear local state regardless of server response
+      set({ user: null, profile: null, isLoading: false });
+      // Reset cart to guest
+      getCartStore().then(store => store.getState().setUserId(null)).catch(console.error);
+
+      // Redirect to home and reload to ensure clean state
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Still clear local state even on error
+      set({ user: null, profile: null, isLoading: false });
+      window.location.href = '/';
+    }
   },
 
   updateProfile: async (updates) => {

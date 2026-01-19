@@ -250,7 +250,7 @@ export default function ProductDetailPage() {
           <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6">
             Sản phẩm cùng miền
           </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {relatedProducts.map((p) => (
               <Link key={p.id} href={`/san-pham/${p.id}`}>
                 <motion.div

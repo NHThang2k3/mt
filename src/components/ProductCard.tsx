@@ -64,7 +64,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       <Link href={`/san-pham/${product.id}`}>
         <div className="card overflow-hidden cursor-pointer">
           {/* Image Container */}
-          <div className="relative h-64 overflow-hidden">
+          <div className="relative h-40 sm:h-64 overflow-hidden">
             {/* Gradient Background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${regionColors[product.region].light} to-white`} />
             
@@ -82,8 +82,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 transition={{ duration: 0.5 }}
                 className="relative"
               >
-                <div className="w-32 h-32 rounded-full bg-white/80 backdrop-blur-sm shadow-xl flex items-center justify-center">
-                  <span className="text-6xl">{regionEmoji[product.region]}</span>
+                <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-full bg-white/80 backdrop-blur-sm shadow-xl flex items-center justify-center">
+                  <span className="text-4xl sm:text-6xl">{regionEmoji[product.region]}</span>
                 </div>
                 {/* Sparkle effect */}
                 <motion.div
@@ -106,13 +106,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             >
               {product.regionName}
             </motion.div>
-
-            {/* Price Tag */}
-            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-lg">
-              <span className="text-sm font-bold text-[var(--color-gold)]">
-                {formatPrice(product.price)}
-              </span>
-            </div>
 
             {/* Hover Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-8">
@@ -162,21 +155,22 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
 
           {/* Content */}
-          <div className="p-5">
-            <h3 className="text-lg font-bold text-[var(--color-brown)] mb-1 group-hover:text-[var(--color-gold)] transition-colors">
+          <div className="p-3 sm:p-5">
+            <h3 className="text-sm sm:text-lg font-bold text-[var(--color-brown)] mb-1 group-hover:text-[var(--color-gold)] transition-colors line-clamp-1">
               {product.name}
             </h3>
-            <p className="text-xs text-[var(--color-brown)]/50 mb-2 uppercase tracking-wide">
+            {/* Hide on mobile */}
+            <p className="hidden sm:block text-xs text-[var(--color-brown)]/50 mb-2 uppercase tracking-wide">
               {product.nameEn}
             </p>
-            <p className="text-sm text-[var(--color-brown)]/70 line-clamp-2 mb-4">
+            <p className="hidden sm:block text-sm text-[var(--color-brown)]/70 line-clamp-2 mb-4">
               {product.description}
             </p>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-[var(--color-brown)]/50">Từ</span>
-                <span className="text-xl font-bold text-[var(--color-gold)]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mt-2 sm:mt-0">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <span className="hidden sm:inline text-xs text-[var(--color-brown)]/50">Từ</span>
+                <span className="text-base sm:text-xl font-bold text-[var(--color-gold)]">
                   {formatPrice(product.price)}
                 </span>
               </div>
@@ -185,15 +179,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleAddToCart}
                 disabled={isAddingToCart}
-                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-dark)] text-white text-sm font-medium shadow-lg hover:shadow-xl transition-shadow disabled:opacity-70 flex items-center gap-2"
+                className="w-full sm:w-auto px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-dark)] text-white text-xs sm:text-sm font-medium shadow-lg hover:shadow-xl transition-shadow disabled:opacity-70 flex items-center justify-center gap-2"
               >
                 {isAddingToCart ? (
                   <>
                     <Loader2 size={14} className="animate-spin" />
-                    Đang thêm...
+                    <span className="hidden sm:inline">Đang thêm...</span>
                   </>
                 ) : (
-                  'Thêm'
+                  <>
+                    <ShoppingCart size={14} className="sm:hidden" />
+                    <span className="hidden sm:inline">Thêm</span>
+                    <span className="sm:hidden">Thêm</span>
+                  </>
                 )}
               </motion.button>
             </div>

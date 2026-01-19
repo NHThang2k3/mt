@@ -67,10 +67,10 @@ export default function AdminOrdersPage() {
   }, [user, isInitialized, router]);
 
   useEffect(() => {
-    if (user?.email === ADMIN_EMAIL) {
+    if (isInitialized && user?.email === ADMIN_EMAIL) {
       fetchOrders();
     }
-  }, [user]);
+  }, [isInitialized, user?.email]);
 
   const fetchOrders = async () => {
     setIsLoading(true);
@@ -183,12 +183,16 @@ export default function AdminOrdersPage() {
     delivered: orders.filter(o => o.status === 'delivered').length,
   };
 
-  if (!isInitialized || !user || user.email !== ADMIN_EMAIL) {
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 size={40} className="animate-spin text-amber-500" />
       </div>
     );
+  }
+
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return null;
   }
 
   return (

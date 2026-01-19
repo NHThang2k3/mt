@@ -70,10 +70,10 @@ export default function AdminUsersPage() {
   }, [user, isInitialized, router]);
 
   useEffect(() => {
-    if (user?.email === ADMIN_EMAIL) {
+    if (isInitialized && user?.email === ADMIN_EMAIL) {
       fetchUsers();
     }
-  }, [user]);
+  }, [isInitialized, user?.email]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -141,12 +141,16 @@ export default function AdminUsersPage() {
   const totalRevenue = users.reduce((sum, u) => sum + u.totalSpent, 0);
   const totalOrders = users.reduce((sum, u) => sum + u.orderCount, 0);
 
-  if (!isInitialized || !user || user.email !== ADMIN_EMAIL) {
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 size={40} className="animate-spin text-amber-500" />
       </div>
     );
+  }
+
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return null;
   }
 
   return (

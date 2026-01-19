@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS orders (
   total NUMERIC NOT NULL,
   status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'shipped', 'delivered')),
   shipping_info JSONB NOT NULL,
+  payment_method VARCHAR(50) DEFAULT 'transfer',
+  payment_status VARCHAR(50) DEFAULT 'unpaid',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
