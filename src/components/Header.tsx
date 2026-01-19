@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ShoppingCart, User, Menu, X, LogOut, Shield } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, LogOut, Shield, Package } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { ADMIN_EMAIL } from '@/types/database';
@@ -96,6 +96,13 @@ export default function Header() {
             
             {mounted && user ? (
               <div className="hidden sm:flex items-center gap-3">
+                <Link
+                  href="/don-hang"
+                  className="p-2 rounded-full hover:bg-[var(--color-cream-dark)] transition-colors"
+                  title="Đơn hàng của tôi"
+                >
+                  <Package size={20} className="text-[var(--color-brown)]" />
+                </Link>
                 <div className="text-right">
                   <p className="text-sm font-medium text-[var(--color-brown)]">
                     {profile?.name || user.email?.split('@')[0]}
@@ -165,6 +172,14 @@ export default function Header() {
                       {profile?.badges?.length || 0} danh hiệu
                     </p>
                   </div>
+                  <Link
+                    href="/don-hang"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Package size={18} />
+                    Đơn Hàng Của Tôi
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     disabled={isLoggingOut}

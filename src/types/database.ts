@@ -149,6 +149,36 @@ export interface Database {
         }
         Relationships: []
       }
+      product_reviews: {
+        Row: {
+          id: string
+          product_id: string
+          user_id: string
+          user_name: string
+          rating: number
+          comment: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          user_id: string
+          user_name: string
+          rating: number
+          comment: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          user_id?: string
+          user_name?: string
+          rating?: number
+          comment?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -169,6 +199,7 @@ export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Order = Database['public']['Tables']['orders']['Row']
 export type AnalyticsEvent = Database['public']['Tables']['analytics_events']['Row']
 export type AnalyticsDaily = Database['public']['Tables']['analytics_daily']['Row']
+export type ProductReview = Database['public']['Tables']['product_reviews']['Row']
 
 // Admin email constant
 export const ADMIN_EMAIL = 'nguyenhuuthang02032003@gmail.com';

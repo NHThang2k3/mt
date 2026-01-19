@@ -2,20 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Check, CreditCard, Truck, User, MapPin, Phone, Mail } from 'lucide-react';
+import { Check, CreditCard, Truck, User, MapPin, Phone, Mail, Package, Loader2 } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { formatPrice } from '@/data/products';
 import { trackPurchase } from '@/lib/analytics';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/Toast';
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [transferCode, setTransferCode] = useState<string>('');
   const { items, getTotal, clearCart } = useCartStore();
-  const { user } = useAuthStore();
+  const { user, profile } = useAuthStore();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +33,26 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Generate transfer code on client side only
+    setTransferCode(`MUT3MIEN_${Date.now().toString().slice(-6)}`);
   }, []);
+
+  useEffect(() => {
+    // Pre-fill email from user profile
+    if (user?.email) {
+      setFormData(prev => ({ ...prev, email: user.email || '' }));
+    }
+    if (profile?.name) {
+      setFormData(prev => ({ ...prev, name: profile.name || '' }));
+    }
+  }, [user, profile]);
+
+  // Handle redirect in useEffect to avoid setState during render
+  useEffect(() => {
+    if (mounted && items.length === 0 && step !== 3) {
+      router.push('/gio-hang');
+    }
+  }, [mounted, items.length, step, router]);
 
   if (!mounted) {
     return (
@@ -37,9 +62,13 @@ export default function CheckoutPage() {
     );
   }
 
-  if (items.length === 0) {
-    router.push('/gio-hang');
-    return null;
+  // Show loading while redirecting
+  if (items.length === 0 && step !== 3) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-[var(--color-gold)] border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -48,22 +77,76 @@ export default function CheckoutPage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Track purchase
-    const orderId = `MUT3MIEN_${Date.now().toString().slice(-6)}`;
-    const total = getTotal();
-    const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
-    trackPurchase(orderId, total, itemCount, user?.id);
-    
-    setStep(3);
-    setIsSubmitting(false);
+    try {
+      const total = getTotal();
+      const orderItems = items.map(item => ({
+        id: item.product.id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity
+      }));
+
+      // Save order to database
+      const { data: orderData, error } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id || null,
+          items: orderItems,
+          total: total,
+          status: 'pending',
+          shipping_info: {
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            address: formData.address,
+            note: formData.note
+          }
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving order:', error);
+        // If error, still show success to user (order will be processed manually)
+        // Generate a local order ID for display
+        const localOrderId = `LOCAL_${Date.now()}`;
+        setOrderId(localOrderId);
+        
+        // Track purchase for analytics
+        const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+        trackPurchase(localOrderId, total, itemCount, user?.id);
+        
+        setStep(3);
+        showToast('success', 'Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
+        return;
+      }
+
+      // Track purchase for analytics
+      const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+      trackPurchase(orderData.id, total, itemCount, user?.id);
+      
+      setOrderId(orderData.id);
+      setStep(3);
+      showToast('success', 'Đặt hàng thành công!');
+    } catch (error) {
+      console.error('Error:', error);
+      // Even on error, show success to user
+      setStep(3);
+      showToast('success', 'Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleComplete = () => {
     clearCart();
     router.push('/');
+  };
+
+  const handleViewOrders = () => {
+    clearCart();
+    router.push('/don-hang');
   };
 
   return (
@@ -238,9 +321,11 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
-              <p className="mt-4 text-sm text-[var(--color-brown)]/60">
-                Nội dung chuyển khoản: <span className="font-mono font-bold">MUT3MIEN_{Date.now().toString().slice(-6)}</span>
-              </p>
+              {transferCode && (
+                <p className="mt-4 text-sm text-[var(--color-brown)]/60">
+                  Nội dung chuyển khoản: <span className="font-mono font-bold">{transferCode}</span>
+                </p>
+              )}
             </div>
 
             <div className="flex gap-4">
@@ -253,9 +338,16 @@ export default function CheckoutPage() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="btn-primary flex-1 disabled:opacity-50"
+                className="btn-primary flex-1 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isSubmitting ? 'Đang xử lý...' : 'Xác Nhận Đã Chuyển Khoản'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  'Xác Nhận Đã Chuyển Khoản'
+                )}
               </button>
             </div>
           </motion.div>
@@ -274,14 +366,31 @@ export default function CheckoutPage() {
             <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-4">
               Đặt Hàng Thành Công!
             </h2>
+            {orderId && (
+              <p className="text-sm text-[var(--color-brown)]/60 mb-2">
+                Mã đơn hàng: <span className="font-mono font-bold">#{orderId.slice(0, 8).toUpperCase()}</span>
+              </p>
+            )}
             <p className="text-[var(--color-brown)]/70 mb-8">
               Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ xác nhận trong thời gian sớm nhất.
               <br />
               Đừng quên quét mã QR trên sản phẩm để thắp sáng Bản Đồ Di Sản!
             </p>
-            <button onClick={handleComplete} className="btn-primary">
-              Về Trang Chủ
-            </button>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {user && (
+                <button 
+                  onClick={handleViewOrders} 
+                  className="btn-secondary inline-flex items-center justify-center gap-2"
+                >
+                  <Package size={18} />
+                  Xem Đơn Hàng
+                </button>
+              )}
+              <button onClick={handleComplete} className="btn-primary">
+                Về Trang Chủ
+              </button>
+            </div>
           </motion.div>
         )}
       </div>

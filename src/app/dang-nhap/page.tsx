@@ -1,16 +1,18 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, LogIn, UserPlus, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
 type AuthMode = 'login' | 'register';
 
-export default function AuthPage() {
+function AuthContent() {
 const router = useRouter();
+const searchParams = useSearchParams();
+const redirectUrl = searchParams.get('redirect');
 const { user, isLoading, signIn, signUp, initialize, isInitialized } = useAuthStore();
 const [mode, setMode] = useState<AuthMode>('login');
 const [showPassword, setShowPassword] = useState(false);
@@ -31,9 +33,10 @@ initialize();
 
 useEffect(() => {
 if (user) {
-router.push('/');
+// Redirect to the original page (unlock) or home
+router.push(redirectUrl || '/');
 }
-}, [user, router]);
+}, [user, router, redirectUrl]);
 
 const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -241,4 +244,19 @@ className="w-full max-w-md"
 </div>
 
 );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center pattern-bg">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[var(--color-brown)]">Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <AuthContent />
+    </Suspense>
+  );
 }

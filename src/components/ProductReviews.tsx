@@ -1,52 +1,57 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, MessageSquare, Send, User, Trash2 } from 'lucide-react';
+import { Star, MessageSquare, Send, User, Trash2, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/components/Toast';
-
-interface Review {
-  id: string;
-  userId: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
+import { supabase } from '@/lib/supabase';
+import type { ProductReview } from '@/types/database';
 
 interface ProductReviewsProps {
   productId: string;
 }
 
 export default function ProductReviews({ productId }: ProductReviewsProps) {
-  const { user } = useAuthStore();
+  const { user, profile } = useAuthStore();
   const { showToast } = useToast();
   
-  // Mock initial reviews
-  const [reviews, setReviews] = useState<Review[]>([
-    {
-      id: '1',
-      userId: 'user1',
-      userName: 'Hoàng Long',
-      rating: 5,
-      comment: 'Mứt rất ngon, vị ngọt thanh tự nhiên. Đóng gói rất đẹp, rất thích hợp làm quà tặng.',
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    },
-    {
-      id: '2',
-      userId: 'user2',
-      userName: 'Minh Thúy',
-      rating: 4,
-      comment: 'Vị đặc trưng của miền Tây, rất thơm. Ship hàng nhanh.',
-      createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    }
-  ]);
-
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
-  const [hoverRating, pHoverRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch reviews from database
+  useEffect(() => {
+    fetchReviews();
+  }, [productId]);
+
+  const fetchReviews = async () => {
+    setIsLoadingReviews(true);
+    try {
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching reviews:', error);
+        // If table doesn't exist, show empty reviews
+        if (error.code === '42P01') {
+          setReviews([]);
+        }
+      } else {
+        setReviews(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,28 +65,60 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
     }
 
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    try {
+      const reviewData = {
+        product_id: productId,
+        user_id: user.id,
+        user_name: profile?.name || user.email?.split('@')[0] || 'Khách hàng',
+        rating: newRating,
+        comment: newComment.trim(),
+      };
 
-    const newReview: Review = {
-      id: Math.random().toString(36).substr(2, 9),
-      userId: user.id || 'unknown',
-      userName: user.email?.split('@')[0] || 'Khách hàng',
-      rating: newRating,
-      comment: newComment,
-      createdAt: new Date().toISOString(),
-    };
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .insert(reviewData)
+        .select()
+        .single();
 
-    setReviews([newReview, ...reviews]);
-    setNewComment('');
-    setNewRating(5);
-    setIsSubmitting(false);
-    showToast('success', 'Cảm ơn bạn đã đánh giá sản phẩm!');
+      if (error) {
+        console.error('Error saving review:', error);
+        showToast('error', 'Không thể lưu đánh giá. Vui lòng thử lại!');
+        return;
+      }
+
+      // Add the new review to the list
+      setReviews([data, ...reviews]);
+      setNewComment('');
+      setNewRating(5);
+      showToast('success', 'Cảm ơn bạn đã đánh giá sản phẩm!');
+    } catch (error) {
+      console.error('Error saving review:', error);
+      showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại!');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setReviews(reviews.filter(r => r.id !== id));
-    showToast('success', 'Đã xóa đánh giá');
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('product_reviews')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting review:', error);
+        showToast('error', 'Không thể xóa đánh giá');
+        return;
+      }
+
+      setReviews(reviews.filter(r => r.id !== id));
+      showToast('success', 'Đã xóa đánh giá');
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      showToast('error', 'Có lỗi xảy ra');
+    }
   };
 
   const averageRating = reviews.length > 0 
@@ -141,8 +178,8 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                     <button
                       key={star}
                       type="button"
-                      onMouseEnter={() => pHoverRating(star)}
-                      onMouseLeave={() => pHoverRating(0)}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
                       onClick={() => setNewRating(star)}
                       className="transition-transform hover:scale-110"
                     >
@@ -178,7 +215,10 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-70"
               >
                 {isSubmitting ? (
-                  <span className="animate-pulse">Đang gửi...</span>
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Đang gửi...
+                  </>
                 ) : (
                   <>
                     <Send size={18} />
@@ -199,59 +239,65 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
         {/* Reviews List */}
         <div className="lg:col-span-2 space-y-8">
-          <AnimatePresence mode="popLayout">
-            {reviews.length > 0 ? (
-              reviews.map((review) => (
-                <motion.div
-                  key={review.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="border-b border-[var(--border)] pb-8 last:border-0"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[var(--color-gold)]/10 flex items-center justify-center text-[var(--color-gold)]">
-                        <User size={20} />
+          {isLoadingReviews ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={32} className="animate-spin text-[var(--color-gold)]" />
+            </div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <motion.div
+                    key={review.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="border-b border-[var(--border)] pb-8 last:border-0"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[var(--color-gold)]/10 flex items-center justify-center text-[var(--color-gold)]">
+                          <User size={20} />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-[var(--color-brown)]">{review.user_name}</h4>
+                          <span className="text-xs text-[var(--color-brown)]/50">
+                            {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-[var(--color-brown)]">{review.userName}</h4>
-                        <span className="text-xs text-[var(--color-brown)]/50">
-                          {new Date(review.createdAt).toLocaleDateString('vi-VN')}
-                        </span>
-                      </div>
+                      {user?.id === review.user_id && (
+                        <button 
+                          onClick={() => handleDelete(review.id)}
+                          className="text-[var(--color-red)]/40 hover:text-[var(--color-red)] transition-colors"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
-                    {user?.id === review.userId && (
-                      <button 
-                        onClick={() => handleDelete(review.id)}
-                        className="text-[var(--color-red)]/40 hover:text-[var(--color-red)] transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center mb-3">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        size={14}
-                        className={star <= review.rating ? "fill-[var(--color-gold)] text-[var(--color-gold)]" : "text-gray-300"}
-                      />
-                    ))}
-                  </div>
+                    
+                    <div className="flex items-center mb-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          size={14}
+                          className={star <= review.rating ? "fill-[var(--color-gold)] text-[var(--color-gold)]" : "text-gray-300"}
+                        />
+                      ))}
+                    </div>
 
-                  <p className="text-[var(--color-brown)]/80 leading-relaxed">
-                    {review.comment}
-                  </p>
-                </motion.div>
-              ))
-            ) : (
-              <div className="text-center py-12 text-[var(--color-brown)]/50">
-                Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
-              </div>
-            )}
-          </AnimatePresence>
+                    <p className="text-[var(--color-brown)]/80 leading-relaxed">
+                      {review.comment}
+                    </p>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center py-12 text-[var(--color-brown)]/50">
+                  Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
+                </div>
+              )}
+            </AnimatePresence>
+          )}
         </div>
       </div>
     </div>

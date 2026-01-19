@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   Users, 
@@ -15,7 +16,8 @@ import {
   Calendar,
   BarChart3,
   RefreshCw,
-  Shield
+  Shield,
+  QrCode
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
@@ -187,9 +189,41 @@ export default function AdminPage() {
             <button
               onClick={fetchAnalytics}
               className="p-3 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
+              title="Làm mới dữ liệu"
             >
               <RefreshCw size={20} className={`text-gray-600 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
+
+            {/* Orders Management Button */}
+            <Link
+              href="/admin/don-hang"
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-sm hover:from-purple-600 hover:to-purple-700 transition-all"
+              title="Quản lý đơn hàng"
+            >
+              <ShoppingCart size={20} />
+              <span className="hidden sm:inline font-medium">Đơn Hàng</span>
+            </Link>
+
+            {/* Users Management Button */}
+            <Link
+              href="/admin/nguoi-dung"
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-sm hover:from-blue-600 hover:to-blue-700 transition-all"
+              title="Quản lý người dùng"
+            >
+              <Users size={20} />
+              <span className="hidden sm:inline font-medium">Người Dùng</span>
+            </Link>
+
+            {/* QR Codes Button */}
+            <Link
+              href="/qr-codes/qr-codes-preview.html"
+              target="_blank"
+              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-xl shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all"
+              title="Xem QR Codes sản phẩm"
+            >
+              <QrCode size={20} />
+              <span className="hidden sm:inline font-medium">QR Codes</span>
+            </Link>
           </div>
         </motion.div>
 

@@ -56,9 +56,7 @@ export default function Footer() {
               <Link href="/blog" className="text-white/80 hover:text-[var(--color-gold-light)] transition-colors">
                 Văn Hóa Vùng Miền
               </Link>
-              <Link href="/ve-chung-toi" className="text-white/80 hover:text-[var(--color-gold-light)] transition-colors">
-                Về Chúng Tôi
-              </Link>
+             
             </nav>
           </div>
 
