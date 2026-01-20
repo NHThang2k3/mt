@@ -216,7 +216,6 @@ export default function ShopPage() {
           >
             <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-[var(--color-brown)]/60">Từ</span>
                 <input
                   type="number"
                   value={priceRange[0]}

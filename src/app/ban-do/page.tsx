@@ -37,8 +37,9 @@ export default function MapPage() {
     
     return regions;
   };
-
+ 
   const unlockedRegions = mounted ? getUnlockedRegions() : [];
+  const [highlightedProvince, setHighlightedProvince] = useState<string | null>(null);
 
   const regions = [
     {
@@ -47,7 +48,7 @@ export default function MapPage() {
       products: ['bac-sen', 'bac-quat'],
       productNames: ['Mứt Sen Tây Hồ', 'Mứt Quất Hưng Yên'],
       color: '#3B82F6',
-      position: { top: '15%', left: '45%' }
+      position: { top: '15%', left: '25%' } // Adjusted for wider map
     },
     {
       id: 'trung',
@@ -55,7 +56,7 @@ export default function MapPage() {
       products: ['trung-gung', 'trung-me'],
       productNames: ['Mứt Gừng Huế', 'Mứt Me Đà Nẵng'],
       color: '#F97316',
-      position: { top: '45%', left: '55%' }
+      position: { top: '45%', left: '30%' } // Adjusted for wider map
     },
     {
       id: 'nam',
@@ -63,9 +64,17 @@ export default function MapPage() {
       products: ['nam-dua', 'nam-tac'],
       productNames: ['Mứt Dừa Bến Tre', 'Mứt Tắc Cần Thơ'],
       color: '#22C55E',
-      position: { top: '75%', left: '40%' }
+      position: { top: '75%', left: '22%' } // Adjusted for wider map
     }
   ];
+
+  const simulateScan = (provinceId: string) => {
+    setHighlightedProvince(provinceId);
+    // Clear highlight after 5 seconds
+    setTimeout(() => {
+      setHighlightedProvince(null);
+    }, 5000);
+  };
 
   const isRegionUnlocked = (regionId: string) => 
     unlockedRegions.includes(regionId as Region);
@@ -103,6 +112,41 @@ export default function MapPage() {
       </section>
 
       <div className="section pt-0">
+        {/* QR Simulation for Demo */}
+        <div className="mb-8 flex flex-wrap justify-center gap-3">
+          <p className="w-full text-center text-sm text-[var(--color-brown)]/60 mb-2">Demo Quét QR:</p>
+          <button 
+            onClick={() => simulateScan('VN-HN')}
+            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
+          >
+            Quét Hà Nội
+          </button>
+          <button 
+            onClick={() => simulateScan('VN-DN')}
+            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
+          >
+            Quét Đà Nẵng
+          </button>
+          <button 
+            onClick={() => simulateScan('VN-SG')}
+            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
+          >
+            Quét TP. HCM
+          </button>
+          <button 
+            onClick={() => simulateScan('VN-HS')}
+            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
+          >
+            Quét Hoàng Sa
+          </button>
+          <button 
+            onClick={() => simulateScan('VN-TS')}
+            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
+          >
+            Quét Trường Sa
+          </button>
+        </div>
+
         {/* Login prompt if not logged in */}
         {!user && (
           <motion.div
@@ -126,13 +170,14 @@ export default function MapPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="card p-8 relative"
+              className="card p-8 relative overflow-hidden"
             >
               {/* Vietnam Map Component */}
-              <div className="relative mx-auto" style={{ maxWidth: '400px' }}>
+              <div className="relative mx-auto" style={{ maxWidth: '600px' }}>
                 <VietnamMap 
                   unlockedProducts={unlockedProducts}
                   isRegionUnlocked={isRegionUnlocked}
+                  highlightedProvinceId={highlightedProvince}
                   onRegionClick={(regionId: MapRegion) => {
                     const el = document.getElementById(`region-stats-${regionId}`);
                     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -161,6 +206,18 @@ export default function MapPage() {
                     </motion.div>
                   </div>
                 ))}
+
+                {/* Islands Labels */}
+                <div className="absolute top-[45%] left-[58%] pointer-events-none">
+                   <div className="text-[10px] md:text-xs font-bold text-[var(--color-brown)]/60 flex items-center gap-1">
+                      <span>Quần đảo Hoàng Sa</span>
+                   </div>
+                </div>
+                <div className="absolute top-[82%] left-[82%] pointer-events-none">
+                   <div className="text-[10px] md:text-xs font-bold text-[var(--color-brown)]/60 flex items-center gap-1">
+                      <span>Quần đảo Trường Sa</span>
+                   </div>
+                </div>
               </div>
 
               {/* Legend */}
@@ -180,6 +237,10 @@ export default function MapPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-[#22C55E] shadow-inner" />
                   <span className="text-[var(--color-brown)]/70">Miền Nam</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-[#FDE047] shadow-inner animate-pulse" />
+                  <span className="text-[var(--color-brown)]/70">Đang quét QR</span>
                 </div>
               </div>
             </motion.div>

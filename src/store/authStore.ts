@@ -29,45 +29,68 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isInitialized: false,
 
   initialize: async () => {
-    if (get().isInitialized) return;
+    // Prevent multiple parallel initializations
+    if (get().isInitialized || get().isLoading) return;
 
     set({ isLoading: true });
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // First, handle the initial session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.error('Session fetch error:', sessionError);
+      }
 
       if (session?.user) {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
 
-        set({ user: session.user, profile, isInitialized: true, isLoading: false });
+        if (profileError) {
+          console.error('Profile fetch error:', profileError);
+        }
+
+        set({
+          user: session.user,
+          profile: profile || null,
+          isInitialized: true,
+          isLoading: false
+        });
+
         // Sync cart with user
-        getCartStore().then(store => store.getState().setUserId(session.user.id));
+        const CartStore = await getCartStore();
+        CartStore.getState().setUserId(session.user.id);
       } else {
-        set({ isInitialized: true, isLoading: false });
-        // Reset to guest cart
-        getCartStore().then(store => store.getState().setUserId(null));
+        set({ isInitialized: true, isLoading: false, user: null, profile: null });
+        const CartStore = await getCartStore();
+        CartStore.getState().setUserId(null);
       }
 
-      // Listen for auth changes
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          set({ user: session.user, profile, isInitialized: true });
-          // Sync cart with user
-          getCartStore().then(store => store.getState().setUserId(session.user.id));
-        } else {
-          set({ user: null, profile: null, isInitialized: true });
-          // Reset to guest cart
-          getCartStore().then(store => store.getState().setUserId(null));
-        }
-      });
+      // Important: Only set up the listener ONCE
+      // We check if we already have it using a global window variable or similar
+      // But in Zustand, we can just check a flag in the store
+      if (!(window as any).__supabaseAuthListenerSet) {
+        supabase.auth.onAuthStateChange(async (event, session) => {
+          if (session?.user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+
+            set({ user: session.user, profile: profile || null, isInitialized: true });
+            const CartStore = await getCartStore();
+            CartStore.getState().setUserId(session.user.id);
+          } else {
+            set({ user: null, profile: null, isInitialized: true });
+            const CartStore = await getCartStore();
+            CartStore.getState().setUserId(null);
+          }
+        });
+        (window as any).__supabaseAuthListenerSet = true;
+      }
     } catch (error) {
       console.error('Auth init error:', error);
       set({ isInitialized: true, isLoading: false });
@@ -90,15 +113,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return { error: error.message };
       }
 
+      // No need to manually create profile here if Trigger is set up in SQL
+      // But let's check if the trigger worked or if we should still do it for safety
       if (data.user) {
-        // Create profile
-        await supabase.from('profiles').insert({
-          id: data.user.id,
-          name,
-          email,
-          unlocked_products: [],
-          badges: []
-        });
+        // We wait a bit or try to fetch it to see if it exists
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+        if (!profile) {
+          await supabase.from('profiles').insert({
+            id: data.user.id,
+            name,
+            email,
+            unlocked_products: [],
+            badges: []
+          });
+        }
       }
 
       set({ isLoading: false });
@@ -133,20 +161,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     set({ isLoading: true });
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Sign out error:', error);
-      }
-      // Always clear local state regardless of server response
-      set({ user: null, profile: null, isLoading: false });
-      // Reset cart to guest
-      getCartStore().then(store => store.getState().setUserId(null)).catch(console.error);
+      // Clear local state immediately for better UX
+      set({ user: null, profile: null });
+      const CartStore = await getCartStore();
+      CartStore.getState().setUserId(null);
 
-      // Redirect to home and reload to ensure clean state
+      // Call Supabase signOut but don't let it block indefinitely
+      const signOutPromise = supabase.auth.signOut();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Sign out timeout')), 3000)
+      );
+
+      await Promise.race([signOutPromise, timeoutPromise]).catch(err => {
+        console.warn('Sign out call slow or failed:', err);
+      });
+
+      // Always reload at the end
       window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
-      // Still clear local state even on error
       set({ user: null, profile: null, isLoading: false });
       window.location.href = '/';
     }

@@ -169,7 +169,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mt-2 sm:mt-0">
               <div className="flex items-center gap-1 sm:gap-2">
-                <span className="hidden sm:inline text-xs text-[var(--color-brown)]/50">Từ</span>
                 <span className="text-base sm:text-xl font-bold text-[var(--color-gold)]">
                   {formatPrice(product.price)}
                 </span>

@@ -158,7 +158,7 @@ export default function CheckoutPage() {
           user_id: user?.id || null,
           items: orderItems,
           total: total,
-          status: 'confirmed',
+          status: 'pending',
           shipping_info: {
             name: formData.name,
             phone: formData.phone,
