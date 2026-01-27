@@ -211,9 +211,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const newProducts = [...currentProducts, productId];
 
     // Check badges
-    const bacProducts = ['bac-sen', 'bac-quat'];
-    const trungProducts = ['trung-gung', 'trung-me'];
-    const namProducts = ['nam-dua', 'nam-tac'];
+    const bacProducts = ['bac-man', 'bac-mo'];
+    const trungProducts = ['trung-sen', 'trung-dau'];
+    const namProducts = ['nam-dua', 'nam-mangcau'];
 
     const hasBac = bacProducts.every(id => newProducts.includes(id));
     const hasTrung = trungProducts.every(id => newProducts.includes(id));

@@ -19,6 +19,7 @@ function UnlockContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'already' | 'error' | 'login-required'>('loading');
   const [unlockedProduct, setUnlockedProduct] = useState<typeof products[0] | null>(null);
   const [newBadge, setNewBadge] = useState<string | null>(null);
+  const [isUnlockAll, setIsUnlockAll] = useState(false);
 
   useEffect(() => {
     if (!isInitialized) {
@@ -52,8 +53,8 @@ function UnlockContent() {
           }
         }
 
-        // Set a representative product for display
-        setUnlockedProduct(products.find(p => p.id === 'bac-man') || null);
+        // Mark as unlock all
+        setIsUnlockAll(true);
         
         // Fire big confetti for unlocking all!
         confetti({
@@ -62,7 +63,7 @@ function UnlockContent() {
           origin: { y: 0.5 }
         });
 
-        // Force set dai-su badge
+        // Set the highest badge
         setNewBadge('dai-su');
         setStatus('success');
         return;
@@ -214,7 +215,11 @@ function UnlockContent() {
       </h1>
       
       <p className="text-[var(--color-brown)]/70 mb-6">
-        Bạn đã mở khóa <strong className="text-[var(--color-gold)]">{unlockedProduct?.name}</strong>
+        {isUnlockAll ? (
+          <>Bạn đã mở khóa <strong className="text-[var(--color-gold)]">toàn bộ 6 sản phẩm</strong> từ ba miền Việt Nam!</>
+        ) : (
+          <>Bạn đã mở khóa <strong className="text-[var(--color-gold)]">{unlockedProduct?.name}</strong></>
+        )}
       </p>
 
       {/* New Badge Alert */}
