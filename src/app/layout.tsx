@@ -17,12 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mứt 3 Miền - Di Sản Hương Vị Việt",
-  description: "Khám phá hương vị mứt truyền thống từ ba miền Bắc - Trung - Nam, kết hợp câu chuyện văn hóa vùng miền trong từng sản phẩm.",
-  keywords: ["mứt", "trái cây", "Việt Nam", "di sản", "văn hóa", "truyền thống"],
+  title: "VietCharm - Mứt Trái Cây 3 Miền Việt Nam",
+  description: "Khám phá hương vị mứt truyền thống từ ba miền Bắc - Trung - Nam. Mỗi hũ mứt là một câu chuyện văn hóa vùng miền, được gìn giữ bằng phương pháp thủ công và trải nghiệm số hiện đại.",
+  keywords: ["VietCharm", "mứt", "trái cây", "Việt Nam", "di sản", "văn hóa", "truyền thống", "Mộc Châu", "Ba Vì", "Huế", "Đà Lạt", "Bến Tre", "Tiền Giang"],
   openGraph: {
-    title: "Mứt 3 Miền - Di Sản Hương Vị Việt",
-    description: "Khám phá hương vị mứt truyền thống từ ba miền Bắc - Trung - Nam",
+    title: "VietCharm - Mứt Trái Cây 3 Miền Việt Nam",
+    description: "Khám phá hương vị mứt truyền thống từ ba miền Bắc - Trung - Nam với trải nghiệm văn hóa số qua QR code",
     type: "website",
   },
 };

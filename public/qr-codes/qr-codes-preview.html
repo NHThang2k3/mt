@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Codes - Mứt Trái Cây 3 Miền</title>
+  <title>QR Codes - VietCharm</title>
   <style>
     * {
       margin: 0;
@@ -67,6 +67,11 @@
       transform: translateY(-5px);
     }
 
+    .qr-card.special {
+      background: linear-gradient(135deg, #FFF8DC 0%, #FFE4B5 100%);
+      border: 3px solid #DAA520;
+    }
+
     .region-badge {
       display: inline-block;
       padding: 4px 12px;
@@ -77,18 +82,23 @@
     }
 
     .region-bac {
-      background: #FFE4E1;
-      color: #CD5C5C;
+      background: #DCFCE7;
+      color: #22C55E;
     }
 
     .region-trung {
-      background: #E6E6FA;
-      color: #6A5ACD;
+      background: #F3E8FF;
+      color: #A855F7;
     }
 
     .region-nam {
-      background: #E0FFE0;
-      color: #228B22;
+      background: #FFEDD5;
+      color: #F97316;
+    }
+
+    .region-special {
+      background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
+      color: white;
     }
 
     .product-name {
@@ -172,6 +182,15 @@
       transform: translateY(0);
     }
 
+    .section-title {
+      text-align: center;
+      color: #8B4513;
+      font-size: 1.5rem;
+      margin: 40px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px dashed #DAA520;
+    }
+
     @media print {
       @page {
         size: A4;
@@ -205,7 +224,6 @@
       .qr-card {
         box-shadow: none;
         border: 0.5px dashed #eee;
-        /* Light dashed border for easier cutting */
         border-radius: 0;
         padding: 0;
         display: flex;
@@ -222,7 +240,6 @@
 
       .qr-image {
         width: 150px;
-        /* Larger QR code since it's the only thing */
         height: 150px;
         margin: 0 !important;
         border: none !important;
@@ -239,11 +256,18 @@
 <body>
   <div class="container">
     <header>
-      <h1>🍯 QR Codes - Mứt Trái Cây 3 Miền</h1>
+      <h1>🍯 VietCharm - QR Codes</h1>
       <p class="subtitle">Xem trước và in tem QR cho bao bì sản phẩm</p>
     </header>
 
-    <!-- Preview Grid -->
+    <!-- Special QR Code Section -->
+    <h2 class="section-title">🌟 Mã QR Đặc Biệt</h2>
+    <div id="special-grid" class="grid">
+      <!-- Will be populated by JS -->
+    </div>
+
+    <!-- Product QR Codes Section -->
+    <h2 class="section-title">📦 Mã QR Sản Phẩm</h2>
     <div id="preview-grid" class="grid">
       <!-- Will be populated by JS -->
     </div>
@@ -257,11 +281,14 @@
       <h2>📋 Hướng dẫn sử dụng</h2>
       <ol>
         <li>Cài đặt thư viện: <code>npm install qrcode</code></li>
-        <li>Chạy file <code>scripts/generate-qr-codes.js</code> để tạo ảnh QR.</li>
+        <li>Chạy file <code>node scripts/generate-qr-codes.js</code> để tạo ảnh QR.</li>
         <li>Kiểm tra ảnh QR hiển thị đầy đủ ở phần xem trước phía trên.</li>
         <li>Nhấn nút <b>"In QR Codes"</b> phía dưới.</li>
-        <li>Hệ thống sẽ tự động chia trang: mỗi sản phẩm 1 trang A4, mỗi trang có 8 tem QR.</li>
+        <li>Hệ thống sẽ tự động chia trang: mỗi sản phẩm 1 trang A4, mỗi trang có 12 tem QR.</li>
       </ol>
+      <p style="margin-top: 15px; padding: 10px; background: #FFF8DC; border-radius: 8px; color: #8B4513;">
+        <strong>💡 Lưu ý:</strong> Mã QR "Mở Khóa Toàn Bộ" sẽ mở khóa tất cả 6 sản phẩm và cấp danh hiệu "Đại Sứ Di Sản Việt" cho người dùng.
+      </p>
     </div>
 
     <button class="print-btn" onclick="window.print()">🖨️ In QR Codes</button>
@@ -269,34 +296,63 @@
 
   <script>
     const products = [
-      { id: 'bac-sen', name: 'Mứt Sen Tây Hồ', region: 'bac', regionName: 'Miền Bắc', code: 'BAC_SEN_01', img: 'qr-bac-sen.png' },
-      { id: 'bac-quat', name: 'Mứt Quất Hưng Yên', region: 'bac', regionName: 'Miền Bắc', code: 'BAC_QUAT_01', img: 'qr-bac-quat.png' },
-      { id: 'trung-gung', name: 'Mứt Gừng Huế', region: 'trung', regionName: 'Miền Trung', code: 'TRUNG_GUNG_01', img: 'qr-trung-gung.png' },
-      { id: 'trung-me', name: 'Mứt Me Đà Nẵng', region: 'trung', regionName: 'Miền Trung', code: 'TRUNG_ME_01', img: 'qr-trung-me.png' },
+      // Miền Bắc
+      { id: 'bac-man', name: 'Mứt Mận Mộc Châu', region: 'bac', regionName: 'Miền Bắc', code: 'BAC_MAN_01', img: 'qr-bac-man.png' },
+      { id: 'bac-mo', name: 'Mứt Mơ Ba Vì', region: 'bac', regionName: 'Miền Bắc', code: 'BAC_MO_01', img: 'qr-bac-mo.png' },
+      // Miền Trung
+      { id: 'trung-sen', name: 'Mứt Hạt Sen Huế', region: 'trung', regionName: 'Miền Trung', code: 'TRUNG_SEN_01', img: 'qr-trung-sen.png' },
+      { id: 'trung-dau', name: 'Mứt Dâu Tây Đà Lạt', region: 'trung', regionName: 'Miền Trung', code: 'TRUNG_DAU_01', img: 'qr-trung-dau.png' },
+      // Miền Nam
       { id: 'nam-dua', name: 'Mứt Dừa Bến Tre', region: 'nam', regionName: 'Miền Nam', code: 'NAM_DUA_01', img: 'qr-nam-dua.png' },
-      { id: 'nam-tac', name: 'Mứt Tắc Cần Thơ', region: 'nam', regionName: 'Miền Nam', code: 'NAM_TAC_01', img: 'qr-nam-tac.png' },
+      { id: 'nam-mangcau', name: 'Mứt Mãng Cầu Tiền Giang', region: 'nam', regionName: 'Miền Nam', code: 'NAM_MANGCAU_01', img: 'qr-nam-mangcau.png' },
     ];
 
-    function createQRCard(product) {
+    const specialCodes = [
+      { id: 'vietcharm-all', name: '🌟 Mở Khóa Toàn Bộ', region: 'special', regionName: 'Đặc Biệt', code: 'VIETCHARM_ALL', img: 'qr-vietcharm-all.png' },
+    ];
+
+    const regionEmoji = {
+      bac: '🍑',
+      trung: '🌸',
+      nam: '🥥',
+      special: '👑'
+    };
+
+    function createQRCard(product, isSpecial = false) {
       return `
-        <div class="qr-card">
-          <span class="region-badge region-${product.region}">${product.region === 'bac' ? '🏔️' : product.region === 'trung' ? '🏯' : '🌴'} ${product.regionName}</span>
+        <div class="qr-card ${isSpecial ? 'special' : ''}">
+          <span class="region-badge region-${product.region}">${regionEmoji[product.region]} ${product.regionName}</span>
           <h3 class="product-name">${product.name}</h3>
           <div class="qr-image">
-            <img src="${product.img}" alt="QR Code ${product.name}" onerror="this.parentElement.innerHTML='<div style=\'font-size: 10px; color: #999;\'>Chưa có ảnh QR</div>'">
+            <img src="${product.img}" alt="QR Code ${product.name}" onerror="this.parentElement.innerHTML='<div style=\\'font-size: 10px; color: #999;\\'>Chưa có ảnh QR<br>Chạy: node scripts/generate-qr-codes.js</div>'">
           </div>
           <div class="url-box">/unlock?code=${product.code}</div>
         </div>
       `;
     }
 
+    // Populate Special QR
+    const specialGrid = document.getElementById('special-grid');
+    specialGrid.innerHTML = specialCodes.map(p => createQRCard(p, true)).join('');
+
     // Populate Preview
     const previewGrid = document.getElementById('preview-grid');
     previewGrid.innerHTML = products.map(p => createQRCard(p)).join('');
 
-    // Populate Print Area (8 per page)
+    // Populate Print Area (12 per page)
     const printArea = document.getElementById('print-area');
     let printHtml = '';
+    
+    // Add special code page first
+    specialCodes.forEach(product => {
+      printHtml += `<div class="product-page">`;
+      for (let i = 0; i < 12; i++) {
+        printHtml += createQRCard(product, true);
+      }
+      printHtml += `</div>`;
+    });
+
+    // Add product pages
     products.forEach(product => {
       printHtml += `<div class="product-page">`;
       for (let i = 0; i < 12; i++) {

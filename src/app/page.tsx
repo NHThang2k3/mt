@@ -27,22 +27,23 @@ export default function Home() {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-gold)]/10 text-[var(--color-gold)] text-sm font-medium mb-6">
                 <Sparkles size={16} />
-                Khám phá di sản ẩm thực
+                Khám phá di sản ẩm thực Việt
               </span>
               
               <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                <span className="text-gradient">Mứt Trái Cây</span>
+                <span className="text-gradient">VietCharm</span>
                 <br />
-                <span className="text-[var(--color-brown)]">3 Miền Việt Nam</span>
+                <span className="text-[var(--color-brown)]">Mứt Trái Cây 3 Miền</span>
               </h1>
               
               <p className="text-lg text-[var(--color-brown)]/80 mb-8 max-w-lg leading-relaxed">
                 Hành trình khám phá hương vị truyền thống từ Bắc vào Nam. 
-                Mỗi hũ mứt là một câu chuyện văn hóa, một phần di sản cần được gìn giữ.
+                Mỗi hũ mứt là một câu chuyện văn hóa, được gìn giữ bằng phương pháp thủ công 
+                và trải nghiệm số hiện đại qua QR code định danh.
               </p>
               
               <div className="flex flex-wrap gap-4">
-                <Link href="/cua-hang" className="btn-primary flex items-center gap-2">
+                <Link href="/blog" className="btn-primary flex items-center gap-2">
                   Khám Phá Ngay
                   <ArrowRight size={18} />
                 </Link>
@@ -76,7 +77,7 @@ export default function Home() {
                   transition={{ duration: 3, repeat: Infinity }}
                   className="absolute top-0 right-10 w-20 h-20 rounded-2xl bg-white shadow-xl flex items-center justify-center"
                 >
-                  <span className="text-3xl">🌸</span>
+                  <span className="text-3xl">🍑</span>
                 </motion.div>
                 <motion.div
                   animate={{ y: [0, 15, 0] }}
@@ -90,7 +91,7 @@ export default function Home() {
                   transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
                   className="absolute bottom-20 right-0 w-16 h-16 rounded-2xl bg-white shadow-xl flex items-center justify-center"
                 >
-                  <span className="text-2xl">🍋</span>
+                  <span className="text-2xl">🍓</span>
                 </motion.div>
               </div>
             </motion.div>
@@ -98,8 +99,76 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Region Intro Section */}
       <section className="py-20 bg-white">
+        <div className="section">
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-brown)] mb-4">
+                Hương Vị 3 Miền
+              </h2>
+              <p className="text-[var(--color-brown)]/70 max-w-3xl mx-auto">
+                Từ vị chua thanh, ngọt dịu của đất trời phía Bắc, đến vị ngọt thanh mộc mạc của nắng gió miền Trung, 
+                và vị ngọt đậm phóng khoáng của miệt vườn sông nước Nam Bộ.
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                region: 'Miền Bắc',
+                icon: '🏔️',
+                products: 'Mứt Mận Mộc Châu, Mứt Mơ Ba Vì',
+                description: 'Vị chua thanh, ngọt dịu của đất trời phía Bắc. Nhịp sống chậm, ký ức được gìn giữ qua từng nếp sinh hoạt đời thường.',
+                color: 'from-green-500 to-emerald-600'
+              },
+              {
+                region: 'Miền Trung',
+                icon: '🌸',
+                products: 'Mứt Hạt Sen Huế, Mứt Dâu Tây Đà Lạt',
+                description: 'Vị ngọt thanh, mộc mạc của nắng gió. Vùng đất khắc nghiệt nhưng giàu chiều sâu, con người chắt chiu từng sản vật.',
+                color: 'from-purple-500 to-pink-600'
+              },
+              {
+                region: 'Miền Nam',
+                icon: '🌴',
+                products: 'Mứt Dừa Bến Tre, Mứt Mãng Cầu Tiền Giang',
+                description: 'Vị ngọt đậm, phóng khoáng của miệt vườn sông nước. Con người hiền hòa, những khu vườn trĩu quả mang cảm giác đủ đầy.',
+                color: 'from-orange-500 to-amber-600'
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-cream)] to-white p-8 shadow-lg hover:shadow-xl transition-all"
+              >
+                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.color} opacity-10 rounded-bl-full`} />
+                <span className="text-5xl mb-4 block">{item.icon}</span>
+                <h3 className="text-xl font-bold text-[var(--color-brown)] mb-2">
+                  {item.region}
+                </h3>
+                <p className="text-sm text-[var(--color-gold)] font-medium mb-3">
+                  {item.products}
+                </p>
+                <p className="text-[var(--color-brown)]/70 text-sm leading-relaxed">
+                  {item.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 pattern-bg">
         <div className="section">
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -109,14 +178,14 @@ export default function Home() {
                 description: 'Thắp sáng bản đồ Việt Nam qua từng sản phẩm bạn sở hữu'
               },
               {
-                icon: '📜',
-                title: 'Câu Chuyện Văn Hóa',
-                description: 'Mỗi hũ mứt đi kèm câu chuyện văn hóa vùng miền độc đáo'
+                icon: '📱',
+                title: 'QR Code Định Danh',
+                description: 'Mỗi hũ mứt đều có QR code để khám phá câu chuyện văn hóa vùng miền'
               },
               {
-                icon: '🏆',
-                title: 'Danh Hiệu Đặc Biệt',
-                description: 'Sưu tập đủ bộ để nhận danh hiệu "Đại Sứ Di Sản Việt"'
+                icon: '🌿',
+                title: 'Thủ Công Truyền Thống',
+                description: 'Chế biến thủ công, không chất bảo quản, giữ nguyên hương vị tự nhiên'
               }
             ].map((feature, index) => (
               <motion.div
@@ -125,7 +194,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="text-center p-8 rounded-2xl hover:bg-[var(--color-cream)] transition-colors"
+                className="text-center p-8 rounded-2xl bg-white/80 backdrop-blur-sm hover:bg-white transition-colors shadow-sm"
               >
                 <span className="text-5xl mb-4 block">{feature.icon}</span>
                 <h3 className="text-xl font-semibold text-[var(--color-brown)] mb-2">
@@ -141,7 +210,7 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-20 pattern-bg">
+      <section className="py-20 bg-white">
         <div className="section">
           <div className="text-center mb-12">
             <motion.div
@@ -154,10 +223,10 @@ export default function Home() {
                 Sản phẩm nổi bật
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-brown)] mb-4">
-                Khám Phá Hương Vị
+                Khám Phá Hương Vị VietCharm
               </h2>
               <p className="text-[var(--color-brown)]/70 max-w-2xl mx-auto">
-                Những món mứt được yêu thích nhất, mang đậm hương vị truyền thống Việt Nam
+                6 loại mứt đặc sản từ 3 miền, mỗi loại mang một câu chuyện văn hóa và hương vị truyền thống độc đáo
               </p>
             </motion.div>
           </div>
@@ -170,7 +239,7 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <Link href="/cua-hang" className="btn-primary inline-flex items-center gap-2">
-              Xem Tất Cả Sản Phẩm
+              Xem Tất Cả 6 Sản Phẩm
               <ArrowRight size={18} />
             </Link>
           </div>
@@ -190,7 +259,7 @@ export default function Home() {
             </h2>
             <p className="text-white/90 max-w-2xl mx-auto mb-8">
               Bắt đầu hành trình thắp sáng bản đồ di sản Việt Nam ngay hôm nay. 
-              Mỗi sản phẩm là một bước tiến trên con đường trở thành Đại Sứ Di Sản!
+              Mỗi hũ mứt VietCharm là một trải nghiệm văn hóa số độc đáo!
             </p>
             <Link 
               href="/cua-hang" 

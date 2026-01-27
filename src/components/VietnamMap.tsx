@@ -30,9 +30,9 @@ export default function VietnamMap({
     if (!unlocked) return '#374151';
 
     switch (region) {
-      case 'bac': return '#3B82F6';   // Blue
-      case 'trung': return '#F97316'; // Orange
-      case 'nam': return '#22C55E';   // Green
+      case 'bac': return '#22C55E';   // Green
+      case 'trung': return '#A855F7'; // Purple
+      case 'nam': return '#F97316';   // Orange
       default: return '#374151';
     }
   };
@@ -46,7 +46,7 @@ export default function VietnamMap({
     if (!region) return 'none';
     
     if (isRegionUnlocked(region)) {
-      const color = region === 'bac' ? '#3B82F6' : region === 'trung' ? '#F97316' : '#22C55E';
+      const color = region === 'bac' ? '#22C55E' : region === 'trung' ? '#A855F7' : '#F97316';
       return `drop-shadow(0 0 2px ${color})`;
     }
     return 'none';

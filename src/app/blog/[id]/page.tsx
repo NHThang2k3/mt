@@ -102,8 +102,8 @@ export default function BlogDetailPage() {
     });
   };
 
-  // Get other posts from same region
-  const relatedPosts = posts.filter(p => p.region === post.region && p.id !== post.id).slice(0, 2);
+  // Get other posts from different regions (not same region)
+  const otherPosts = posts.filter(p => p.region !== post.region && p.id !== post.id).slice(0, 3);
 
   return (
     <div className="min-h-screen pattern-bg">
@@ -187,16 +187,26 @@ export default function BlogDetailPage() {
           transition={{ delay: 0.3 }}
           className="max-w-4xl mx-auto"
         >
-          <div className={`aspect-video rounded-3xl ${regionColors[post.region].light} flex items-center justify-center shadow-2xl overflow-hidden`}>
-            <motion.span
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.4, type: "spring" }}
-              className="text-9xl"
-            >
-              {regionEmoji[post.region]}
-            </motion.span>
-          </div>
+          {relatedProduct?.image && !relatedProduct.image.includes('/products/') ? (
+            <div className="aspect-video rounded-3xl shadow-2xl overflow-hidden">
+              <img 
+                src={relatedProduct.image} 
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className={`aspect-video rounded-3xl ${regionColors[post.region].light} flex items-center justify-center shadow-2xl overflow-hidden`}>
+              <motion.span
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.4, type: "spring" }}
+                className="text-9xl"
+              >
+                {regionEmoji[post.region]}
+              </motion.span>
+            </div>
+          )}
         </motion.div>
       </section>
 
@@ -268,8 +278,8 @@ export default function BlogDetailPage() {
         </section>
       )}
 
-      {/* Related Posts */}
-      {relatedPosts.length > 0 && (
+      {/* Other Posts */}
+      {otherPosts.length > 0 && (
         <section className="section">
           <div className="max-w-3xl mx-auto">
             <motion.div
@@ -278,25 +288,41 @@ export default function BlogDetailPage() {
               transition={{ delay: 0.7 }}
             >
               <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6">
-                Bài Viết Khác Từ {regionNames[post.region]}
+                Bài Viết Khác
               </h2>
 
-              <div className="grid sm:grid-cols-2 gap-6">
-                {relatedPosts.map((relatedPost) => (
-                  <Link key={relatedPost.id} href={`/blog/${relatedPost.id}`}>
-                    <div className="card p-4 group hover:shadow-lg transition-shadow">
-                      <div className={`h-32 rounded-xl ${regionColors[relatedPost.region].light} flex items-center justify-center mb-4`}>
-                        <span className="text-4xl opacity-60">{regionEmoji[relatedPost.region]}</span>
+              <div className="grid sm:grid-cols-3 gap-6">
+                {otherPosts.map((otherPost) => {
+                  const otherProduct = products.find(p => p.id === otherPost.productId);
+                  const hasImage = otherProduct?.image && !otherProduct.image.includes('/products/');
+                  
+                  return (
+                    <Link key={otherPost.id} href={`/blog/${otherPost.id}`}>
+                      <div className="card p-4 group hover:shadow-lg transition-shadow">
+                        <div className={`h-32 rounded-xl overflow-hidden mb-4 ${!hasImage ? regionColors[otherPost.region].light + ' flex items-center justify-center' : ''}`}>
+                          {hasImage ? (
+                            <img 
+                              src={otherProduct!.image} 
+                              alt={otherPost.title}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          ) : (
+                            <span className="text-4xl opacity-60">{regionEmoji[otherPost.region]}</span>
+                          )}
+                        </div>
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${regionColors[otherPost.region].light} ${regionColors[otherPost.region].text}`}>
+                          {regionNames[otherPost.region]}
+                        </span>
+                        <h3 className="font-bold text-[var(--color-brown)] group-hover:text-[var(--color-gold)] transition-colors line-clamp-2">
+                          {otherPost.title}
+                        </h3>
+                        <p className="text-sm text-[var(--color-brown)]/60 mt-2">
+                          {new Date(otherPost.createdAt).toLocaleDateString('vi-VN')}
+                        </p>
                       </div>
-                      <h3 className="font-bold text-[var(--color-brown)] group-hover:text-[var(--color-gold)] transition-colors line-clamp-2">
-                        {relatedPost.title}
-                      </h3>
-                      <p className="text-sm text-[var(--color-brown)]/60 mt-2">
-                        {new Date(relatedPost.createdAt).toLocaleDateString('vi-VN')}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </motion.div>
           </div>

@@ -53,9 +53,9 @@ export const useUserStore = create<UserState>()(
         const newBadges: Badge[] = [...badges];
 
         // Check unlocked regions
-        const bacProducts = ['bac-sen', 'bac-quat'];
-        const trungProducts = ['trung-gung', 'trung-me'];
-        const namProducts = ['nam-dua', 'nam-tac'];
+        const bacProducts = ['bac-man', 'bac-mo'];
+        const trungProducts = ['trung-sen', 'trung-dau'];
+        const namProducts = ['nam-dua', 'nam-mangcau'];
 
         const hasBac = bacProducts.every(id => unlockedProducts.includes(id));
         const hasTrung = trungProducts.every(id => unlockedProducts.includes(id));
@@ -81,9 +81,9 @@ export const useUserStore = create<UserState>()(
         const { unlockedProducts } = get();
         const regions: Region[] = [];
 
-        const bacProducts = ['bac-sen', 'bac-quat'];
-        const trungProducts = ['trung-gung', 'trung-me'];
-        const namProducts = ['nam-dua', 'nam-tac'];
+        const bacProducts = ['bac-man', 'bac-mo'];
+        const trungProducts = ['trung-sen', 'trung-dau'];
+        const namProducts = ['nam-dua', 'nam-mangcau'];
 
         if (bacProducts.every(id => unlockedProducts.includes(id))) regions.push('bac');
         if (trungProducts.every(id => unlockedProducts.includes(id))) regions.push('trung');

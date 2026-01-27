@@ -38,7 +38,37 @@ function UnlockContent() {
         return;
       }
 
-      // Find product by code (format: REGION_PRODUCT_XX, e.g., BAC_SEN_01)
+      // Get current badges before unlock
+      const previousBadges = profile?.badges || [];
+
+      // Check for special "unlock all" code
+      if (code === 'VIETCHARM_ALL') {
+        // Unlock all 6 products
+        const allProductIds = ['bac-man', 'bac-mo', 'trung-sen', 'trung-dau', 'nam-dua', 'nam-mangcau'];
+        
+        for (const productId of allProductIds) {
+          if (!profile?.unlocked_products?.includes(productId)) {
+            await unlockProduct(productId);
+          }
+        }
+
+        // Set a representative product for display
+        setUnlockedProduct(products.find(p => p.id === 'bac-man') || null);
+        
+        // Fire big confetti for unlocking all!
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.5 }
+        });
+
+        // Force set dai-su badge
+        setNewBadge('dai-su');
+        setStatus('success');
+        return;
+      }
+
+      // Find product by code (format: REGION_PRODUCT_XX, e.g., BAC_MAN_01)
       const productId = code.toLowerCase().replace(/_\d+$/, '').replace('_', '-');
       const product = products.find(p => p.id === productId);
 
@@ -54,9 +84,6 @@ function UnlockContent() {
         setStatus('already');
         return;
       }
-
-      // Get current badges before unlock
-      const previousBadges = profile?.badges || [];
 
       // Unlock the product
       await unlockProduct(productId);

@@ -62,12 +62,14 @@ export default function Header() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-12 h-12 rounded-full gradient-gold flex items-center justify-center">
-              <span className="text-white text-xl font-bold">M</span>
-            </div>
+            <img 
+              src="/images/logo.jpg" 
+              alt="VietCharm Logo" 
+              className="w-12 h-12 rounded-full object-cover shadow-md"
+            />
             <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-gradient">Mứt 3 Miền</h1>
-              <p className="text-xs text-[var(--color-brown)] -mt-1">Di Sản Hương Vị Việt</p>
+              <h1 className="text-xl font-bold text-gradient">VietCharm</h1>
+              <p className="text-xs text-[var(--color-brown)] -mt-1">Mứt Trái Cây 3 Miền</p>
             </div>
           </Link>
 

@@ -27,9 +27,9 @@ export default function MapPage() {
 
   const getUnlockedRegions = (): Region[] => {
     const regions: Region[] = [];
-    const bacProducts = ['bac-sen', 'bac-quat'];
-    const trungProducts = ['trung-gung', 'trung-me'];
-    const namProducts = ['nam-dua', 'nam-tac'];
+    const bacProducts = ['bac-man', 'bac-mo'];
+    const trungProducts = ['trung-sen', 'trung-dau'];
+    const namProducts = ['nam-dua', 'nam-mangcau'];
     
     if (bacProducts.every(id => unlockedProducts.includes(id))) regions.push('bac');
     if (trungProducts.every(id => unlockedProducts.includes(id))) regions.push('trung');
@@ -39,42 +39,33 @@ export default function MapPage() {
   };
  
   const unlockedRegions = mounted ? getUnlockedRegions() : [];
-  const [highlightedProvince, setHighlightedProvince] = useState<string | null>(null);
 
   const regions = [
     {
       id: 'bac',
       name: 'Miền Bắc',
-      products: ['bac-sen', 'bac-quat'],
-      productNames: ['Mứt Sen Tây Hồ', 'Mứt Quất Hưng Yên'],
-      color: '#3B82F6',
-      position: { top: '15%', left: '25%' } // Adjusted for wider map
+      products: ['bac-man', 'bac-mo'],
+      productNames: ['Mứt Mận Mộc Châu', 'Mứt Mơ Ba Vì'],
+      color: '#22C55E', // Green
+      position: { top: '15%', left: '25%' }
     },
     {
       id: 'trung',
       name: 'Miền Trung',
-      products: ['trung-gung', 'trung-me'],
-      productNames: ['Mứt Gừng Huế', 'Mứt Me Đà Nẵng'],
-      color: '#F97316',
-      position: { top: '45%', left: '30%' } // Adjusted for wider map
+      products: ['trung-sen', 'trung-dau'],
+      productNames: ['Mứt Hạt Sen Huế', 'Mứt Dâu Tây Đà Lạt'],
+      color: '#A855F7', // Purple
+      position: { top: '45%', left: '30%' }
     },
     {
       id: 'nam',
       name: 'Miền Nam',
-      products: ['nam-dua', 'nam-tac'],
-      productNames: ['Mứt Dừa Bến Tre', 'Mứt Tắc Cần Thơ'],
-      color: '#22C55E',
-      position: { top: '75%', left: '22%' } // Adjusted for wider map
+      products: ['nam-dua', 'nam-mangcau'],
+      productNames: ['Mứt Dừa Bến Tre', 'Mứt Mãng Cầu Tiền Giang'],
+      color: '#F97316', // Orange
+      position: { top: '75%', left: '22%' }
     }
   ];
-
-  const simulateScan = (provinceId: string) => {
-    setHighlightedProvince(provinceId);
-    // Clear highlight after 5 seconds
-    setTimeout(() => {
-      setHighlightedProvince(null);
-    }, 5000);
-  };
 
   const isRegionUnlocked = (regionId: string) => 
     unlockedRegions.includes(regionId as Region);
@@ -112,40 +103,6 @@ export default function MapPage() {
       </section>
 
       <div className="section pt-0">
-        {/* QR Simulation for Demo */}
-        <div className="mb-8 flex flex-wrap justify-center gap-3">
-          <p className="w-full text-center text-sm text-[var(--color-brown)]/60 mb-2">Demo Quét QR:</p>
-          <button 
-            onClick={() => simulateScan('VN-HN')}
-            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
-          >
-            Quét Hà Nội
-          </button>
-          <button 
-            onClick={() => simulateScan('VN-DN')}
-            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
-          >
-            Quét Đà Nẵng
-          </button>
-          <button 
-            onClick={() => simulateScan('VN-SG')}
-            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
-          >
-            Quét TP. HCM
-          </button>
-          <button 
-            onClick={() => simulateScan('VN-HS')}
-            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
-          >
-            Quét Hoàng Sa
-          </button>
-          <button 
-            onClick={() => simulateScan('VN-TS')}
-            className="px-4 py-2 rounded-full border border-[var(--color-gold)] text-[var(--color-brown)] hover:bg-[var(--color-gold)]/10 transition-colors text-sm"
-          >
-            Quét Trường Sa
-          </button>
-        </div>
 
         {/* Login prompt if not logged in */}
         {!user && (
@@ -177,7 +134,6 @@ export default function MapPage() {
                 <VietnamMap 
                   unlockedProducts={unlockedProducts}
                   isRegionUnlocked={isRegionUnlocked}
-                  highlightedProvinceId={highlightedProvince}
                   onRegionClick={(regionId: MapRegion) => {
                     const el = document.getElementById(`region-stats-${regionId}`);
                     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -227,15 +183,15 @@ export default function MapPage() {
                   <span className="text-[var(--color-brown)]/70">Chưa mở khóa</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-[#3B82F6] shadow-inner" />
+                  <div className="w-4 h-4 rounded bg-[#22C55E] shadow-inner" />
                   <span className="text-[var(--color-brown)]/70">Miền Bắc</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-[#F97316] shadow-inner" />
+                  <div className="w-4 h-4 rounded bg-[#A855F7] shadow-inner" />
                   <span className="text-[var(--color-brown)]/70">Miền Trung</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-[#22C55E] shadow-inner" />
+                  <div className="w-4 h-4 rounded bg-[#F97316] shadow-inner" />
                   <span className="text-[var(--color-brown)]/70">Miền Nam</span>
                 </div>
                 <div className="flex items-center gap-2">

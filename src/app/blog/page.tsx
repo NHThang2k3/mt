@@ -4,18 +4,44 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowRight, MapPin } from 'lucide-react';
 import { posts } from '@/data/posts';
+import { products } from '@/data/products';
 
 export default function BlogPage() {
   const regionColors = {
-    bac: 'from-blue-500 to-blue-600',
-    trung: 'from-orange-500 to-orange-600',
-    nam: 'from-green-500 to-green-600'
+    bac: 'from-green-500 to-emerald-600',
+    trung: 'from-purple-500 to-pink-600',
+    nam: 'from-orange-500 to-amber-600'
   };
 
   const regionNames = {
     bac: 'Miền Bắc',
     trung: 'Miền Trung',
     nam: 'Miền Nam'
+  };
+
+  const regionEmoji = {
+    bac: '🍑',
+    trung: '🌸',
+    nam: '🥥'
+  };
+
+  // Product-specific emoji mapping
+  const productEmoji: Record<string, string> = {
+    'bac-man': '🍑',
+    'bac-mo': '🍑',
+    'trung-sen': '🌸',
+    'trung-dau': '🍓',
+    'nam-dua': '🥥',
+    'nam-mangcau': '🍈'
+  };
+
+  // Get product image by productId
+  const getProductImage = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product?.image && !product.image.includes('/products/')) {
+      return product.image;
+    }
+    return null;
   };
 
   return (
@@ -31,7 +57,7 @@ export default function BlogPage() {
             Văn Hóa Vùng Miền
           </h1>
           <p className="text-[var(--color-brown)]/70 max-w-2xl mx-auto px-4">
-            Khám phá những câu chuyện văn hóa ẩn chứa trong từng hũ mứt truyền thống
+            Khám phá những câu chuyện văn hóa ẩn chứa trong từng hũ mứt VietCharm
           </p>
         </motion.div>
       </section>
@@ -39,32 +65,46 @@ export default function BlogPage() {
       {/* Blog Grid */}
       <section className="section pt-0">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post, index) => (
-            <motion.article
-              key={post.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Link href={`/blog/${post.id}`} className="block group">
-                <div className="card overflow-hidden">
-                  {/* Image Placeholder */}
-                  <div className="relative h-48 bg-[var(--color-cream-dark)] overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-6xl opacity-50">
-                        {post.region === 'bac' ? '🌸' : post.region === 'trung' ? '🏯' : '🥥'}
-                      </span>
-                    </div>
-                    
-                    {/* Region Badge */}
-                    <div className={`absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r ${regionColors[post.region]} text-white text-xs font-semibold flex items-center gap-1`}>
-                      <MapPin size={12} />
-                      {regionNames[post.region]}
-                    </div>
+          {posts.map((post, index) => {
+            const productImage = getProductImage(post.productId);
+            
+            return (
+              <motion.article
+                key={post.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Link href={`/blog/${post.id}`} className="block group">
+                  <div className="card overflow-hidden">
+                    {/* Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      {productImage ? (
+                        <>
+                          <img 
+                            src={productImage} 
+                            alt={post.title}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 bg-[var(--color-cream-dark)] flex items-center justify-center">
+                          <span className="text-6xl opacity-50">
+                            {productEmoji[post.productId] || regionEmoji[post.region]}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Region Badge */}
+                      <div className={`absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r ${regionColors[post.region]} text-white text-xs font-semibold flex items-center gap-1`}>
+                        <MapPin size={12} />
+                        {regionNames[post.region]}
+                      </div>
 
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-[var(--color-gold)]/0 group-hover:bg-[var(--color-gold)]/20 transition-colors duration-300" />
-                  </div>
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-[var(--color-gold)]/0 group-hover:bg-[var(--color-gold)]/20 transition-colors duration-300" />
+                    </div>
 
                   {/* Content */}
                   <div className="p-6">
@@ -89,7 +129,8 @@ export default function BlogPage() {
                 </div>
               </Link>
             </motion.article>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>

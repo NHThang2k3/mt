@@ -42,9 +42,9 @@ export default function ShopPage() {
 
   const regions: { value: RegionFilter; label: string; color: string; emoji: string }[] = [
     { value: 'all', label: 'Tất Cả', color: 'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-dark)]', emoji: '🍯' },
-    { value: 'bac', label: 'Miền Bắc', color: 'bg-gradient-to-r from-blue-500 to-blue-600', emoji: '🌸' },
-    { value: 'trung', label: 'Miền Trung', color: 'bg-gradient-to-r from-orange-500 to-orange-600', emoji: '🏯' },
-    { value: 'nam', label: 'Miền Nam', color: 'bg-gradient-to-r from-green-500 to-green-600', emoji: '🥥' },
+    { value: 'bac', label: 'Miền Bắc', color: 'bg-gradient-to-r from-green-500 to-emerald-600', emoji: '🍑' },
+    { value: 'trung', label: 'Miền Trung', color: 'bg-gradient-to-r from-purple-500 to-pink-600', emoji: '🌸' },
+    { value: 'nam', label: 'Miền Nam', color: 'bg-gradient-to-r from-orange-500 to-amber-600', emoji: '🥥' },
   ];
 
   const pricePresets = [

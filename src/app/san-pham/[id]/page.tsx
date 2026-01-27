@@ -44,9 +44,19 @@ export default function ProductDetailPage() {
   };
 
   const regionEmoji = {
-    bac: '🌸',
-    trung: '🏯',
+    bac: '🍑',
+    trung: '🌸',
     nam: '🥥'
+  };
+
+  // Product-specific emoji mapping
+  const productEmoji: Record<string, string> = {
+    'bac-man': '🍑',
+    'bac-mo': '🍑',
+    'trung-sen': '🌸',
+    'trung-dau': '🍓',
+    'nam-dua': '🥥',
+    'nam-mangcau': '🍈'
   };
 
   const handleAddToCart = async () => {
@@ -92,27 +102,43 @@ export default function ProductDetailPage() {
             animate={{ opacity: 1, x: 0 }}
             className="relative"
           >
-            <div className={`aspect-square rounded-3xl ${regionColors[product.region].light} flex items-center justify-center relative overflow-hidden`}>
-              {/* Decorative circles */}
-              <div className="absolute top-8 right-8 w-32 h-32 rounded-full border-4 border-current opacity-10" />
-              <div className="absolute bottom-8 left-8 w-20 h-20 rounded-full border-2 border-current opacity-10" />
-              
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="relative"
-              >
-                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full bg-white shadow-2xl flex items-center justify-center">
-                  <span className="text-8xl md:text-9xl">{regionEmoji[product.region]}</span>
+            {product.image && !product.image.includes('/products/') ? (
+              /* Full-size rectangular image */
+              <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl relative">
+                <img 
+                  src={product.image} 
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+                {/* Region Badge */}
+                <div className={`absolute top-6 left-6 px-4 py-2 rounded-full bg-gradient-to-r ${regionColors[product.region].bg} text-white font-semibold shadow-lg`}>
+                  {product.regionName}
                 </div>
-              </motion.div>
-
-              {/* Region Badge */}
-              <div className={`absolute top-6 left-6 px-4 py-2 rounded-full bg-gradient-to-r ${regionColors[product.region].bg} text-white font-semibold shadow-lg`}>
-                {product.regionName}
               </div>
-            </div>
+            ) : (
+              /* Fallback with emoji if no real image */
+              <div className={`aspect-square rounded-3xl ${regionColors[product.region].light} flex items-center justify-center relative overflow-hidden`}>
+                {/* Decorative circles */}
+                <div className="absolute top-8 right-8 w-32 h-32 rounded-full border-4 border-current opacity-10" />
+                <div className="absolute bottom-8 left-8 w-20 h-20 rounded-full border-2 border-current opacity-10" />
+                
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="relative"
+                >
+                  <div className="w-56 h-56 md:w-72 md:h-72 rounded-2xl bg-white shadow-2xl flex items-center justify-center">
+                    <span className="text-8xl md:text-9xl">{productEmoji[product.id] || regionEmoji[product.region]}</span>
+                  </div>
+                </motion.div>
+
+                {/* Region Badge */}
+                <div className={`absolute top-6 left-6 px-4 py-2 rounded-full bg-gradient-to-r ${regionColors[product.region].bg} text-white font-semibold shadow-lg`}>
+                  {product.regionName}
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Product Info */}

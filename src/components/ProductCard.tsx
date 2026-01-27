@@ -30,9 +30,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   };
 
   const regionEmoji = {
-    bac: '🌸',
-    trung: '🏯',
+    bac: '🍑',
+    trung: '🌸',
     nam: '🥥'
+  };
+
+  // Product-specific emoji mapping
+  const productEmoji: Record<string, string> = {
+    'bac-man': '🍑',
+    'bac-mo': '🍑',
+    'trung-sen': '🌸',
+    'trung-dau': '🍓',
+    'nam-dua': '🥥',
+    'nam-mangcau': '🍈'
   };
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -53,6 +63,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     setIsAddingToCart(false);
   };
 
+  const hasRealImage = product.image && !product.image.includes('/products/');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -64,38 +76,54 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       <Link href={`/san-pham/${product.id}`}>
         <div className="card overflow-hidden cursor-pointer">
           {/* Image Container */}
-          <div className="relative h-40 sm:h-64 overflow-hidden">
-            {/* Gradient Background */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${regionColors[product.region].light} to-white`} />
-            
-            {/* Decorative Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-4 right-4 w-32 h-32 rounded-full border-4 border-current" />
-              <div className="absolute bottom-4 left-4 w-20 h-20 rounded-full border-2 border-current" />
-            </div>
-            
-            {/* Product Emoji/Image */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="relative"
-              >
-                <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-full bg-white/80 backdrop-blur-sm shadow-xl flex items-center justify-center">
-                  <span className="text-4xl sm:text-6xl">{regionEmoji[product.region]}</span>
+          <div className="relative h-48 sm:h-64 overflow-hidden">
+            {hasRealImage ? (
+              /* Full-size product image */
+              <>
+                <img 
+                  src={product.image} 
+                  alt={product.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                {/* Overlay gradient for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              </>
+            ) : (
+              /* Fallback with emoji if no real image */
+              <>
+                {/* Gradient Background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${regionColors[product.region].light} to-white`} />
+                
+                {/* Decorative Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 right-4 w-32 h-32 rounded-full border-4 border-current" />
+                  <div className="absolute bottom-4 left-4 w-20 h-20 rounded-full border-2 border-current" />
                 </div>
-                {/* Sparkle effect */}
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute -inset-4"
-                >
-                  <Sparkles className="absolute top-0 left-1/2 text-[var(--color-gold)] opacity-60" size={16} />
-                  <Sparkles className="absolute bottom-0 right-0 text-[var(--color-gold)] opacity-40" size={12} />
-                </motion.div>
-              </motion.div>
-            </div>
+                
+                {/* Emoji fallback */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <motion.div
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="relative"
+                  >
+                    <div className="w-24 h-24 sm:w-36 sm:h-36 rounded-2xl bg-white/90 backdrop-blur-sm shadow-xl flex items-center justify-center">
+                      <span className="text-5xl sm:text-7xl">{productEmoji[product.id] || regionEmoji[product.region]}</span>
+                    </div>
+                    {/* Sparkle effect */}
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="absolute -inset-4"
+                    >
+                      <Sparkles className="absolute top-0 left-1/2 text-[var(--color-gold)] opacity-60" size={16} />
+                      <Sparkles className="absolute bottom-0 right-0 text-[var(--color-gold)] opacity-40" size={12} />
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </>
+            )}
             
             {/* Region Badge */}
             <motion.div 
