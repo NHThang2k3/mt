@@ -40,13 +40,15 @@ export default function ProductDetailPage() {
   const regionColors = {
     bac: { bg: 'from-blue-500 to-blue-600', light: 'bg-blue-50' },
     trung: { bg: 'from-orange-500 to-orange-600', light: 'bg-orange-50' },
-    nam: { bg: 'from-green-500 to-green-600', light: 'bg-green-50' }
+    nam: { bg: 'from-green-500 to-green-600', light: 'bg-green-50' },
+    combo: { bg: 'from-amber-500 to-red-500', light: 'bg-amber-50' }
   };
 
   const regionEmoji = {
     bac: '🍑',
     trung: '🌸',
-    nam: '🥥'
+    nam: '🥥',
+    combo: '🎁'
   };
 
   // Product-specific emoji mapping
@@ -56,7 +58,8 @@ export default function ProductDetailPage() {
     'trung-sen': '🌸',
     'trung-dau': '🍓',
     'nam-dua': '🥥',
-    'nam-mangcau': '🍈'
+    'nam-mangcau': '🍈',
+    'combo-6-vi': '🎁'
   };
 
   const handleAddToCart = async () => {
@@ -154,10 +157,15 @@ export default function ProductDetailPage() {
               {product.name}
             </h1>
             
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-4 mb-6">
               <span className="text-3xl font-bold text-[var(--color-gold)]">
                 {formatPrice(product.price)}
               </span>
+              {product.weight && (
+                <span className="text-lg text-[var(--color-brown)]/60">
+                  / {product.weight}
+                </span>
+              )}
               <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
                 Còn hàng
               </span>

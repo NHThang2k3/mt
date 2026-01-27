@@ -26,13 +26,15 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const regionColors = {
     bac: { bg: 'from-blue-500 to-blue-600', light: 'bg-blue-100' },
     trung: { bg: 'from-orange-500 to-orange-600', light: 'bg-orange-100' },
-    nam: { bg: 'from-green-500 to-green-600', light: 'bg-green-100' }
+    nam: { bg: 'from-green-500 to-green-600', light: 'bg-green-100' },
+    combo: { bg: 'from-amber-500 to-red-500', light: 'bg-amber-100' }
   };
 
   const regionEmoji = {
     bac: '🍑',
     trung: '🌸',
-    nam: '🥥'
+    nam: '🥥',
+    combo: '🎁'
   };
 
   // Product-specific emoji mapping
@@ -42,7 +44,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     'trung-sen': '🌸',
     'trung-dau': '🍓',
     'nam-dua': '🥥',
-    'nam-mangcau': '🍈'
+    'nam-mangcau': '🍈',
+    'combo-6-vi': '🎁'
   };
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -196,10 +199,15 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             </p>
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mt-2 sm:mt-0">
-              <div className="flex items-center gap-1 sm:gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2">
                 <span className="text-base sm:text-xl font-bold text-[var(--color-gold)]">
                   {formatPrice(product.price)}
                 </span>
+                {product.weight && (
+                  <span className="text-xs text-[var(--color-brown)]/60">
+                    / {product.weight}
+                  </span>
+                )}
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}

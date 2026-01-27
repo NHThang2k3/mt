@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   nameEn: string;
   price: number;
-  region: 'bac' | 'trung' | 'nam';
+  region: 'bac' | 'trung' | 'nam' | 'combo';
   regionName: string;
   image: string;
   description: string;
@@ -11,6 +11,8 @@ export interface Product {
   ingredients?: string;
   origin?: string;
   features?: string;
+  weight?: string;
+  isCombo?: boolean;
 }
 
 export const products: Product[] = [
@@ -19,7 +21,8 @@ export const products: Product[] = [
     id: 'bac-man',
     name: 'Mứt Mận Mộc Châu',
     nameEn: 'Moc Chau Plum Jam',
-    price: 150000,
+    price: 49000,
+    weight: '250g',
     region: 'bac',
     regionName: 'Miền Bắc',
     image: '/images/mut_man.jpg',
@@ -37,7 +40,8 @@ Khi thưởng thức, vị chua nhẹ chạm đầu lưỡi, sau đó vị ngọ
     id: 'bac-mo',
     name: 'Mứt Mơ Ba Vì',
     nameEn: 'Ba Vi Apricot Jam',
-    price: 140000,
+    price: 49000,
+    weight: '250g',
     region: 'bac',
     regionName: 'Miền Bắc',
     image: '/images/mut_mo.jpg',
@@ -56,7 +60,8 @@ Khi thưởng thức, vị chua dịu lan nhẹ nơi đầu lưỡi, sau đó l�
     id: 'trung-sen',
     name: 'Mứt Hạt Sen Huế',
     nameEn: 'Hue Lotus Seed Jam',
-    price: 160000,
+    price: 49000,
+    weight: '250g',
     region: 'trung',
     regionName: 'Miền Trung',
     image: '/images/hat_sen.png',
@@ -74,7 +79,8 @@ Mứt sen mang sắc vàng hanh dịu mắt, vị ngọt đậm mà tinh. Chỉ 
     id: 'trung-dau',
     name: 'Mứt Dâu Tây Đà Lạt',
     nameEn: 'Da Lat Strawberry Jam',
-    price: 145000,
+    price: 49000,
+    weight: '250g',
     region: 'trung',
     regionName: 'Miền Trung',
     image: '/images/dau_tay.png',
@@ -93,7 +99,8 @@ Khi thưởng thức, vị chua thanh chạm nhẹ đầu lưỡi rồi vị ng�
     id: 'nam-dua',
     name: 'Mứt Dừa Bến Tre',
     nameEn: 'Ben Tre Coconut Jam',
-    price: 135000,
+    price: 49000,
+    weight: '250g',
     region: 'nam',
     regionName: 'Miền Nam',
     image: '/images/mut_dua.jpg',
@@ -111,7 +118,8 @@ Khi thưởng thức, vị béo của dừa lan nhẹ nơi đầu lưỡi, hòa 
     id: 'nam-mangcau',
     name: 'Mứt Mãng Cầu Tiền Giang',
     nameEn: 'Tien Giang Soursop Jam',
-    price: 140000,
+    price: 49000,
+    weight: '250g',
     region: 'nam',
     regionName: 'Miền Nam',
     image: '/images/mut_mangcau.jpg',
@@ -124,6 +132,33 @@ Khi thưởng thức, vị chua chạm nhẹ đầu lưỡi rồi tan dần tron
     ingredients: 'Mãng cầu tươi Tiền Giang, đường mía tinh luyện',
     origin: 'Vườn trái cây Cái Bè – Cai Lậy (Tiền Giang)',
     features: 'Chua ngọt cân bằng, không chất bảo quản'
+  },
+  // Combo đặc biệt
+  {
+    id: 'combo-6-vi',
+    name: 'Combo 6 Vị Di Sản',
+    nameEn: 'Heritage 6-Flavor Combo',
+    price: 169000,
+    weight: '6 hũ x 150g',
+    region: 'combo',
+    regionName: 'Combo đặc biệt',
+    image: '/images/combo_6_vi.jpg',
+    description: 'Trọn bộ 6 hương vị đặc sản từ 3 miền Việt Nam',
+    story: `Combo 6 Vị Di Sản là cách hoàn hảo để khám phá trọn vẹn hành trình ẩm thực ba miền Việt Nam trong một hộp quà.
+
+Bộ combo bao gồm 6 hũ mứt đặc sản:
+• Mứt Mận Mộc Châu - Miền Bắc
+• Mứt Mơ Ba Vì - Miền Bắc  
+• Mứt Hạt Sen Huế - Miền Trung
+• Mứt Dâu Tây Đà Lạt - Miền Trung
+• Mứt Dừa Bến Tre - Miền Nam
+• Mứt Mãng Cầu Tiền Giang - Miền Nam
+
+Mỗi hũ 150g được đóng gói tinh tế, phù hợp làm quà tặng ý nghĩa cho người thân, bạn bè trong dịp Tết hoặc các ngày lễ. Combo này giúp bạn tiết kiệm hơn so với mua lẻ, đồng thời mở khóa toàn bộ bản đồ di sản VietCharm ngay lập tức!`,
+    ingredients: 'Đầy đủ 6 loại mứt truyền thống từ ba miền',
+    origin: 'Tổng hợp từ các vùng nguyên liệu truyền thống khắp Việt Nam',
+    features: 'Tiết kiệm 125k, đóng gói cao cấp, phù hợp làm quà tặng',
+    isCombo: true
   }
 ];
 
@@ -134,6 +169,14 @@ export const formatPrice = (price: number): string => {
   }).format(price);
 };
 
-export const getProductsByRegion = (region: 'bac' | 'trung' | 'nam'): Product[] => {
+export const getProductsByRegion = (region: 'bac' | 'trung' | 'nam' | 'combo'): Product[] => {
   return products.filter(p => p.region === region);
+};
+
+export const getRegularProducts = (): Product[] => {
+  return products.filter(p => !p.isCombo);
+};
+
+export const getComboProducts = (): Product[] => {
+  return products.filter(p => p.isCombo);
 };

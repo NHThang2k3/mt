@@ -6,7 +6,7 @@ import { Filter, Sparkles, ChevronDown, Search, X, SlidersHorizontal } from 'luc
 import ProductCard from '@/components/ProductCard';
 import { products, formatPrice } from '@/data/products';
 
-type RegionFilter = 'all' | 'bac' | 'trung' | 'nam';
+type RegionFilter = 'all' | 'bac' | 'trung' | 'nam' | 'combo';
 
 // Get min and max prices from products
 const minProductPrice = Math.min(...products.map(p => p.price));
@@ -45,6 +45,7 @@ export default function ShopPage() {
     { value: 'bac', label: 'Miền Bắc', color: 'bg-gradient-to-r from-green-500 to-emerald-600', emoji: '🍑' },
     { value: 'trung', label: 'Miền Trung', color: 'bg-gradient-to-r from-purple-500 to-pink-600', emoji: '🌸' },
     { value: 'nam', label: 'Miền Nam', color: 'bg-gradient-to-r from-orange-500 to-amber-600', emoji: '🥥' },
+    { value: 'combo', label: 'Combo', color: 'bg-gradient-to-r from-amber-500 to-red-500', emoji: '🎁' },
   ];
 
   const pricePresets = [
