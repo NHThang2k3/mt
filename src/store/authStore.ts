@@ -161,27 +161,50 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     set({ isLoading: true });
     try {
+      // Clear the auth listener flag so it won't auto-restore session
+      (window as any).__supabaseAuthListenerSet = false;
+
       // Clear local state immediately for better UX
-      set({ user: null, profile: null });
+      set({ user: null, profile: null, isInitialized: false });
       const CartStore = await getCartStore();
       CartStore.getState().setUserId(null);
 
-      // Call Supabase signOut but don't let it block indefinitely
-      const signOutPromise = supabase.auth.signOut();
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Sign out timeout')), 3000)
-      );
+      // Sign out from Supabase - use 'global' scope to clear everywhere
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (e) {
+        console.warn('Supabase signOut error:', e);
+      }
 
-      await Promise.race([signOutPromise, timeoutPromise]).catch(err => {
-        console.warn('Sign out call slow or failed:', err);
-      });
+      // Clear ALL Supabase-related storage
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('sb-'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
 
-      // Always reload at the end
-      window.location.href = '/';
+      // Also clear sessionStorage
+      const sessionKeysToRemove: string[] = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('sb-'))) {
+          sessionKeysToRemove.push(key);
+        }
+      }
+      sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
+
+      set({ isLoading: false });
+
+      // Force reload to clear all cached state
+      window.location.replace('/');
     } catch (error) {
       console.error('Sign out error:', error);
-      set({ user: null, profile: null, isLoading: false });
-      window.location.href = '/';
+      // Even on error, clear everything and redirect
+      set({ user: null, profile: null, isLoading: false, isInitialized: false });
+      window.location.replace('/');
     }
   },
 
