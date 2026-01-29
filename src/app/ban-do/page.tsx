@@ -4,10 +4,20 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Lock, Unlock, Award, LogIn } from 'lucide-react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/store/authStore';
 import { badgeInfo } from '@/store/userStore';
-import VietnamMap from '@/components/VietnamMap';
 import { MapRegion } from '@/data/vietnam-map';
+
+// Dynamic import VietnamMap với ssr: false để tránh lỗi hydration
+const VietnamMap = dynamic(() => import('@/components/VietnamMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[500px] flex items-center justify-center bg-gray-100 rounded-xl">
+      <div className="animate-spin w-8 h-8 border-4 border-[var(--color-gold)] border-t-transparent rounded-full" />
+    </div>
+  )
+});
 
 type Region = 'bac' | 'trung' | 'nam';
 
