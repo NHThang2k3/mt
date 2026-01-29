@@ -33,23 +33,41 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (get().isInitialized || get().isLoading) return;
 
     set({ isLoading: true });
+    console.log('Auth initialization: Starting...');
 
-    // Safety timeout - if initialization takes more than 5 seconds, force it to complete
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Auth initialization timeout')), 5000)
+    // Safety timeout - if initialization takes more than 8 seconds, force it to complete
+    const timeoutPromise = new Promise<void>((_, reject) =>
+      setTimeout(() => reject(new Error('Auth initialization timeout')), 8000)
     );
 
     try {
       const initTask = (async () => {
         console.log('Auth initialization: Fetching session...');
+
         // First, handle the initial session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        let session = null;
+        let sessionError = null;
+
+        // Try to get session with retry
+        for (let attempt = 0; attempt < 2; attempt++) {
+          const result = await supabase.auth.getSession();
+          session = result.data.session;
+          sessionError = result.error;
+
+          if (session || !sessionError) break;
+
+          console.log(`Auth initialization: Retry attempt ${attempt + 1}`);
+          await new Promise(r => setTimeout(r, 500));
+        }
 
         if (sessionError) {
           console.error('Auth initialization: Session fetch error:', sessionError);
         }
 
+        console.log('Auth initialization: Session found?', !!session?.user);
+
         if (session?.user) {
+          console.log('Auth initialization: User found, fetching profile...');
           let { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -79,6 +97,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             }
           }
 
+          console.log('Auth initialization: Setting user state');
           set({
             user: session.user,
             profile: profile || null,
@@ -89,6 +108,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           // Sync cart with user (non-blocking)
           getCartStore().then(store => store.getState().setUserId(session.user.id));
         } else {
+          console.log('Auth initialization: No session found');
           set({ isInitialized: true, isLoading: false, user: null, profile: null });
           getCartStore().then(store => store.getState().setUserId(null));
         }
@@ -96,17 +116,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Setup listener if not already set
         if (!(window as any).__supabaseAuthListenerSet) {
           console.log('Auth initialization: Setting up auth listener');
-          supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('Auth listener event:', event);
-            if (session?.user) {
+          supabase.auth.onAuthStateChange(async (event, newSession) => {
+            console.log('Auth listener event:', event, 'Has session:', !!newSession?.user);
+
+            // Skip INITIAL_SESSION as we've already handled it
+            if (event === 'INITIAL_SESSION') {
+              return;
+            }
+
+            if (newSession?.user) {
               const { data: profile } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', session.user.id)
+                .eq('id', newSession.user.id)
                 .single();
 
-              set({ user: session.user, profile: profile || null, isInitialized: true });
-              getCartStore().then(store => store.getState().setUserId(session.user.id));
+              set({ user: newSession.user, profile: profile || null, isInitialized: true });
+              getCartStore().then(store => store.getState().setUserId(newSession.user.id));
             } else {
               set({ user: null, profile: null, isInitialized: true });
               getCartStore().then(store => store.getState().setUserId(null));
@@ -263,27 +289,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { user } = get();
     if (!user) {
       console.error('updateProfile: No user logged in');
-      return;
+      throw new Error('No user logged in');
     }
 
     console.log('updateProfile: Updating with', updates);
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id)
-      .select()
-      .single();
+    // Retry logic for better reliability
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        .single();
 
-    if (error) {
-      console.error('updateProfile: Supabase error', error);
-      return;
+      if (error) {
+        console.error(`updateProfile: Supabase error (attempt ${attempt + 1})`, error);
+        lastError = error;
+        // Wait before retry
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 500));
+          continue;
+        }
+      } else if (data) {
+        console.log('updateProfile: Success, new profile', data);
+        set({ profile: data as Profile });
+        return; // Success!
+      }
     }
 
-    if (data) {
-      console.log('updateProfile: Success, new profile', data);
-      set({ profile: data as Profile });
-    }
+    // If we get here, all retries failed
+    throw lastError || new Error('Failed to update profile');
   },
 
   unlockProduct: async (productIds: string | string[]) => {
@@ -291,13 +328,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     console.log('unlockProduct: Starting unlock for', productIds);
 
-    if (!user || !profile) {
-      console.error('unlockProduct: Missing user or profile');
-      return;
+    if (!user) {
+      console.error('unlockProduct: No user logged in');
+      throw new Error('Vui lòng đăng nhập để lưu tiến độ');
+    }
+
+    // Fetch fresh profile to avoid stale data
+    let currentProfile = profile;
+    if (!currentProfile) {
+      console.log('unlockProduct: Profile not in state, fetching from database...');
+      const { data: freshProfile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !freshProfile) {
+        console.error('unlockProduct: Could not fetch profile', error);
+        throw new Error('Không thể tải thông tin người dùng');
+      }
+      currentProfile = freshProfile as Profile;
+      set({ profile: currentProfile });
     }
 
     const inputIds = Array.isArray(productIds) ? productIds : [productIds];
-    const currentProducts = profile.unlocked_products || [];
+    const currentProducts = currentProfile.unlocked_products || [];
 
     // Create a new set of products to avoid duplicates
     let newProducts = [...currentProducts];
@@ -338,7 +393,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     const completedRegions = [hasBac, hasTrung, hasNam].filter(Boolean).length;
 
-    const newBadges: string[] = [...(profile.badges || [])];
+    const newBadges: string[] = [...(currentProfile.badges || [])];
     if (completedRegions >= 1 && !newBadges.includes('khoi-hanh')) {
       newBadges.push('khoi-hanh');
     }
@@ -351,11 +406,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     console.log('unlockProduct: Updating profile with', { unlocked_products: newProducts, badges: newBadges });
 
-    await get().updateProfile({
-      unlocked_products: newProducts,
-      badges: newBadges
-    });
-
-    console.log('unlockProduct: Complete');
+    try {
+      await get().updateProfile({
+        unlocked_products: newProducts,
+        badges: newBadges
+      });
+      console.log('unlockProduct: Complete');
+    } catch (error) {
+      console.error('unlockProduct: Failed to save', error);
+      throw new Error('Không thể lưu tiến độ. Vui lòng thử lại.');
+    }
   }
 }));

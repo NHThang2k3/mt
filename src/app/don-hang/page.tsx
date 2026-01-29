@@ -41,34 +41,40 @@ interface ShippingInfo {
 export default function OrdersPage() {
   const router = useRouter();
   const { showToast } = useToast();
-  const { user, isInitialized, initialize } = useAuthStore();
+  const { user, isInitialized, initialize, isLoading: authLoading } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null);
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && !authLoading) {
       initialize();
     }
-  }, [isInitialized, initialize]);
+  }, [isInitialized, authLoading, initialize]);
 
   useEffect(() => {
-    if (isInitialized && !user) {
+    // Only redirect after auth is fully initialized AND we confirmed there's no user
+    // Also prevent multiple redirects
+    if (isInitialized && !authLoading && !user && !hasRedirected) {
+      setHasRedirected(true);
       router.push('/dang-nhap?redirect=/don-hang');
     }
-  }, [user, isInitialized, router]);
+  }, [user, isInitialized, authLoading, router, hasRedirected]);
 
   useEffect(() => {
-    if (user) {
+    if (isInitialized && user) {
       fetchOrders();
     }
-  }, [user]);
+  }, [user, isInitialized]);
 
   const fetchOrders = async () => {
     if (!user) return;
     
     setIsLoading(true);
+    setFetchError(null);
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -78,11 +84,13 @@ export default function OrdersPage() {
 
       if (error) {
         console.error('Error fetching orders:', error);
+        setFetchError('Không thể tải danh sách đơn hàng. Vui lòng thử lại.');
       } else {
         setOrders(data || []);
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
+      setFetchError('Đã xảy ra lỗi khi tải đơn hàng.');
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +159,7 @@ export default function OrdersPage() {
     }
   };
 
-  if (!isInitialized || !user) {
+  if (!isInitialized || authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center pattern-bg">
         <div className="text-center">
@@ -182,12 +190,36 @@ export default function OrdersPage() {
           </p>
         </motion.div>
 
+        {/* Error Display */}
+        {fetchError && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="card p-8 text-center mb-8 border-2 border-red-200 bg-red-50"
+          >
+            <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-red-700 mb-2">
+              {fetchError}
+            </h2>
+            <p className="text-red-600/70 mb-6">
+              Vui lòng kiểm tra kết nối mạng và thử lại.
+            </p>
+            <button
+              onClick={fetchOrders}
+              className="btn-primary inline-flex items-center gap-2"
+            >
+              <Loader2 size={18} className={isLoading ? 'animate-spin' : 'hidden'} />
+              Thử lại
+            </button>
+          </motion.div>
+        )}
+
         {/* Orders List */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 size={40} className="animate-spin text-[var(--color-gold)]" />
           </div>
-        ) : orders.length === 0 ? (
+        ) : !fetchError && orders.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -205,7 +237,7 @@ export default function OrdersPage() {
               Mua sắm ngay
             </Link>
           </motion.div>
-        ) : (
+        ) : !fetchError && (
           <div className="space-y-6">
             {orders.map((order, index) => {
               const statusInfo = getStatusInfo(order.status);
