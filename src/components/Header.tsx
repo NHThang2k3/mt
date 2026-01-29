@@ -84,17 +84,11 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center gap-1 transition-colors font-medium ${
+                  className={`relative flex items-center gap-1 transition-colors font-medium ${
                     isActive ? 'text-[var(--color-gold)]' : 'text-[var(--color-brown)] hover:text-[var(--color-gold)]'
                   }`}
                 >
                   {link.label}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[var(--color-gold)]"
-                    />
-                  )}
                 </Link>
               );
             })}

@@ -64,7 +64,7 @@ Khi thưởng thức, vị chua dịu lan nhẹ nơi đầu lưỡi, sau đó l�
     weight: '250g',
     region: 'trung',
     regionName: 'Miền Trung',
-    image: '/images/hat_sen.png',
+    image: '/images/hat_sen.jpg',
     description: 'Khi vị thanh của cố đô chạm vào nhịp sống hiện đại',
     story: `Có những vùng đất không cần ồn ào để được nhớ đến, và Huế là một nơi như thế. Thành phố lặng lẽ bên dòng Hương Giang, nơi nhịp sống chậm rãi và sen Huế hiện lên như biểu tượng của sự thuần khiết, thanh tao trong văn hóa cố đô.
 
@@ -83,7 +83,7 @@ Mứt sen mang sắc vàng hanh dịu mắt, vị ngọt đậm mà tinh. Chỉ 
     weight: '250g',
     region: 'trung',
     regionName: 'Miền Trung',
-    image: '/images/dau_tay.png',
+    image: '/images/dau_tay.jpg',
     description: 'Ngọt lành từ cao nguyên sương mù',
     story: `Đà Lạt hiện ra rất khẽ, không ồn ào cũng chẳng vội vàng. Thành phố cao nguyên với sương sớm, nắng dịu và cái se lạnh quen thuộc tạo nên nhịp sống chậm rãi, nơi những trái dâu lớn lên tự nhiên, mang sắc đỏ hồng trong trẻo và vị chua thanh rất riêng.
 

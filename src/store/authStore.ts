@@ -34,18 +34,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     set({ isLoading: true });
 
-    // Safety timeout - if initialization takes more than 10 seconds, force it to complete
+    // Safety timeout - if initialization takes more than 5 seconds, force it to complete
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+      setTimeout(() => reject(new Error('Auth initialization timeout')), 5000)
     );
 
     try {
       const initTask = (async () => {
+        console.log('Auth initialization: Fetching session...');
         // First, handle the initial session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
-          console.error('Session fetch error:', sessionError);
+          console.error('Auth initialization: Session fetch error:', sessionError);
         }
 
         if (session?.user) {
@@ -94,7 +95,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         // Setup listener if not already set
         if (!(window as any).__supabaseAuthListenerSet) {
+          console.log('Auth initialization: Setting up auth listener');
           supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth listener event:', event);
             if (session?.user) {
               const { data: profile } = await supabase
                 .from('profiles')
@@ -123,6 +126,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signUp: async (email, password, name) => {
     set({ isLoading: true });
     try {
+      console.log('Auth: Starting sign up process');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -132,16 +136,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
 
       if (error) {
+        console.error('Auth: Sign up error', error);
         set({ isLoading: false });
         return { error: error.message };
       }
 
-      // No need to manually create profile here if Trigger is set up in SQL
-      // But let's check if the trigger worked or if we should still do it for safety
       if (data.user) {
-        // We wait a bit or try to fetch it to see if it exists
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+        console.log('Auth: Sign up successful, ensuring profile exists');
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
         if (!profile) {
+          console.log('Auth: Profile not found after signup, creating...');
           await supabase.from('profiles').insert({
             id: data.user.id,
             name,
@@ -150,11 +159,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             badges: []
           });
         }
+
+        // Optionally set state here, though session change might trigger listener
+        set({ user: data.user });
       }
 
       set({ isLoading: false });
       return { error: null };
     } catch (error) {
+      console.error('Auth: Unexpected signup error', error);
       set({ isLoading: false });
       return { error: 'Đã có lỗi xảy ra' };
     }
@@ -163,19 +176,34 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signIn: async (email, password) => {
     set({ isLoading: true });
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Auth: Starting sign in process');
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
       if (error) {
+        console.error('Auth: Sign in error', error);
         set({ isLoading: false });
         return { error: error.message };
+      }
+
+      if (data.user) {
+        console.log('Auth: Sign in successful, capturing state');
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        set({ user: data.user, profile: profile || null });
+        getCartStore().then(store => store.getState().setUserId(data.user.id));
       }
 
       set({ isLoading: false });
       return { error: null };
     } catch (error) {
+      console.error('Auth: Unexpected signin error', error);
       set({ isLoading: false });
       return { error: 'Đã có lỗi xảy ra' };
     }
