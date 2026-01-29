@@ -185,6 +185,17 @@ export default function QRScannerPage() {
     setIsScanning(true);
 
     try {
+      // Cleanup previous scanner if exists
+      if (scannerRef.current) {
+        try {
+          await scannerRef.current.stop();
+          scannerRef.current.clear();
+        } catch (e) {
+          console.log('Cleanup previous scanner:', e);
+        }
+        scannerRef.current = null;
+      }
+
       // Dynamically import html5-qrcode
       const { Html5Qrcode } = await import('html5-qrcode');
       
@@ -229,6 +240,9 @@ export default function QRScannerPage() {
       
       setCameraError(errorMsg);
       setStatus('idle');
+      
+      // Clear scanner ref on error
+      scannerRef.current = null;
     }
   }, [handleScanSuccess]);
 
@@ -237,20 +251,33 @@ export default function QRScannerPage() {
     if (scannerRef.current) {
       try {
         await scannerRef.current.stop();
+        scannerRef.current.clear();
       } catch (e) {
-        console.log('Scanner already stopped');
+        console.log('Scanner stop error:', e);
       }
+      scannerRef.current = null;
     }
     setIsScanning(false);
     setStatus('idle');
   }, []);
 
   // Reset to scan again
-  const resetScanner = useCallback(() => {
+  const resetScanner = useCallback(async () => {
+    // Cleanup scanner before reset
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+        scannerRef.current.clear();
+      } catch (e) {
+        console.log('Reset scanner cleanup:', e);
+      }
+      scannerRef.current = null;
+    }
     setStatus('idle');
     setScanResult(null);
     setErrorMessage('');
     setCameraError('');
+    setIsScanning(false);
   }, []);
 
   // Cleanup on unmount
@@ -258,6 +285,10 @@ export default function QRScannerPage() {
     return () => {
       if (scannerRef.current) {
         scannerRef.current.stop().catch(() => {});
+        try {
+          scannerRef.current.clear();
+        } catch (e) {}
+        scannerRef.current = null;
       }
     };
   }, []);
