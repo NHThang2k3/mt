@@ -210,28 +210,52 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   updateProfile: async (updates) => {
     const { user } = get();
-    if (!user) return;
+    if (!user) {
+      console.error('updateProfile: No user logged in');
+      return;
+    }
 
-    const { data } = await supabase
+    console.log('updateProfile: Updating with', updates);
+
+    const { data, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', user.id)
       .select()
       .single();
 
+    if (error) {
+      console.error('updateProfile: Supabase error', error);
+      return;
+    }
+
     if (data) {
+      console.log('updateProfile: Success, new profile', data);
       set({ profile: data as Profile });
     }
   },
 
   unlockProduct: async (productId) => {
     const { user, profile } = get();
-    if (!user || !profile) return;
+
+    console.log('unlockProduct: Starting unlock for', productId);
+    console.log('unlockProduct: User', user?.id, 'Profile', profile?.id);
+
+    if (!user || !profile) {
+      console.error('unlockProduct: Missing user or profile');
+      return;
+    }
 
     const currentProducts = profile.unlocked_products || [];
-    if (currentProducts.includes(productId)) return;
+    console.log('unlockProduct: Current products', currentProducts);
+
+    if (currentProducts.includes(productId)) {
+      console.log('unlockProduct: Product already unlocked');
+      return;
+    }
 
     const newProducts = [...currentProducts, productId];
+    console.log('unlockProduct: New products list', newProducts);
 
     // Check badges
     const bacProducts = ['bac-man', 'bac-mo'];
@@ -255,9 +279,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       newBadges.push('dai-su');
     }
 
+    console.log('unlockProduct: Calling updateProfile with', { unlocked_products: newProducts, badges: newBadges });
+
     await get().updateProfile({
       unlocked_products: newProducts,
       badges: newBadges
     });
+
+    console.log('unlockProduct: Complete');
   }
 }));

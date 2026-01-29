@@ -76,6 +76,8 @@ export default function QRScannerPage() {
 
   // Handle successful scan
   const handleScanSuccess = useCallback(async (decodedText: string) => {
+    console.log('QR Scanner: Scanned text:', decodedText);
+    
     // Stop scanning immediately
     if (scannerRef.current) {
       try {
@@ -88,6 +90,7 @@ export default function QRScannerPage() {
 
     // Check if valid system QR
     if (!isValidSystemQR(decodedText)) {
+      console.log('QR Scanner: Invalid QR code');
       setStatus('invalid');
       setErrorMessage('Mã QR này không thuộc hệ thống VietCharm');
       return;
@@ -95,6 +98,7 @@ export default function QRScannerPage() {
 
     // Check for special code
     if (decodedText === 'VIETCHARM_ALL') {
+      console.log('QR Scanner: Special code detected');
       setScanResult({ code: decodedText, isSpecial: true });
       setStatus('success');
       
@@ -102,6 +106,7 @@ export default function QRScannerPage() {
       const allProductIds = ['bac-man', 'bac-mo', 'trung-sen', 'trung-dau', 'nam-dua', 'nam-mangcau'];
       for (const productId of allProductIds) {
         if (!profile?.unlocked_products?.includes(productId)) {
+          console.log('QR Scanner: Unlocking', productId);
           await unlockProduct(productId);
         }
       }
@@ -117,7 +122,10 @@ export default function QRScannerPage() {
 
     // Get product info
     const product = getProductFromCode(decodedText);
+    console.log('QR Scanner: Product from code:', product?.id);
+    
     if (!product) {
+      console.log('QR Scanner: Product not found');
       setStatus('error');
       setErrorMessage('Không tìm thấy sản phẩm tương ứng');
       return;
@@ -125,14 +133,21 @@ export default function QRScannerPage() {
 
     // Check if already unlocked
     const productId = product.id;
+    console.log('QR Scanner: Checking if already unlocked:', productId);
+    console.log('QR Scanner: Current unlocked products:', profile?.unlocked_products);
+    
     if (profile?.unlocked_products?.includes(productId)) {
+      console.log('QR Scanner: Already unlocked');
       setScanResult({ code: decodedText, product });
       setStatus('already');
       return;
     }
 
     // Unlock the product
+    console.log('QR Scanner: Calling unlockProduct for:', productId);
     await unlockProduct(productId);
+    console.log('QR Scanner: unlockProduct completed');
+    
     setScanResult({ code: decodedText, product });
     setStatus('success');
     
