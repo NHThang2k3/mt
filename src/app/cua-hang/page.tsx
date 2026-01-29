@@ -77,7 +77,7 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen pattern-bg">
       {/* Hero Header */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-12 md:py-20 overflow-hidden">
         {/* Background decorations */}
         <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-[var(--color-gold)]/10 blur-3xl -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full bg-[var(--color-red)]/10 blur-3xl translate-x-1/2 translate-y-1/2" />

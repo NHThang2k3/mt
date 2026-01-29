@@ -309,7 +309,7 @@ export default function QRScanPage() {
   }
 
   return (
-    <div className="min-h-screen pattern-bg py-12 px-4 pb-24">
+    <div className="min-h-screen pattern-bg py-6 md:py-12 px-4 pb-24">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">

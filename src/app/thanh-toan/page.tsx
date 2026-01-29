@@ -199,7 +199,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen pattern-bg py-12">
+    <div className="min-h-screen pattern-bg py-6 md:py-12">
       <div className="section max-w-4xl">
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-4 mb-12">
@@ -360,86 +360,138 @@ export default function CheckoutPage() {
             <div className="grid grid-cols-2 gap-4 mb-8">
               <button
                 onClick={() => setPaymentMethod('vnpay')}
-                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
                   paymentMethod === 'vnpay' 
-                    ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' 
-                    : 'border-[var(--border)] hover:border-[var(--color-gold)]/30'
+                    ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5 ring-4 ring-[var(--color-gold)]/10' 
+                    : 'border-[var(--border)] hover:border-[var(--color-gold)]/30 bg-white'
                 }`}
               >
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="font-bold text-blue-600">VNP</span>
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shadow-sm">
+                  <span className="font-bold text-blue-600 text-lg">VNP</span>
                 </div>
-                <span className="text-sm font-semibold">Cổng VNPay</span>
+                <div className="text-center">
+                  <span className="block font-bold text-[var(--color-brown)]">Cổng VNPay</span>
+                  <span className="text-[10px] text-[var(--color-brown)]/50 uppercase tracking-wider">Tự động xát nhận</span>
+                </div>
               </button>
 
               <button
                 onClick={() => setPaymentMethod('transfer')}
-                className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
                   paymentMethod === 'transfer' 
-                    ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' 
-                    : 'border-[var(--border)] hover:border-[var(--color-gold)]/30'
+                    ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5 ring-4 ring-[var(--color-gold)]/10' 
+                    : 'border-[var(--border)] hover:border-[var(--color-gold)]/30 bg-white'
                 }`}
               >
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <CreditCard className="text-amber-600" />
+                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shadow-sm">
+                  <CreditCard className="text-amber-600" size={24} />
                 </div>
-                <span className="text-sm font-semibold">Chuyển khoản</span>
+                <div className="text-center">
+                  <span className="block font-bold text-[var(--color-brown)]">Chuyển khoản</span>
+                  <span className="text-[10px] text-[var(--color-brown)]/50 uppercase tracking-wider">Xác nhận thủ công</span>
+                </div>
               </button>
             </div>
 
             {/* Payment Details Content */}
-            <div className="min-h-[200px]">
+            <div className="mb-10">
               {paymentMethod === 'vnpay' ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CreditCard size={32} />
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center py-10 bg-blue-50/30 rounded-3xl border border-blue-100"
+                >
+                  <div className="w-20 h-20 bg-white text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md">
+                    <CreditCard size={40} />
                   </div>
-                  <h3 className="font-bold text-[var(--color-brown)] mb-2">Thanh toán qua VNPay</h3>
-                  <p className="text-[var(--color-brown)]/60 text-sm max-w-xs mx-auto">
-                    Hệ thống sẽ giả lập luồng thanh toán thành công để bạn có thể kiểm tra quy trình đặt hàng.
+                  <h3 className="font-bold text-lg text-[var(--color-brown)] mb-2">Thanh toán qua VNPay</h3>
+                  <p className="text-[var(--color-brown)]/60 text-sm max-w-xs mx-auto px-4">
+                    Hệ thống sẽ kết nối với cổng VNPay. Để thuận tiện, chúng tôi đã giả lập luồng thanh toán thành công.
                   </p>
-                </div>
+                </motion.div>
               ) : (
-                <div className="text-center">
-                  <p className="text-[var(--color-brown)]/80 mb-4">
-                    Quét mã QR để chuyển khoản trực tiếp
-                  </p>
-                  <div className="inline-block p-4 bg-white rounded-2xl shadow-lg mb-4">
-                    <img 
-                      src="/qr-codes/qr-chuyen-khoan.jpg" 
-                      alt="QR Chuyển Khoản" 
-                      className="w-48 h-auto rounded-xl mx-auto"
-                    />
-                  </div>
-                  {transferCode && (
-                    <div className="bg-white p-3 rounded-lg border border-[var(--border)] inline-block">
-                      <p className="text-xs text-[var(--color-brown)]/60">Nội dung chuyển khoản:</p>
-                      <p className="font-mono font-bold text-[var(--color-gold)]">{transferCode}</p>
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-[var(--color-cream)] rounded-3xl p-8 border border-[var(--color-gold)]/20"
+                >
+                  <div className="flex flex-col md:flex-row items-center gap-8 justify-center">
+                    <div className="relative group">
+                      <div className="absolute -inset-4 bg-gradient-to-tr from-[var(--color-gold)]/20 to-transparent rounded-[2rem] blur-xl opacity-50" />
+                      <div className="relative p-4 bg-white rounded-2xl shadow-xl flex flex-col items-center">
+                        <img 
+                          src="/qr-codes/qr-chuyen-khoan.jpg" 
+                          alt="QR Chuyển Khoản" 
+                          className="w-44 h-auto rounded-lg mb-2"
+                        />
+                        <p className="text-[10px] font-bold text-[var(--color-brown)]/40 uppercase tracking-tighter">VietCharm Official QR</p>
+                      </div>
                     </div>
-                  )}
-                </div>
+
+                    <div className="flex-1 max-w-xs space-y-4">
+                      <div className="text-center md:text-left">
+                        <h3 className="font-bold text-[var(--color-brown)] text-lg mb-1">Quét mã để thanh toán</h3>
+                        <p className="text-sm text-[var(--color-brown)]/60">Vui lòng nhập đúng nội dung chuyển khoản bên dưới để đơn hàng được duyệt nhanh nhất.</p>
+                      </div>
+                      
+                      {transferCode && (
+                        <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-[var(--color-gold)]/30 text-center md:text-left">
+                          <p className="text-[10px] font-bold text-[var(--color-brown)]/40 uppercase mb-1">Nội dung chuyển khoản</p>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono font-black text-xl text-[var(--color-gold)] tracking-wider">
+                              {transferCode}
+                            </span>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(transferCode);
+                                showToast('success', 'Đã sao chép mã!');
+                              }}
+                              className="p-2 hover:bg-[var(--color-cream)] rounded-lg transition-colors text-[var(--color-gold)]"
+                              title="Sao chép"
+                            >
+                              <Package size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
               )}
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-[var(--border)]">
               <button
                 onClick={() => setStep(1)}
-                className="btn-secondary flex-1"
+                className="btn-secondary px-8 py-4"
               >
                 Quay Lại
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="btn-primary flex-1 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="btn-primary flex-1 py-4 disabled:opacity-50 flex items-center justify-center gap-3 text-lg"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader2 size={24} className="animate-spin" />
                     Đang xử lý...
                   </>
                 ) : (
-                  paymentMethod === 'vnpay' ? 'Thanh Toán Ngay' : 'Xác Nhận Đã Chuyển Khoản'
+                  <>
+                    {paymentMethod === 'vnpay' ? (
+                      <>
+                        <CreditCard size={20} />
+                        Thanh Toán Ngay
+                      </>
+                    ) : (
+                      <>
+                        <Check size={20} />
+                        <span className="hidden sm:inline">Xác Nhận Đã Chuyển Khoản</span>
+                        <span className="sm:hidden">Xác Nhận</span>
+                      </>
+                    )}
+                  </>
                 )}
               </button>
             </div>

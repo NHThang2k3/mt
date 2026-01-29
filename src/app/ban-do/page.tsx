@@ -126,7 +126,7 @@ export default function MapPage() {
   return (
     <div className="min-h-screen pattern-bg">
       {/* Header */}
-      <section className="py-16 text-center">
+      <section className="py-8 md:py-16 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -100,7 +100,7 @@ export default function Home() {
       </section>
 
       {/* Region Intro Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 md:py-20 bg-white">
         <div className="section">
           <div className="text-center mb-12">
             <motion.div
@@ -168,7 +168,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 pattern-bg">
+      <section className="py-12 md:py-20 pattern-bg">
         <div className="section">
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -210,7 +210,7 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-20 bg-white">
+      <section className="py-12 md:py-20 bg-white">
         <div className="section">
           <div className="text-center mb-12">
             <motion.div
@@ -247,7 +247,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 gradient-heritage">
+      <section className="py-12 md:py-20 gradient-heritage">
         <div className="section text-center text-white">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
