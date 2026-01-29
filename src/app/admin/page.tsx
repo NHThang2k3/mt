@@ -140,18 +140,28 @@ export default function AdminPage() {
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-[var(--color-gold)] border-t-transparent rounded-full"
+          className="w-12 h-12 border-4 border-[var(--color-gold)] border-t-transparent rounded-full mb-4"
         />
+        <p className="text-gray-500 animate-pulse">Đang kiểm tra quyền truy cập...</p>
       </div>
     );
   }
 
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return null;
+  if (user?.email !== ADMIN_EMAIL) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
+        <Shield size={64} className="text-red-500 mb-4" />
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Truy cập bị từ chối</h1>
+        <p className="text-gray-500 text-center mb-6">Bạn không có quyền truy cập vào trang quản trị này.</p>
+        <Link href="/" className="btn-primary">
+          Quay về trang chủ
+        </Link>
+      </div>
+    );
   }
 
   return (

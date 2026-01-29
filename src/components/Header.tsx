@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { ShoppingCart, User, Menu, X, LogOut, Shield, Package, QrCode } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
@@ -12,6 +14,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const pathname = usePathname();
   const itemCount = useCartStore((state) => state.items.reduce((acc, item) => acc + item.quantity, 0));
   const { user, profile, signOut, initialize, isInitialized } = useAuthStore();
 
@@ -75,15 +78,26 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-1 text-[var(--color-brown)] hover:text-[var(--color-gold)] transition-colors font-medium"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center gap-1 transition-colors font-medium ${
+                    isActive ? 'text-[var(--color-gold)]' : 'text-[var(--color-brown)] hover:text-[var(--color-gold)]'
+                  }`}
+                >
+                  {link.label}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[var(--color-gold)]"
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Actions */}
@@ -172,16 +186,23 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 top-20 z-40 bg-white overflow-y-auto">
           <nav className="flex flex-col gap-2 p-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors text-[var(--color-brown)] font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+                    isActive 
+                      ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]' 
+                      : 'text-[var(--color-brown)] hover:bg-[var(--color-cream-dark)]'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             {user ? (
               <>
                 <div className="px-4 py-3 border-t border-[var(--border)] mt-2">
@@ -194,15 +215,23 @@ export default function Header() {
                 </div>
                 <Link
                   href="/quet-ma"
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-red)]/10 hover:from-[var(--color-gold)]/20 hover:to-[var(--color-red)]/20 transition-colors text-[var(--color-brown)] border border-[var(--color-gold)]/30"
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors border ${
+                    pathname === '/quet-ma'
+                      ? 'bg-[var(--color-gold)]/20 text-[var(--color-gold)] border-[var(--color-gold)]'
+                      : 'bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-red)]/10 text-[var(--color-brown)] border-[var(--color-gold)]/30 hover:from-[var(--color-gold)]/20 hover:to-[var(--color-red)]/20'
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <QrCode size={18} className="text-[var(--color-gold)]" />
+                  <QrCode size={18} className={pathname === '/quet-ma' ? 'text-[var(--color-gold)]' : 'text-[var(--color-gold)]'} />
                   <span className="font-medium">Quét Mã QR</span>
                 </Link>
                 <Link
                   href="/don-hang"
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors text-[var(--color-brown)]"
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+                    pathname === '/don-hang'
+                      ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]'
+                      : 'text-[var(--color-brown)] hover:bg-[var(--color-cream-dark)]'
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Package size={18} />
@@ -224,7 +253,11 @@ export default function Header() {
             ) : (
               <Link
                 href="/dang-nhap"
-                className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors text-[var(--color-brown)]"
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+                  pathname === '/dang-nhap'
+                    ? 'bg-[var(--color-gold)]/10 text-[var(--color-gold)]'
+                    : 'text-[var(--color-brown)] hover:bg-[var(--color-cream-dark)]'
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <User size={18} />

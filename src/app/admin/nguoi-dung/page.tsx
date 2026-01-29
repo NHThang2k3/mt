@@ -18,7 +18,8 @@ import {
   ArrowLeft,
   Loader2,
   Search,
-  Package
+  Package,
+  Shield
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
@@ -143,14 +144,24 @@ export default function AdminUsersPage() {
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 size={40} className="animate-spin text-amber-500" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <Loader2 size={40} className="animate-spin text-amber-500 mb-4" />
+        <p className="text-gray-500 animate-pulse">Đang kiểm tra quyền truy cập...</p>
       </div>
     );
   }
 
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return null;
+  if (user?.email !== ADMIN_EMAIL) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
+        <Shield size={64} className="text-red-500 mb-4" />
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Truy cập bị từ chối</h1>
+        <p className="text-gray-500 text-center mb-6">Bạn không có quyền quản lý người dùng.</p>
+        <Link href="/" className="btn-primary">
+          Quay về trang chủ
+        </Link>
+      </div>
+    );
   }
 
   return (

@@ -33,112 +33,89 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (get().isInitialized || get().isLoading) return;
 
     set({ isLoading: true });
+
+    // Safety timeout - if initialization takes more than 10 seconds, force it to complete
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+    );
+
     try {
-      // First, handle the initial session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const initTask = (async () => {
+        // First, handle the initial session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      if (sessionError) {
-        console.error('Session fetch error:', sessionError);
-      }
-
-      if (session?.user) {
-        let { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        // If profile doesn't exist (e.g., after truncate or new user), create it
-        if (profileError || !profile) {
-          console.log('Profile not found, creating new profile for user:', session.user.id);
-          const newProfile = {
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-            unlocked_products: [],
-            badges: [],
-            created_at: new Date().toISOString()
-          };
-
-          const { data: createdProfile, error: createError } = await supabase
-            .from('profiles')
-            .upsert(newProfile)
-            .select()
-            .single();
-
-          if (createError) {
-            console.error('Failed to create profile:', createError);
-          } else {
-            profile = createdProfile;
-            console.log('Created new profile:', profile);
-          }
+        if (sessionError) {
+          console.error('Session fetch error:', sessionError);
         }
 
-        set({
-          user: session.user,
-          profile: profile || null,
-          isInitialized: true,
-          isLoading: false
-        });
+        if (session?.user) {
+          let { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-        // Sync cart with user
-        const CartStore = await getCartStore();
-        CartStore.getState().setUserId(session.user.id);
-      } else {
-        set({ isInitialized: true, isLoading: false, user: null, profile: null });
-        const CartStore = await getCartStore();
-        CartStore.getState().setUserId(null);
-      }
+          // If profile doesn't exist, create it
+          if (profileError || !profile) {
+            console.log('Profile not found, creating new profile for user:', session.user.id);
+            const newProfile = {
+              id: session.user.id,
+              email: session.user.email,
+              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+              unlocked_products: [],
+              badges: [],
+              created_at: new Date().toISOString()
+            };
 
-      // Important: Only set up the listener ONCE
-      // We check if we already have it using a global window variable or similar
-      // But in Zustand, we can just check a flag in the store
-      if (!(window as any).__supabaseAuthListenerSet) {
-        supabase.auth.onAuthStateChange(async (event, session) => {
-          if (session?.user) {
-            let { data: profile, error: profileError } = await supabase
+            const { data: createdProfile, error: createError } = await supabase
               .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
+              .upsert(newProfile)
+              .select()
               .single();
 
-            // If profile doesn't exist, create it
-            if (profileError || !profile) {
-              console.log('onAuthStateChange: Profile not found, creating new profile');
-              const newProfile = {
-                id: session.user.id,
-                email: session.user.email,
-                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-                unlocked_products: [],
-                badges: [],
-                created_at: new Date().toISOString()
-              };
+            if (!createError && createdProfile) {
+              profile = createdProfile;
+            }
+          }
 
-              const { data: createdProfile, error: createError } = await supabase
+          set({
+            user: session.user,
+            profile: profile || null,
+            isInitialized: true,
+            isLoading: false
+          });
+
+          // Sync cart with user (non-blocking)
+          getCartStore().then(store => store.getState().setUserId(session.user.id));
+        } else {
+          set({ isInitialized: true, isLoading: false, user: null, profile: null });
+          getCartStore().then(store => store.getState().setUserId(null));
+        }
+
+        // Setup listener if not already set
+        if (!(window as any).__supabaseAuthListenerSet) {
+          supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+              const { data: profile } = await supabase
                 .from('profiles')
-                .upsert(newProfile)
-                .select()
+                .select('*')
+                .eq('id', session.user.id)
                 .single();
 
-              if (!createError && createdProfile) {
-                profile = createdProfile;
-                console.log('onAuthStateChange: Created new profile:', profile);
-              }
+              set({ user: session.user, profile: profile || null, isInitialized: true });
+              getCartStore().then(store => store.getState().setUserId(session.user.id));
+            } else {
+              set({ user: null, profile: null, isInitialized: true });
+              getCartStore().then(store => store.getState().setUserId(null));
             }
+          });
+          (window as any).__supabaseAuthListenerSet = true;
+        }
+      })();
 
-            set({ user: session.user, profile: profile || null, isInitialized: true });
-            const CartStore = await getCartStore();
-            CartStore.getState().setUserId(session.user.id);
-          } else {
-            set({ user: null, profile: null, isInitialized: true });
-            const CartStore = await getCartStore();
-            CartStore.getState().setUserId(null);
-          }
-        });
-        (window as any).__supabaseAuthListenerSet = true;
-      }
+      await Promise.race([initTask, timeoutPromise]);
     } catch (error) {
-      console.error('Auth init error:', error);
+      console.error('Auth init error or timeout:', error);
       set({ isInitialized: true, isLoading: false });
     }
   },

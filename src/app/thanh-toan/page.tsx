@@ -463,7 +463,7 @@ export default function CheckoutPage() {
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-[var(--border)]">
               <button
                 onClick={() => setStep(1)}
-                className="btn-secondary px-8 py-4"
+                className="btn-secondary flex-1 py-4"
               >
                 Quay Lại
               </button>
@@ -479,18 +479,8 @@ export default function CheckoutPage() {
                   </>
                 ) : (
                   <>
-                    {paymentMethod === 'vnpay' ? (
-                      <>
-                        <CreditCard size={20} />
-                        Thanh Toán Ngay
-                      </>
-                    ) : (
-                      <>
-                        <Check size={20} />
-                        <span className="hidden sm:inline">Xác Nhận Đã Chuyển Khoản</span>
-                        <span className="sm:hidden">Xác Nhận</span>
-                      </>
-                    )}
+                    <Check size={20} />
+                    Xác Nhận
                   </>
                 )}
               </button>
