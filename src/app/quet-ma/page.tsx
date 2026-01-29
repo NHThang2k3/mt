@@ -206,12 +206,28 @@ export default function QRScannerPage() {
       );
     } catch (err: any) {
       console.error('Camera error:', err);
+      console.error('Camera error name:', err.name);
+      console.error('Camera error message:', err.message);
       setIsScanning(false);
-      setCameraError(
-        err.message?.includes('Permission') 
-          ? 'Vui lòng cho phép truy cập camera để quét mã QR'
-          : 'Không thể khởi động camera. Vui lòng kiểm tra lại thiết bị.'
-      );
+      
+      // Phân loại lỗi chi tiết hơn
+      let errorMsg = 'Không thể khởi động camera.';
+      
+      if (err.name === 'NotAllowedError' || err.message?.includes('Permission')) {
+        errorMsg = 'Bạn cần cho phép truy cập camera. Vui lòng:\n1. Nhấn vào biểu tượng khóa 🔒 cạnh URL\n2. Bật quyền "Camera"\n3. Tải lại trang';
+      } else if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
+        errorMsg = 'Không tìm thấy camera trên thiết bị này.';
+      } else if (err.name === 'NotReadableError' || err.message?.includes('in use')) {
+        errorMsg = 'Camera đang được sử dụng bởi ứng dụng khác. Vui lòng đóng các ứng dụng khác và thử lại.';
+      } else if (err.name === 'OverconstrainedError') {
+        errorMsg = 'Camera không hỗ trợ cấu hình yêu cầu.';
+      } else if (err.message?.includes('insecure')) {
+        errorMsg = 'Camera chỉ hoạt động trên kết nối bảo mật (HTTPS).';
+      } else {
+        errorMsg = `Không thể khởi động camera: ${err.message || 'Lỗi không xác định'}`;
+      }
+      
+      setCameraError(errorMsg);
       setStatus('idle');
     }
   }, [handleScanSuccess]);
