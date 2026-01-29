@@ -188,8 +188,10 @@ export default function QRScannerPage() {
       // Cleanup previous scanner if exists
       if (scannerRef.current) {
         try {
-          await scannerRef.current.stop();
-          scannerRef.current.clear();
+          const state = scannerRef.current.getState?.();
+          if (state === 2) { // SCANNING state
+            await scannerRef.current.stop();
+          }
         } catch (e) {
           console.log('Cleanup previous scanner:', e);
         }
@@ -251,7 +253,6 @@ export default function QRScannerPage() {
     if (scannerRef.current) {
       try {
         await scannerRef.current.stop();
-        scannerRef.current.clear();
       } catch (e) {
         console.log('Scanner stop error:', e);
       }
@@ -267,7 +268,6 @@ export default function QRScannerPage() {
     if (scannerRef.current) {
       try {
         await scannerRef.current.stop();
-        scannerRef.current.clear();
       } catch (e) {
         console.log('Reset scanner cleanup:', e);
       }
@@ -285,9 +285,6 @@ export default function QRScannerPage() {
     return () => {
       if (scannerRef.current) {
         scannerRef.current.stop().catch(() => {});
-        try {
-          scannerRef.current.clear();
-        } catch (e) {}
         scannerRef.current = null;
       }
     };
