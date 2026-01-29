@@ -35,9 +35,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     console.log('Auth initialization: Starting...');
 
-    // Safety timeout - if initialization takes more than 20 seconds, force it to complete
+    // Safety timeout - if initialization takes more than 30 seconds, force it to complete
     const timeoutPromise = new Promise<void>((_, reject) =>
-      setTimeout(() => reject(new Error('Auth initialization timeout')), 20000)
+      setTimeout(() => reject(new Error('Auth initialization timeout')), 30000)
     );
 
     try {
@@ -48,36 +48,63 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         let session = null;
         let sessionError = null;
 
-        // Try to get session with retry
-        for (let attempt = 0; attempt < 2; attempt++) {
-          const result = await supabase.auth.getSession();
-          session = result.data.session;
-          sessionError = result.error;
+        // Try to get session with more robust retry
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const { data, error } = await supabase.auth.getSession();
+            session = data.session;
+            sessionError = error;
 
-          if (session || !sessionError) break;
+            if (!error) break;
 
-          console.log(`Auth initialization: Retry attempt ${attempt + 1}`);
-          await new Promise(r => setTimeout(r, 500));
-        }
+            const isAbort = error.message?.includes('aborted') || error.message?.includes('signal');
+            if (isAbort) {
+              console.warn(`Auth initialization: Session fetch aborted (attempt ${attempt + 1})`);
+            } else {
+              console.error(`Auth initialization: Session fetch error (attempt ${attempt + 1}):`, error);
+            }
+          } catch (e: any) {
+            console.error(`Auth initialization: Caught session exception (attempt ${attempt + 1}):`, e);
+          }
 
-        if (sessionError) {
-          console.error('Auth initialization: Session fetch error:', sessionError);
+          const delay = (attempt + 1) * 1000;
+          await new Promise(r => setTimeout(r, delay));
         }
 
         console.log('Auth initialization: Session found?', !!session?.user);
 
         if (session?.user) {
           console.log('Auth initialization: User found, fetching profile...');
-          let { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
+          let profile = null;
+          let profileError = null;
+
+          // Retry profile fetch as well
+          for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+              const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+              profile = data;
+              profileError = error;
+
+              if (!error || error.code === 'PGRST116') break; // Found or Not Found (which is fine)
+
+              console.warn(`Auth initialization: Profile fetch error (attempt ${attempt + 1}):`, error);
+            } catch (e) {
+              console.error(`Auth initialization: Caught profile exception (attempt ${attempt + 1}):`, e);
+            }
+
+            const delay = (attempt + 1) * 800;
+            await new Promise(r => setTimeout(r, delay));
+          }
 
           // If profile doesn't exist, create it
-          if (profileError || !profile) {
+          if (!profile) {
             if (profileError && profileError.code !== 'PGRST116') {
-              console.warn('Auth initialization: Error fetching profile:', profileError);
+              console.warn('Auth initialization: Persistent error fetching profile:', profileError);
             }
 
             console.log('Profile not found or error, ensuring profile exists for user:', session.user.id);

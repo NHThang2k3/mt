@@ -90,7 +90,6 @@ export default function OrdersPage() {
     setIsLoading(true);
     setFetchError(null);
 
-    let caughtError: any = null;
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -99,47 +98,40 @@ export default function OrdersPage() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        // Handle specific Supabase errors
-        console.error('Error fetching orders:', error.message, error.details);
-        setFetchError(`Lỗi hệ thống: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
-      } else {
-        console.log(`fetchOrders: Found ${data?.length || 0} orders`);
-        setOrders(data || []);
+        throw error; // Throw so it's caught by our unified error handler
       }
-    } catch (error: any) {
-      caughtError = error;
-      console.error('fetchOrders: Caught error:', error);
-      
-      const isAbortError = error.name === 'AbortError' || 
-                         error.message?.includes('aborted') || 
-                         error.message?.includes('AbortError');
 
-      if (isAbortError) {
-        console.warn(`fetchOrders: Request was aborted (Attempt ${retryCount + 1}).`);
-        
-        if (retryCount < 2) {
-          const delay = (retryCount + 1) * 1000;
-          console.log(`Retrying silently in ${delay}ms...`);
-          setTimeout(() => {
-            fetchRef.current = false;
-            fetchOrders(retryCount + 1);
-          }, delay);
-          return; // Don't set error state yet
-        }
-        setFetchError('Kết nối bị gián đoạn do phản hồi chậm. Vui lòng thử lại.');
-      } else {
-        setFetchError('Lỗi kết nối: ' + (error.message || 'Không thể kết nối đến máy chủ.'));
-      }
-    } finally {
-      // Only set loading to false if we are NOT retrying
-      // This prevents the UI from flickering back to error/empty state
-      const isAbortError = caughtError?.name === 'AbortError' || caughtError?.message?.includes('aborted');
-      if (!isAbortError || retryCount >= 2) {
-        setIsLoading(false);
-      }
+      console.log(`fetchOrders: Found ${data?.length || 0} orders`);
+      setOrders(data || []);
+      setIsLoading(false);
+      fetchRef.current = false;
+    } catch (error: any) {
+      console.error(`fetchOrders error (Attempt ${retryCount + 1}):`, error);
       
-      if (retryCount >= 0) {
+      const errorMessage = error.message || '';
+      const isAbortError = error.name === 'AbortError' || 
+                         errorMessage.includes('aborted') || 
+                         errorMessage.includes('AbortError') ||
+                         errorMessage.includes('signal is aborted');
+
+      if (isAbortError && retryCount < 3) {
+        const delay = (retryCount + 1) * 1500;
+        console.warn(`fetchOrders: Request aborted, retrying in ${delay}ms...`);
+        
+        setTimeout(() => {
+          fetchRef.current = false;
+          fetchOrders(retryCount + 1);
+        }, delay);
+      } else {
+        // Final failure
         fetchRef.current = false;
+        setIsLoading(false);
+        
+        if (isAbortError) {
+          setFetchError('Kết nối tới máy chủ bị gián đoạn. Vui lòng kiểm tra lại mạng hoặc tải lại trang.');
+        } else {
+          setFetchError(`Lỗi hệ thống: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
+        }
       }
     }
   };
