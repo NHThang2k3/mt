@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { CheckCircle, XCircle, Loader2, MapPin, Lock } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { products } from '@/data/products';
+import { products, getProductFromCode } from '@/data/products';
 import { badgeInfo } from '@/store/userStore';
 import Link from 'next/link';
 
@@ -69,14 +69,15 @@ function UnlockContent() {
         return;
       }
 
-      // Find product by code (format: REGION_PRODUCT_XX, e.g., BAC_MAN_01)
-      const productId = code.toLowerCase().replace(/_\d+$/, '').replace('_', '-');
-      const product = products.find(p => p.id === productId);
-
+      // Find product by code
+      const product = getProductFromCode(code);
+      
       if (!product) {
         setStatus('error');
         return;
       }
+
+      const productId = product.id;
 
       setUnlockedProduct(product);
 
@@ -95,13 +96,24 @@ function UnlockContent() {
       const newBadges = currentBadges.filter(b => !previousBadges.includes(b));
       
       if (newBadges.length > 0) {
-        setNewBadge(newBadges[0]);
-        // Fire confetti for new badge!
-        confetti({
-          particleCount: 150,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+        // Prioritize showing the highest badge (dai-su) if multiple were earned at once (e.g. from combo)
+        const badgeToShow = newBadges.includes('dai-su') ? 'dai-su' : newBadges[0];
+        setNewBadge(badgeToShow);
+        
+        // Fire big confetti if they got the top badge
+        if (badgeToShow === 'dai-su') {
+          confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.5 }
+          });
+        } else {
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        }
       } else {
         // Small confetti for product unlock
         confetti({
@@ -109,6 +121,11 @@ function UnlockContent() {
           spread: 40,
           origin: { y: 0.7 }
         });
+      }
+
+      // If it's a combo product, set isUnlockAll to true for better UI
+      if (product.isCombo) {
+        setIsUnlockAll(true);
       }
 
       setStatus('success');

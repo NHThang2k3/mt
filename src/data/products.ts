@@ -193,9 +193,15 @@ export const getProductFromCode = (code: string): Product | undefined => {
     'TRUNG_DAU_01': 'trung-dau',
     'NAM_DUA_01': 'nam-dua',
     'NAM_MANGC_01': 'nam-mangcau',
+    'NAM_MANGCAU_01': 'nam-mangcau',
     'COMBO_01': 'combo-6-vi'
   };
 
-  const productId = mapping[code] || code;
-  return products.find(p => p.id === productId);
+  if (mapping[code]) {
+    return products.find(p => p.id === mapping[code]);
+  }
+
+  // Fallback: try to transform code to ID (e.g. NAM_MANGCAU_01 -> nam-mangcau)
+  const transformedId = code.toLowerCase().replace(/_\d+$/, '').replace(/_/g, '-');
+  return products.find(p => p.id === transformedId || p.id === code);
 };

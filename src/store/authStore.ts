@@ -300,7 +300,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    const newProducts = [...currentProducts, productId];
+    let newProducts = [...currentProducts, productId];
+
+    // If unlocking the combo, also unlock all 6 individual products
+    if (productId === 'combo-6-vi') {
+      const allProductIds = ['bac-man', 'bac-mo', 'trung-sen', 'trung-dau', 'nam-dua', 'nam-mangcau'];
+      newProducts = Array.from(new Set([...newProducts, ...allProductIds]));
+    }
+
     console.log('unlockProduct: New products list', newProducts);
 
     // Check badges

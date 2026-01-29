@@ -38,9 +38,9 @@ Với VietCharm, mứt mận Mộc Châu không chỉ là món ngọt ngày Tế
 
 ## Thông Tin Sản Phẩm
 
-- **Thành phần**: Mận hậu tươi, đường mía tinh luyện
-- **Nguồn nguyên liệu**: Cao nguyên Mộc Châu (Sơn La) – vùng trồng mận hậu truyền thống
-- **Đặc điểm**: Ít đường, không chất bảo quản, chế biến thủ công
+- Thành phần: Mận hậu tươi, đường mía tinh luyện
+- Nguồn nguyên liệu: Cao nguyên Mộc Châu (Sơn La) – vùng trồng mận hậu truyền thống
+- Đặc điểm: Ít đường, không chất bảo quản, chế biến thủ công
 
 ## Trải Nghiệm Văn Hóa Số VietCharm
 
@@ -79,9 +79,9 @@ Với VietCharm, mứt mơ Ba Vì không chỉ là món mứt truyền thống q
 
 ## Thông Tin Sản Phẩm
 
-- **Thành phần**: Mơ tươi, đường mía tinh luyện
-- **Nguồn nguyên liệu**: Vùng trồng mơ truyền thống tại Ba Vì (Hà Nội) và khu vực ven núi Tản
-- **Đặc điểm**: Ít đường, không chất bảo quản, chế biến thủ công
+- Thành phần: Mơ tươi, đường mía tinh luyện
+- Nguồn nguyên liệu: Vùng trồng mơ truyền thống tại Ba Vì (Hà Nội) và khu vực ven núi Tản
+- Đặc điểm: Ít đường, không chất bảo quản, chế biến thủ công
 
 ## Trải Nghiệm Văn Hóa Số VietCharm
 
@@ -119,9 +119,9 @@ Với VietCharm, mứt hạt sen không chỉ là một món ngọt ngày Tết,
 
 ## Thông Tin Sản Phẩm
 
-- **Thành phần**: Hạt sen tươi, đường mía tinh luyện
-- **Nguồn nguyên liệu**: Hồ sen làng Phú Mậu (Phú Vang) và khu vực Hương Sơ – Hương Long (TP. Huế)
-- **Đặc điểm**: Ít đường, không chất bảo quản, chế biến thủ công
+- Thành phần: Hạt sen tươi, đường mía tinh luyện
+- Nguồn nguyên liệu: Hồ sen làng Phú Mậu (Phú Vang) và khu vực Hương Sơ – Hương Long (TP. Huế)
+- Đặc điểm: Ít đường, không chất bảo quản, chế biến thủ công
 
 ## Trải Nghiệm Văn Hóa Số VietCharm
 
@@ -160,9 +160,9 @@ Với VietCharm, mứt dâu Đà Lạt không đơn thuần là món ngọt, mà
 
 ## Thông Tin Sản Phẩm
 
-- **Thành phần**: Dâu tươi Đà Lạt, đường mía tinh luyện
-- **Nguồn nguyên liệu**: Vườn dâu tại phường 7 – phường 8 (TP. Đà Lạt) và xã Xuân Thọ
-- **Đặc điểm**: Ít đường, không chất bảo quản, chế biến thủ công
+- Thành phần: Dâu tươi Đà Lạt, đường mía tinh luyện
+- Nguồn nguyên liệu: Vườn dâu tại phường 7 – phường 8 (TP. Đà Lạt) và xã Xuân Thọ
+- Đặc điểm: Ít đường, không chất bảo quản, chế biến thủ công
 
 ## Trải Nghiệm Văn Hóa Số VietCharm
 
@@ -200,9 +200,9 @@ Với VietCharm, mứt dừa Bến Tre không chỉ là món mứt truyền th�
 
 ## Thông Tin Sản Phẩm
 
-- **Thành phần**: Dừa tươi Bến Tre, đường mía tinh luyện
-- **Nguồn nguyên liệu**: Các vườn dừa tại tỉnh Bến Tre
-- **Đặc điểm**: Ít ngọt, không chất bảo quản, chế biến thủ công
+- Thành phần: Dừa tươi Bến Tre, đường mía tinh luyện
+- Nguồn nguyên liệu: Các vườn dừa tại tỉnh Bến Tre
+- Đặc điểm: Ít ngọt, không chất bảo quản, chế biến thủ công
 
 ## Trải Nghiệm Văn Hóa Số VietCharm
 
@@ -240,9 +240,9 @@ Với VietCharm, mứt mãng cầu Tiền Giang là cách lưu giữ sự tươi
 
 ## Thông Tin Sản Phẩm
 
-- **Thành phần**: Mãng cầu tươi Tiền Giang, đường mía tinh luyện
-- **Nguồn nguyên liệu**: Vườn trái cây Cái Bè – Cai Lậy (Tiền Giang)
-- **Đặc điểm**: Chua ngọt cân bằng, không chất bảo quản
+- Thành phần: Mãng cầu tươi Tiền Giang, đường mía tinh luyện
+- Nguồn nguyên liệu: Vườn trái cây Cái Bè – Cai Lậy (Tiền Giang)
+- Đặc điểm: Chua ngọt cân bằng, không chất bảo quản
 
 ## Trải Nghiệm Văn Hóa Số VietCharm
 

@@ -405,12 +405,11 @@ export default function CheckoutPage() {
                     Quét mã QR để chuyển khoản trực tiếp
                   </p>
                   <div className="inline-block p-4 bg-white rounded-2xl shadow-lg mb-4">
-                    <div className="w-40 h-40 bg-gray-50 flex items-center justify-center rounded-xl border border-dashed border-gray-200">
-                      <div className="text-center">
-                        <span className="text-4xl text-gray-300">📱</span>
-                        <p className="text-[10px] text-gray-400 mt-2 italic">Mã QR Chuyển Khoản</p>
-                      </div>
-                    </div>
+                    <img 
+                      src="/qr-codes/qr-chuyen-khoan.jpg" 
+                      alt="QR Chuyển Khoản" 
+                      className="w-48 h-auto rounded-xl mx-auto"
+                    />
                   </div>
                   {transferCode && (
                     <div className="bg-white p-3 rounded-lg border border-[var(--border)] inline-block">

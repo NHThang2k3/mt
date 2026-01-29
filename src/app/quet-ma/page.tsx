@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { getProductFromCode } from '@/data/products';
+import { badgeInfo } from '@/store/userStore';
 import confetti from 'canvas-confetti';
 
 export default function QRScanPage() {
@@ -29,6 +30,7 @@ export default function QRScanPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [cameraError, setCameraError] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  const [newBadge, setNewBadge] = useState<string | null>(null);
   
   const scannerRef = useRef<any>(null);
 
@@ -85,11 +87,15 @@ export default function QRScanPage() {
     const code = extractCodeFromQR(decodedText);
     console.log('QR Scanner: Processing code:', code);
 
+    // Save previous badges to compare
+    const previousBadges = profile?.badges || [];
+
     // Check for special code
     if (code === 'VIETCHARM_ALL') {
       console.log('QR Scanner: Special code detected');
       setScanResult({ code, isSpecial: true });
       setStatus('success');
+      setNewBadge('dai-su');
       
       // Unlock all products using internal IDs
       const allProductIds = [
@@ -103,9 +109,9 @@ export default function QRScanPage() {
       }
       
       confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.5 }
       });
       return;
     }
@@ -127,17 +133,34 @@ export default function QRScanPage() {
 
     // Attempt to unlock using internal product ID
     try {
-      setScanResult({ product, code });
+      setScanResult({ product, code, isSpecial: product.isCombo });
       setStatus('success');
-      unlockProduct(product.id); // Use internal ID (e.g. 'bac-man')
+      await unlockProduct(product.id); // Use internal ID (e.g. 'bac-man')
       playSuccessSound();
       
-      // Trigger confetti
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.6 }
-      });
+      // Check for new badge
+      const currentProfile = useAuthStore.getState().profile;
+      const currentBadges = currentProfile?.badges || [];
+      const newBadges = currentBadges.filter(b => !previousBadges.includes(b));
+      
+      if (newBadges.length > 0) {
+        // Prioritize dai-su
+        const badgeToShow = newBadges.includes('dai-su') ? 'dai-su' : newBadges[0];
+        setNewBadge(badgeToShow);
+        
+        confetti({
+          particleCount: badgeToShow === 'dai-su' ? 200 : 150,
+          spread: badgeToShow === 'dai-su' ? 100 : 70,
+          origin: { y: 0.5 }
+        });
+      } else {
+        // Trigger small confetti
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+      }
     } catch (err) {
       console.error('Unlock error:', err);
       setStatus('error');
@@ -439,6 +462,28 @@ export default function QRScanPage() {
                   </div>
                 )}
 
+                {/* New Badge Alert */}
+                {newBadge && badgeInfo[newBadge as keyof typeof badgeInfo] && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-[var(--color-gold)]/20 to-orange-500/10 border-2 border-[var(--color-gold)]"
+                  >
+                    <span className="text-4xl mb-2 block">
+                      {badgeInfo[newBadge as keyof typeof badgeInfo].icon}
+                    </span>
+                    <p className="text-sm font-bold text-[var(--color-brown)] uppercase tracking-wider">
+                      Danh Hiệu Mới!
+                    </p>
+                    <p className="text-xl font-bold text-[var(--color-gold)]">
+                      {badgeInfo[newBadge as keyof typeof badgeInfo].name}
+                    </p>
+                    <p className="text-xs text-[var(--color-brown)]/70 mt-1 max-w-[200px] mx-auto">
+                      {badgeInfo[newBadge as keyof typeof badgeInfo].description}
+                    </p>
+                  </motion.div>
+                )}
+
                 <div className="flex flex-col gap-3 max-w-[280px] mx-auto">
                   <Link 
                     href="/ban-do" 
@@ -540,13 +585,13 @@ export default function QRScanPage() {
                 🏠 Tiến độ bộ sưu tập
               </span>
               <span className="text-sm font-bold text-[var(--color-gold)]">
-                {profile.unlocked_products?.length || 0} / 6
+                {Math.min(profile.unlocked_products?.filter(id => id !== 'combo-6-vi').length || 0, 6)} / 6
               </span>
             </div>
             <div className="w-full h-3 bg-[var(--color-cream)] rounded-full overflow-hidden shadow-inner p-[2px]">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${((profile.unlocked_products?.length || 0) / 6) * 100}%` }}
+                animate={{ width: `${(Math.min(profile.unlocked_products?.filter(id => id !== 'combo-6-vi').length || 0, 6) / 6) * 100}%` }}
                 className="h-full gradient-gold rounded-full"
               />
             </div>
