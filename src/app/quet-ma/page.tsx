@@ -1,93 +1,62 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  QrCode, 
   Camera, 
+  QrCode, 
   X, 
   CheckCircle, 
-  XCircle, 
-  AlertTriangle,
-  Lock,
-  RefreshCw,
+  AlertTriangle, 
   ArrowLeft,
+  MapPin,
+  RefreshCw,
   Gift,
-  MapPin
+  XCircle
 } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
-import { products } from '@/data/products';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
+import { getProductFromCode } from '@/data/products';
 import confetti from 'canvas-confetti';
 
-// Valid QR code patterns for our system
-const VALID_QR_PATTERNS = [
-  /^BAC_MAN_\d{2}$/,      // Mứt Mận Mộc Châu
-  /^BAC_MO_\d{2}$/,       // Mứt Mơ Ba Vì
-  /^TRUNG_SEN_\d{2}$/,    // Mứt Hạt Sen Huế
-  /^TRUNG_DAU_\d{2}$/,    // Mứt Dâu Tây Đà Lạt
-  /^NAM_DUA_\d{2}$/,      // Mứt Dừa Bến Tre
-  /^NAM_MANGCAU_\d{2}$/,  // Mứt Mãng Cầu Tiền Giang
-  /^VIETCHARM_ALL$/,      // Mã đặc biệt mở khóa tất cả
-];
-
-type ScanStatus = 'idle' | 'scanning' | 'success' | 'error' | 'invalid' | 'already';
-
-interface ScanResult {
-  code: string;
-  product?: typeof products[0];
-  isSpecial?: boolean;
-}
-
-export default function QRScannerPage() {
+export default function QRScanPage() {
   const router = useRouter();
-  const { user, profile, unlockProduct, initialize, isInitialized, isLoading } = useAuthStore();
+  const { user, profile, isInitialized, isLoading, unlockProduct } = useAuthStore();
   
-  const [status, setStatus] = useState<ScanStatus>('idle');
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [status, setStatus] = useState<'idle' | 'scanning' | 'success' | 'invalid' | 'already' | 'error'>('idle');
+  const [scanResult, setScanResult] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [cameraError, setCameraError] = useState('');
   const [isScanning, setIsScanning] = useState(false);
-  const [cameraError, setCameraError] = useState<string>('');
   
   const scannerRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize auth
-  useEffect(() => {
-    if (!isInitialized) {
-      initialize();
-    }
-  }, [isInitialized, initialize]);
+  // Sound effects (optional, can be added later)
+  const playSuccessSound = () => {
+    // const audio = new Audio('/sounds/success.mp3');
+    // audio.play().catch(() => {});
+  };
 
-  // Extract code from QR content (could be URL or just code)
+  // Helper to extract code from various QR formats
   const extractCodeFromQR = useCallback((qrContent: string): string => {
-    // If it's a URL, extract the code parameter
+    // Handle URL format: https://.../unlock?code=BAC_MAN_01
     if (qrContent.includes('/unlock?code=')) {
       const match = qrContent.match(/[?&]code=([^&]+)/);
-      if (match) {
-        return match[1];
-      }
+      if (match) return match[1];
     }
-    // Otherwise, it's a direct code
+    
+    // Default return original string (if it's already just the code)
     return qrContent;
   }, []);
 
-  // Validate QR code belongs to our system
-  const isValidSystemQR = useCallback((qrContent: string): boolean => {
-    const code = extractCodeFromQR(qrContent);
-    console.log('QR Scanner: Extracted code:', code);
-    return VALID_QR_PATTERNS.some(pattern => pattern.test(code));
+  // Check if QR is valid system code
+  const isValidSystemQR = useCallback((text: string) => {
+    const code = extractCodeFromQR(text);
+    // Special dev code or product codes
+    if (code === 'VIETCHARM_ALL') return true;
+    return !!getProductFromCode(code);
   }, [extractCodeFromQR]);
-
-  // Get product from QR code
-  const getProductFromCode = useCallback((code: string): typeof products[0] | undefined => {
-    if (code === 'VIETCHARM_ALL') return undefined;
-    
-    // Convert QR code to product ID: BAC_MAN_01 -> bac-man
-    const productId = code.toLowerCase().replace(/_\d+$/, '').replace('_', '-');
-    return products.find(p => p.id === productId);
-  }, []);
 
   // Handle successful scan
   const handleScanSuccess = useCallback(async (decodedText: string) => {
@@ -100,7 +69,7 @@ export default function QRScannerPage() {
       } catch (e) {
         console.log('Scanner already stopped');
       }
-      scannerRef.current = null; // Clear ref để có thể start lại
+      scannerRef.current = null;
     }
     setIsScanning(false);
 
@@ -122,62 +91,59 @@ export default function QRScannerPage() {
       setScanResult({ code, isSpecial: true });
       setStatus('success');
       
-      // Unlock all products
-      const allProductIds = ['bac-man', 'bac-mo', 'trung-sen', 'trung-dau', 'nam-dua', 'nam-mangcau'];
-      for (const productId of allProductIds) {
-        if (!profile?.unlocked_products?.includes(productId)) {
-          console.log('QR Scanner: Unlocking', productId);
-          await unlockProduct(productId);
-        }
+      // Unlock all products using internal IDs
+      const allProductIds = [
+        'bac-man', 'bac-mo', 
+        'trung-sen', 'trung-dau', 
+        'nam-dua', 'nam-mangcau'
+      ];
+      
+      for (const id of allProductIds) {
+        unlockProduct(id);
       }
       
-      // Fire confetti
       confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.5 }
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
       });
       return;
     }
 
-    // Get product info using the extracted code
+    // Get product info
     const product = getProductFromCode(code);
-    console.log('QR Scanner: Product from code:', product?.id);
-    
     if (!product) {
-      console.log('QR Scanner: Product not found');
-      setStatus('error');
-      setErrorMessage('Không tìm thấy sản phẩm tương ứng');
+      setStatus('invalid');
+      setErrorMessage('Không tìm thấy thông tin sản phẩm');
       return;
     }
 
-    // Check if already unlocked
-    const productId = product.id;
-    console.log('QR Scanner: Checking if already unlocked:', productId);
-    console.log('QR Scanner: Current unlocked products:', profile?.unlocked_products);
-    
-    if (profile?.unlocked_products?.includes(productId)) {
-      console.log('QR Scanner: Already unlocked');
-      setScanResult({ code, product });
+    // Check if already unlocked locally using product ID
+    if (profile?.unlocked_products?.includes(product.id)) {
+      setScanResult({ product, code });
       setStatus('already');
       return;
     }
 
-    // Unlock the product
-    console.log('QR Scanner: Calling unlockProduct for:', productId);
-    await unlockProduct(productId);
-    console.log('QR Scanner: unlockProduct completed');
-    
-    setScanResult({ code, product });
-    setStatus('success');
-    
-    // Fire confetti
-    confetti({
-      particleCount: 80,
-      spread: 60,
-      origin: { y: 0.6 }
-    });
-  }, [isValidSystemQR, extractCodeFromQR, getProductFromCode, profile, unlockProduct]);
+    // Attempt to unlock using internal product ID
+    try {
+      setScanResult({ product, code });
+      setStatus('success');
+      unlockProduct(product.id); // Use internal ID (e.g. 'bac-man')
+      playSuccessSound();
+      
+      // Trigger confetti
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
+    } catch (err) {
+      console.error('Unlock error:', err);
+      setStatus('error');
+      setErrorMessage('Có lỗi xảy ra khi lưu tiến độ. Vui lòng thử lại.');
+    }
+  }, [isValidSystemQR, extractCodeFromQR, profile, unlockProduct]);
 
   // Start scanning
   const startScanning = useCallback(() => {
@@ -189,17 +155,16 @@ export default function QRScannerPage() {
   // Effect to initialize camera when status becomes 'scanning'
   useEffect(() => {
     let active = true;
-    let html5QrCode: any = null;
 
     const initCamera = async () => {
       if (status !== 'scanning') return;
       
-      // Small delay to let animations settle
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Small delay for DOM and animations
+      await new Promise(resolve => setTimeout(resolve, 500));
       if (!active) return;
 
       try {
-        // Cleanup global ref if something stayed behind
+        // Clear references
         if (scannerRef.current) {
           try {
             await scannerRef.current.stop();
@@ -207,9 +172,15 @@ export default function QRScannerPage() {
           scannerRef.current = null;
         }
 
-        const readerElement = document.getElementById('qr-reader');
+        let readerElement = document.getElementById('qr-reader');
         if (!readerElement) {
-          setCameraError('Lỗi khởi tạo: Không tìm thấy khung quét.');
+          // One more retry
+          await new Promise(resolve => setTimeout(resolve, 500));
+          readerElement = document.getElementById('qr-reader');
+        }
+
+        if (!readerElement) {
+          setCameraError('Lỗi khởi tạo: Không tìm thấy khung quét. Vui lòng thử lại.');
           setStatus('idle');
           setIsScanning(false);
           return;
@@ -218,7 +189,7 @@ export default function QRScannerPage() {
         const { Html5Qrcode } = await import('html5-qrcode');
         if (!active) return;
         
-        html5QrCode = new Html5Qrcode('qr-reader');
+        const html5QrCode = new Html5Qrcode('qr-reader');
         scannerRef.current = html5QrCode;
 
         await html5QrCode.start(
@@ -230,7 +201,7 @@ export default function QRScannerPage() {
           (decodedText: string) => {
             if (active) handleScanSuccess(decodedText);
           },
-          () => {} // Ignore scan errors
+          () => {} // Ignore errors
         );
       } catch (err: any) {
         if (!active) return;
@@ -257,7 +228,7 @@ export default function QRScannerPage() {
       try {
         await scannerRef.current.stop();
       } catch (e) {
-        console.log('Scanner stop error:', e);
+        console.log('Scanner already stopped');
       }
       scannerRef.current = null;
     }
@@ -266,31 +237,11 @@ export default function QRScannerPage() {
   }, []);
 
   // Reset to scan again
-  const resetScanner = useCallback(async () => {
-    // Cleanup scanner before reset
-    if (scannerRef.current) {
-      try {
-        await scannerRef.current.stop();
-      } catch (e) {
-        console.log('Reset scanner cleanup:', e);
-      }
-      scannerRef.current = null;
-    }
+  const resetScanner = useCallback(() => {
     setStatus('idle');
     setScanResult(null);
     setErrorMessage('');
     setCameraError('');
-    setIsScanning(false);
-  }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-        scannerRef.current = null;
-      }
-    };
   }, []);
 
   // Show loading while checking auth
@@ -309,36 +260,38 @@ export default function QRScannerPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center pattern-bg py-12 px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="card p-8 max-w-md w-full text-center"
+          className="card max-w-md w-full p-8 text-center"
         >
-          <div className="w-20 h-20 rounded-full bg-[var(--color-gold)]/20 mx-auto flex items-center justify-center mb-6">
-            <Lock size={40} className="text-[var(--color-gold)]" />
+          <div className="w-20 h-20 rounded-full bg-[var(--color-gold)]/10 text-[var(--color-gold)] flex items-center justify-center mx-auto mb-6">
+            <QrCode size={40} />
           </div>
           <h1 className="text-2xl font-bold text-[var(--color-brown)] mb-4">
-            Vui Lòng Đăng Nhập
+            Tham Gia Hành Trình Di Sản
           </h1>
           <p className="text-[var(--color-brown)]/70 mb-8">
-            Bạn cần đăng nhập để sử dụng chức năng quét mã QR và thắp sáng Bản Đồ Di Sản
+            Vui lòng đăng nhập để lưu trữ bộ sưu tập quà tặng ba miền và mở khóa bản đồ của bạn.
           </p>
-          <Link 
-            href={`/dang-nhap?redirect=${encodeURIComponent('/quet-ma')}`}
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            Đăng Nhập Ngay
-          </Link>
+          <div className="flex flex-col gap-4">
+            <Link href="/dang-nhap" className="btn-primary w-full py-4 text-center">
+              Đăng Nhập Ngay
+            </Link>
+            <Link href="/" className="text-sm text-[var(--color-brown)]/60 hover:text-[var(--color-gold)] transition-colors">
+              Quay về trang chủ
+            </Link>
+          </div>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pattern-bg py-8 px-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen pattern-bg py-12 px-4 pb-24">
+      <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => router.back()}
             className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
@@ -359,26 +312,63 @@ export default function QRScannerPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card p-6"
+          className="card p-6 min-h-[400px] flex flex-col items-center justify-center relative shadow-xl border-2 border-[var(--color-gold)]/20"
         >
+          {/* QR Reader - Permanently in DOM for stability */}
+          <div 
+            className={`w-full max-w-[400px] mx-auto transition-all duration-300 ${status === 'scanning' ? 'opacity-100 h-auto visible relative py-4' : 'opacity-0 h-0 overflow-hidden invisible absolute'}`}
+          >
+            <div className="text-center">
+              <div className="relative mb-6">
+                <div 
+                  id="qr-reader" 
+                  className="w-full aspect-square rounded-2xl overflow-hidden bg-black shadow-inner border-4 border-white"
+                />
+                {/* Scanning overlay */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-0 border-4 border-[var(--color-gold)] rounded-2xl opacity-40" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-white/50 rounded-xl">
+                    <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-[var(--color-gold)] rounded-tl-lg" />
+                    <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-[var(--color-gold)] rounded-tr-lg" />
+                    <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-[var(--color-gold)] rounded-bl-lg" />
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-[var(--color-gold)] rounded-br-lg" />
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-[var(--color-brown)] mb-6 flex items-center justify-center gap-2">
+                <RefreshCw size={18} className="animate-spin text-[var(--color-gold)]" />
+                Đang tìm mã QR...
+              </p>
+
+              <button
+                onClick={stopScanning}
+                className="btn-secondary inline-flex items-center gap-2 px-8"
+              >
+                <X size={20} />
+                Hủy Quét
+              </button>
+            </div>
+          </div>
+
           <AnimatePresence mode="wait">
-            {/* Idle State - Ready to Scan */}
+            {/* Idle State */}
             {status === 'idle' && (
               <motion.div
                 key="idle"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center"
+                className="text-center w-full"
               >
-                <div className="w-32 h-32 rounded-3xl gradient-gold mx-auto flex items-center justify-center mb-6 shadow-lg">
+                <div className="w-32 h-32 rounded-3xl gradient-gold mx-auto flex items-center justify-center mb-6 shadow-lg rotate-3">
                   <QrCode size={64} className="text-white" />
                 </div>
                 
                 <h2 className="text-xl font-bold text-[var(--color-brown)] mb-2">
                   Sẵn Sàng Quét
                 </h2>
-                <p className="text-[var(--color-brown)]/70 mb-6">
+                <p className="text-[var(--color-brown)]/70 mb-8">
                   Nhấn nút bên dưới để mở camera và quét mã QR trên sản phẩm VietCharm
                 </p>
 
@@ -391,65 +381,24 @@ export default function QRScannerPage() {
 
                 <button
                   onClick={startScanning}
-                  className="btn-primary inline-flex items-center gap-3 text-lg px-8 py-4"
+                  className="btn-primary inline-flex items-center gap-3 text-lg px-10 py-5 shadow-lg shadow-[var(--color-gold)]/20"
                 >
                   <Camera size={24} />
                   Mở Camera & Quét
                 </button>
 
-                {/* Info Box */}
                 <div className="mt-8 p-4 rounded-xl bg-[var(--color-cream)] border border-[var(--color-gold)]/20">
-                  <h3 className="font-semibold text-[var(--color-brown)] mb-2">
-                    💡 Lưu ý
+                  <h3 className="font-semibold text-[var(--color-brown)] mb-2 text-sm uppercase tracking-wider">
+                    💡 Hướng dẫn quét
                   </h3>
                   <ul className="text-sm text-[var(--color-brown)]/70 text-left space-y-1">
-                    <li>• Chỉ quét được mã QR của sản phẩm VietCharm</li>
-                    <li>• Đảm bảo camera có đủ ánh sáng</li>
-                    <li>• Giữ điện thoại ổn định khi quét</li>
+                    <li>• Đưa mã QR vào chính giữa khung hình.</li>
+                    <li>• Đảm bảo môi trường đủ ánh sáng.</li>
+                    <li>• Giữ điện thoại cố định trong vài giây.</li>
                   </ul>
                 </div>
               </motion.div>
             )}
-
-            {/* Scanning State */}
-            <div className={status === 'scanning' ? 'block' : 'hidden'}>
-              <motion.div
-                key="scanning"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center"
-              >
-                <div className="relative mb-6">
-                  <div 
-                    id="qr-reader" 
-                    className="w-full aspect-square rounded-2xl overflow-hidden bg-black"
-                  />
-                  {/* Scanning overlay */}
-                  <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute inset-0 border-4 border-[var(--color-gold)] rounded-2xl" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-white/50 rounded-xl">
-                      <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-[var(--color-gold)] rounded-tl-lg" />
-                      <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-[var(--color-gold)] rounded-tr-lg" />
-                      <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-[var(--color-gold)] rounded-bl-lg" />
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-[var(--color-gold)] rounded-br-lg" />
-                    </div>
-                  </div>
-                </div>
-                
-                <p className="text-[var(--color-brown)] mb-4 flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin" />
-                  Đang tìm mã QR...
-                </p>
-
-                <button
-                  onClick={stopScanning}
-                  className="btn-secondary inline-flex items-center gap-2"
-                >
-                  <X size={20} />
-                  Hủy Quét
-                </button>
-              </motion.div>
-            </div>
 
             {/* Success State */}
             {status === 'success' && (
@@ -458,175 +407,119 @@ export default function QRScannerPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center"
+                className="text-center w-full"
               >
-                <div className="w-20 h-20 rounded-full gradient-gold mx-auto flex items-center justify-center mb-6">
-                  <CheckCircle size={40} className="text-white" />
+                <div className="w-24 h-24 rounded-full gradient-gold mx-auto flex items-center justify-center mb-6 shadow-lg">
+                  <CheckCircle size={48} className="text-white" />
                 </div>
                 
                 <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-2">
-                  {scanResult?.isSpecial ? '🎉 Mở Khóa Toàn Bộ!' : '🎉 Mở Khóa Thành Công!'}
+                  {scanResult?.isSpecial ? '🎉 Mở Khóa Tuyệt Đỉnh!' : '🎉 Tuyệt Vời!'}
                 </h2>
                 
                 <p className="text-[var(--color-brown)]/70 mb-6">
                   {scanResult?.isSpecial ? (
-                    <span>Bạn đã mở khóa <strong className="text-[var(--color-gold)]">toàn bộ 6 sản phẩm</strong> từ ba miền!</span>
+                    <span>Bạn đã thắp sáng <strong className="text-[var(--color-gold)] underline">toàn bộ 6 sản phẩm</strong> di sản!</span>
                   ) : (
-                    <span>Bạn đã mở khóa <strong className="text-[var(--color-gold)]">{scanResult?.product?.name}</strong></span>
+                    <span>Bạn đã thắp sáng hương vị <strong className="text-[var(--color-gold)] underline">{scanResult?.product?.name}</strong>!</span>
                   )}
                 </p>
 
                 {scanResult?.product && (
-                  <div className="mb-6 p-4 rounded-xl bg-[var(--color-cream)] flex items-center gap-4">
+                  <div className="mb-8 p-4 rounded-2xl bg-[var(--color-cream)] border-2 border-[var(--color-gold)]/10 flex items-center gap-4 shadow-sm">
                     <img 
                       src={scanResult.product.image} 
                       alt={scanResult.product.name}
-                      className="w-16 h-16 rounded-xl object-cover"
+                      className="w-20 h-20 rounded-xl object-cover shadow-md border-2 border-white"
                     />
                     <div className="text-left">
-                      <p className="font-semibold text-[var(--color-brown)]">{scanResult.product.name}</p>
-                      <p className="text-sm text-[var(--color-brown)]/60">{scanResult.product.regionName}</p>
+                      <p className="font-bold text-[var(--color-brown)] text-lg">{scanResult.product.name}</p>
+                      <p className="text-sm text-[var(--color-gold)] font-medium">✨ {scanResult.product.regionName}</p>
                     </div>
                   </div>
                 )}
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 max-w-[280px] mx-auto">
                   <Link 
                     href="/ban-do" 
-                    className="btn-primary inline-flex items-center justify-center gap-2"
+                    className="btn-primary inline-flex items-center justify-center gap-2 py-4"
                   >
-                    <MapPin size={18} />
+                    <MapPin size={20} />
                     Xem Bản Đồ Di Sản
                   </Link>
-                  <button
+                  <button 
                     onClick={resetScanner}
-                    className="btn-secondary inline-flex items-center justify-center gap-2"
+                    className="btn-secondary py-3"
                   >
-                    <RefreshCw size={18} />
-                    Quét Mã Khác
+                    Quét Sản Phẩm Khác
                   </button>
                 </div>
               </motion.div>
             )}
 
-            {/* Already Unlocked State */}
+            {/* Already Unlocked */}
             {status === 'already' && (
               <motion.div
                 key="already"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center"
+                className="text-center w-full"
               >
-                <div className="w-20 h-20 rounded-full bg-blue-100 mx-auto flex items-center justify-center mb-6">
-                  <Gift size={40} className="text-blue-500" />
+                <div className="w-24 h-24 rounded-full bg-blue-50 mx-auto flex items-center justify-center mb-6">
+                  <Gift size={48} className="text-blue-500" />
                 </div>
                 
                 <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-2">
-                  Đã Mở Khóa Trước Đó
+                  Đã Khám Phá
                 </h2>
                 
                 <p className="text-[var(--color-brown)]/70 mb-6">
-                  Sản phẩm <strong>{scanResult?.product?.name}</strong> đã được thắp sáng trên bản đồ của bạn rồi!
+                  Hương vị <strong>{scanResult?.product?.name}</strong> đã được bạn thắp sáng trước đó rồi.
                 </p>
 
-                {scanResult?.product && (
-                  <div className="mb-6 p-4 rounded-xl bg-[var(--color-cream)] flex items-center gap-4">
-                    <img 
-                      src={scanResult.product.image} 
-                      alt={scanResult.product.name}
-                      className="w-16 h-16 rounded-xl object-cover"
-                    />
-                    <div className="text-left">
-                      <p className="font-semibold text-[var(--color-brown)]">{scanResult.product.name}</p>
-                      <p className="text-sm text-[var(--color-brown)]/60">{scanResult.product.regionName}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 max-w-[280px] mx-auto">
                   <Link 
                     href="/ban-do" 
-                    className="btn-primary inline-flex items-center justify-center gap-2"
+                    className="btn-primary inline-flex items-center justify-center gap-2 py-4 shadow-md bg-blue-600 hover:bg-blue-700"
                   >
-                    <MapPin size={18} />
-                    Xem Bản Đồ Di Sản
+                    <MapPin size={20} />
+                    Vào Bản Đồ Di Sản
                   </Link>
-                  <button
+                  <button 
                     onClick={resetScanner}
-                    className="btn-secondary inline-flex items-center justify-center gap-2"
+                    className="btn-secondary py-3 italic"
                   >
-                    <RefreshCw size={18} />
-                    Quét Mã Khác
+                    Thử quét mã khác
                   </button>
                 </div>
               </motion.div>
             )}
 
-            {/* Invalid QR State */}
-            {status === 'invalid' && (
-              <motion.div
-                key="invalid"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-center"
-              >
-                <div className="w-20 h-20 rounded-full bg-orange-100 mx-auto flex items-center justify-center mb-6">
-                  <AlertTriangle size={40} className="text-orange-500" />
-                </div>
-                
-                <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-2">
-                  Mã QR Không Hợp Lệ
-                </h2>
-                
-                <p className="text-[var(--color-brown)]/70 mb-6">
-                  {errorMessage}
-                </p>
-
-                <div className="mb-6 p-4 rounded-xl bg-orange-50 border border-orange-200 text-left">
-                  <p className="text-sm text-orange-700">
-                    <strong>Lưu ý:</strong> Chỉ có thể quét mã QR chính thức trên sản phẩm VietCharm. 
-                    Vui lòng kiểm tra lại mã QR trên sản phẩm của bạn.
-                  </p>
-                </div>
-
-                <button
-                  onClick={resetScanner}
-                  className="btn-primary inline-flex items-center justify-center gap-2"
-                >
-                  <RefreshCw size={18} />
-                  Thử Lại
-                </button>
-              </motion.div>
-            )}
-
-            {/* Error State */}
-            {status === 'error' && (
+            {/* Invalid / Error */}
+            {(status === 'invalid' || status === 'error') && (
               <motion.div
                 key="error"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center"
+                className="text-center w-full"
               >
-                <div className="w-20 h-20 rounded-full bg-red-100 mx-auto flex items-center justify-center mb-6">
-                  <XCircle size={40} className="text-red-500" />
+                <div className="w-24 h-24 rounded-full bg-red-50 mx-auto flex items-center justify-center mb-6 text-red-500">
+                  <AlertTriangle size={48} />
                 </div>
                 
                 <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-2">
-                  Đã Xảy Ra Lỗi
+                  Chưa Thành Công
                 </h2>
-                
-                <p className="text-[var(--color-brown)]/70 mb-6">
-                  {errorMessage || 'Không thể xử lý mã QR. Vui lòng thử lại.'}
+                <p className="text-[var(--color-brown)]/70 mb-8 max-w-xs mx-auto">
+                  {errorMessage || 'Rất tiếc, mã QR này không thể xử lý được lúc này.'}
                 </p>
 
-                <button
+                <button 
                   onClick={resetScanner}
-                  className="btn-primary inline-flex items-center justify-center gap-2"
+                  className="btn-primary px-12"
                 >
-                  <RefreshCw size={18} />
                   Thử Lại
                 </button>
               </motion.div>
@@ -634,27 +527,26 @@ export default function QRScannerPage() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Progress Info */}
+        {/* Progress Tracker Appears when Logged In */}
         {user && profile && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mt-6 card p-4"
+            className="mt-8 card p-5 bg-white shadow-lg border border-[var(--color-gold)]/10"
           >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-[var(--color-brown)]">
-                Tiến độ khám phá
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-semibold text-[var(--color-brown)] flex items-center gap-2">
+                🏠 Tiến độ bộ sưu tập
               </span>
               <span className="text-sm font-bold text-[var(--color-gold)]">
-                {profile.unlocked_products?.length || 0} / 6 sản phẩm
+                {profile.unlocked_products?.length || 0} / 6
               </span>
             </div>
-            <div className="w-full h-2 bg-[var(--color-cream)] rounded-full overflow-hidden">
+            <div className="w-full h-3 bg-[var(--color-cream)] rounded-full overflow-hidden shadow-inner p-[2px]">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${((profile.unlocked_products?.length || 0) / 6) * 100}%` }}
-                transition={{ duration: 0.5, delay: 0.3 }}
                 className="h-full gradient-gold rounded-full"
               />
             </div>

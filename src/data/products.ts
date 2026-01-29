@@ -180,3 +180,22 @@ export const getRegularProducts = (): Product[] => {
 export const getComboProducts = (): Product[] => {
   return products.filter(p => p.isCombo);
 };
+
+export const getProductById = (id: string): Product | undefined => {
+  return products.find(p => p.id === id);
+};
+
+export const getProductFromCode = (code: string): Product | undefined => {
+  const mapping: Record<string, string> = {
+    'BAC_MAN_01': 'bac-man',
+    'BAC_MO_01': 'bac-mo',
+    'TRUNG_SEN_01': 'trung-sen',
+    'TRUNG_DAU_01': 'trung-dau',
+    'NAM_DUA_01': 'nam-dua',
+    'NAM_MANGC_01': 'nam-mangcau',
+    'COMBO_01': 'combo-6-vi'
+  };
+
+  const productId = mapping[code] || code;
+  return products.find(p => p.id === productId);
+};
