@@ -24,28 +24,40 @@ type Region = 'bac' | 'trung' | 'nam';
 export default function MapPage() {
   const { user, profile, initialize, isInitialized } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    if (!isInitialized) {
-      initialize();
+    try {
+      setMounted(true);
+      if (!isInitialized) {
+        initialize();
+      }
+    } catch (err) {
+      console.error('MapPage init error:', err);
+      setHasError(true);
     }
   }, [isInitialized, initialize]);
 
-  const unlockedProducts = profile?.unlocked_products || [];
-  const badges = profile?.badges || [];
+  // Safe access to profile data
+  const unlockedProducts = Array.isArray(profile?.unlocked_products) ? profile.unlocked_products : [];
+  const badges = Array.isArray(profile?.badges) ? profile.badges : [];
 
   const getUnlockedRegions = (): Region[] => {
-    const regions: Region[] = [];
-    const bacProducts = ['bac-man', 'bac-mo'];
-    const trungProducts = ['trung-sen', 'trung-dau'];
-    const namProducts = ['nam-dua', 'nam-mangcau'];
-    
-    if (bacProducts.every(id => unlockedProducts.includes(id))) regions.push('bac');
-    if (trungProducts.every(id => unlockedProducts.includes(id))) regions.push('trung');
-    if (namProducts.every(id => unlockedProducts.includes(id))) regions.push('nam');
-    
-    return regions;
+    try {
+      const regions: Region[] = [];
+      const bacProducts = ['bac-man', 'bac-mo'];
+      const trungProducts = ['trung-sen', 'trung-dau'];
+      const namProducts = ['nam-dua', 'nam-mangcau'];
+      
+      if (bacProducts.every(id => unlockedProducts.includes(id))) regions.push('bac');
+      if (trungProducts.every(id => unlockedProducts.includes(id))) regions.push('trung');
+      if (namProducts.every(id => unlockedProducts.includes(id))) regions.push('nam');
+      
+      return regions;
+    } catch (err) {
+      console.error('getUnlockedRegions error:', err);
+      return [];
+    }
   };
  
   const unlockedRegions = mounted ? getUnlockedRegions() : [];
@@ -85,6 +97,23 @@ export default function MapPage() {
 
   const getUnlockedCount = (products: string[]) => 
     products.filter(p => unlockedProducts.includes(p)).length;
+
+  // Show error state
+  if (hasError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="text-6xl mb-4">😢</div>
+        <h1 className="text-xl font-bold text-[var(--color-brown)] mb-2">Đã xảy ra lỗi</h1>
+        <p className="text-[var(--color-brown)]/70 mb-4 text-center">Vui lòng tải lại trang</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="btn-primary"
+        >
+          Tải lại trang
+        </button>
+      </div>
+    );
+  }
 
   if (!mounted) {
     return (
