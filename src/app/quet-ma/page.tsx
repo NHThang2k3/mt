@@ -189,49 +189,36 @@ export default function QRScannerPage() {
   // Effect to initialize camera when status becomes 'scanning'
   useEffect(() => {
     let active = true;
+    let html5QrCode: any = null;
 
     const initCamera = async () => {
       if (status !== 'scanning') return;
       
-      // Wait a tiny bit for Framer Motion transitions
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Small delay to let animations settle
+      await new Promise(resolve => setTimeout(resolve, 300));
       if (!active) return;
 
       try {
-        // Cleanup previous scanner if exists
+        // Cleanup global ref if something stayed behind
         if (scannerRef.current) {
           try {
-            const state = scannerRef.current.getState?.();
-            if (state === 2) { // SCANNING state
-              await scannerRef.current.stop();
-            }
-          } catch (e) {
-            console.log('Cleanup previous scanner:', e);
-          }
+            await scannerRef.current.stop();
+          } catch (e) {}
           scannerRef.current = null;
         }
 
-        // Check if qr-reader element exists
         const readerElement = document.getElementById('qr-reader');
         if (!readerElement) {
-          console.error('qr-reader element not found');
-          // Try one more time after another delay
-          await new Promise(resolve => setTimeout(resolve, 200));
-          if (!active) return;
-          const secondCheck = document.getElementById('qr-reader');
-          if (!secondCheck) {
-            setCameraError('Không tìm thấy khung quét. Vui lòng thử lại.');
-            setStatus('idle');
-            setIsScanning(false);
-            return;
-          }
+          setCameraError('Lỗi khởi tạo: Không tìm thấy khung quét.');
+          setStatus('idle');
+          setIsScanning(false);
+          return;
         }
 
-        // Dynamically import html5-qrcode
         const { Html5Qrcode } = await import('html5-qrcode');
         if (!active) return;
         
-        const html5QrCode = new Html5Qrcode('qr-reader');
+        html5QrCode = new Html5Qrcode('qr-reader');
         scannerRef.current = html5QrCode;
 
         await html5QrCode.start(
@@ -240,37 +227,24 @@ export default function QRScannerPage() {
             fps: 10,
             qrbox: { width: 250, height: 250 },
           },
-          (decodedText) => {
+          (decodedText: string) => {
             if (active) handleScanSuccess(decodedText);
           },
-          (errorMessage) => {
-            // Ignore scan errors
-          }
+          () => {} // Ignore scan errors
         );
       } catch (err: any) {
         if (!active) return;
         console.error('Camera error:', err);
         setIsScanning(false);
-        
-        // Phân loại lỗi
-        let errorMsg = 'Không thể khởi động camera.';
-        if (err.name === 'NotAllowedError' || err.message?.includes('Permission')) {
-          errorMsg = 'Vui lòng cho phép truy cập camera để quét mã.';
-        } else if (err.name === 'NotFoundError') {
-          errorMsg = 'Không tìm thấy camera.';
-        } else {
-          errorMsg = `Lỗi camera: ${err.message || 'Lỗi không xác định'}`;
-        }
-        
-        setCameraError(errorMsg);
+        setCameraError(err.message?.includes('Permission') 
+          ? 'Vui lòng cho phép truy cập camera.' 
+          : `Lỗi: ${err.message || 'Không thể khởi động camera'}`);
         setStatus('idle');
         scannerRef.current = null;
       }
     };
 
-    if (status === 'scanning') {
-      initCamera();
-    }
+    initCamera();
 
     return () => {
       active = false;
@@ -438,18 +412,16 @@ export default function QRScannerPage() {
             )}
 
             {/* Scanning State */}
-            {status === 'scanning' && (
+            <div className={status === 'scanning' ? 'block' : 'hidden'}>
               <motion.div
                 key="scanning"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
                 className="text-center"
               >
                 <div className="relative mb-6">
                   <div 
                     id="qr-reader" 
-                    ref={containerRef}
                     className="w-full aspect-square rounded-2xl overflow-hidden bg-black"
                   />
                   {/* Scanning overlay */}
@@ -465,7 +437,7 @@ export default function QRScannerPage() {
                 </div>
                 
                 <p className="text-[var(--color-brown)] mb-4 flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin" />
                   Đang tìm mã QR...
                 </p>
 
@@ -477,7 +449,7 @@ export default function QRScannerPage() {
                   Hủy Quét
                 </button>
               </motion.div>
-            )}
+            </div>
 
             {/* Success State */}
             {status === 'success' && (
