@@ -115,7 +115,8 @@ function UnlockContent() {
     };
 
     processUnlock();
-  }, [code, user, profile, isInitialized, initialize, unlockProduct]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code, user, isInitialized, initialize, unlockProduct]);
 
   if (status === 'loading') {
     return (
@@ -143,7 +144,7 @@ function UnlockContent() {
           Bạn cần đăng nhập để mở khóa sản phẩm và thắp sáng Bản Đồ Di Sản
         </p>
         <Link 
-          href={`/dang-nhap?redirect=/unlock?code=${code}`}
+          href={`/dang-nhap?redirect=${encodeURIComponent(`/unlock?code=${code}`)}`}
           className="btn-primary inline-flex items-center gap-2"
         >
           Đăng Nhập Ngay

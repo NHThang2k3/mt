@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, MessageSquare, Send, User, Trash2, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
@@ -22,6 +22,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
   const [newComment, setNewComment] = useState('');
   const [hoverRating, setHoverRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Fetch reviews from database
   useEffect(() => {
@@ -154,7 +155,13 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
         {user && (
           <button 
-            onClick={() => document.getElementById('review-form')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => {
+              document.getElementById('review-form')?.scrollIntoView({ behavior: 'smooth' });
+              // Focus vào ô nhập sau khi scroll xong
+              setTimeout(() => {
+                commentInputRef.current?.focus();
+              }, 500);
+            }}
             className="btn-secondary whitespace-nowrap"
           >
             Viết đánh giá của bạn
@@ -200,6 +207,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                   Nội dung bình luận
                 </label>
                 <textarea
+                  ref={commentInputRef}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."

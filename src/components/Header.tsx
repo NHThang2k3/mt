@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ShoppingCart, User, Menu, X, LogOut, Shield, Package } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, LogOut, Shield, Package, QrCode } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { ADMIN_EMAIL } from '@/types/database';
@@ -89,17 +89,27 @@ export default function Header() {
           {/* Actions */}
           <div className="flex items-center gap-4">
             {mounted && user && (
-              <Link
-                href="/gio-hang"
-                className="relative p-2 rounded-full hover:bg-[var(--color-cream-dark)] transition-colors"
-              >
-                <ShoppingCart size={24} className="text-[var(--color-brown)]" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--color-red)] text-white text-xs flex items-center justify-center font-bold">
-                    {itemCount}
-                  </span>
-                )}
-              </Link>
+              <>
+                {/* QR Scanner Button - Mobile/Tablet */}
+                <Link
+                  href="/quet-ma"
+                  className="p-2 rounded-full bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-red)] hover:opacity-90 transition-opacity shadow-md"
+                  title="Quét mã QR"
+                >
+                  <QrCode size={22} className="text-white" />
+                </Link>
+                <Link
+                  href="/gio-hang"
+                  className="relative p-2 rounded-full hover:bg-[var(--color-cream-dark)] transition-colors"
+                >
+                  <ShoppingCart size={24} className="text-[var(--color-brown)]" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--color-red)] text-white text-xs flex items-center justify-center font-bold">
+                      {itemCount}
+                    </span>
+                  )}
+                </Link>
+              </>
             )}
             
             {mounted && user ? (
@@ -182,6 +192,14 @@ export default function Header() {
                     {profile?.badges?.length || 0} danh hiệu
                   </p>
                 </div>
+                <Link
+                  href="/quet-ma"
+                  className="flex items-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-[var(--color-gold)]/10 to-[var(--color-red)]/10 hover:from-[var(--color-gold)]/20 hover:to-[var(--color-red)]/20 transition-colors text-[var(--color-brown)] border border-[var(--color-gold)]/30"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <QrCode size={18} className="text-[var(--color-gold)]" />
+                  <span className="font-medium">Quét Mã QR</span>
+                </Link>
                 <Link
                   href="/don-hang"
                   className="flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-[var(--color-cream-dark)] transition-colors text-[var(--color-brown)]"

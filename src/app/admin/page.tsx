@@ -37,19 +37,19 @@ function MetricCard({ title, value, icon, change, color }: MetricCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+      className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-lg border border-gray-100"
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-gray-500 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-800">{value}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs sm:text-sm text-gray-500 mb-1 truncate">{title}</p>
+          <p className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-800">{value}</p>
           {typeof change === 'number' && (
-            <p className={`text-sm mt-2 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {change >= 0 ? '↑' : '↓'} {Math.abs(change)}% so với hôm qua
+            <p className={`text-xs sm:text-sm mt-1 sm:mt-2 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {change >= 0 ? '↑' : '↓'} {Math.abs(change)}%
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-xl ${color}`}>
+        <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${color} flex-shrink-0`}>
           {icon}
         </div>
       </div>
@@ -161,26 +161,28 @@ export default function AdminPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8"
+          className="mb-6"
         >
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
-              <Shield className="text-white" size={28} />
+          {/* Title Section */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
+              <Shield className="text-white" size={24} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-              <p className="text-gray-500">Theo dõi tiêu chí đo lường</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+              <p className="text-sm text-gray-500">Theo dõi tiêu chí đo lường</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Controls Section */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Date Range Selector */}
             <div className="flex bg-white rounded-xl p-1 shadow-sm">
               {(['7d', '30d', 'all'] as const).map((range) => (
                 <button
                   key={range}
                   onClick={() => setSelectedRange(range)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                     selectedRange === range
                       ? 'bg-amber-500 text-white'
                       : 'text-gray-600 hover:bg-gray-100'
@@ -193,101 +195,99 @@ export default function AdminPage() {
 
             <button
               onClick={fetchAnalytics}
-              className="p-3 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
+              className="p-2 sm:p-3 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
               title="Làm mới dữ liệu"
             >
-              <RefreshCw size={20} className={`text-gray-600 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw size={18} className={`text-gray-600 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
 
-            {/* Orders Management Button */}
+            {/* Action Buttons */}
             <Link
               href="/admin/don-hang"
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-sm hover:from-purple-600 hover:to-purple-700 transition-all"
+              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-sm hover:from-purple-600 hover:to-purple-700 transition-all text-sm"
               title="Quản lý đơn hàng"
             >
-              <ShoppingCart size={20} />
+              <ShoppingCart size={18} />
               <span className="hidden sm:inline font-medium">Đơn Hàng</span>
             </Link>
 
-            {/* Users Management Button */}
             <Link
               href="/admin/nguoi-dung"
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-sm hover:from-blue-600 hover:to-blue-700 transition-all"
+              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-sm hover:from-blue-600 hover:to-blue-700 transition-all text-sm"
               title="Quản lý người dùng"
             >
-              <Users size={20} />
+              <Users size={18} />
               <span className="hidden sm:inline font-medium">Người Dùng</span>
             </Link>
 
-            {/* QR Codes Button */}
             <Link
               href="/qr-codes/qr-codes-preview.html"
               target="_blank"
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-xl shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all"
+              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-xl shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all text-sm"
               title="Xem QR Codes sản phẩm"
             >
-              <QrCode size={20} />
+              <QrCode size={18} />
               <span className="hidden sm:inline font-medium">QR Codes</span>
             </Link>
           </div>
         </motion.div>
 
         {/* Main Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <MetricCard
-            title="Fan Reach (Người dùng)"
+            title="Fan Reach"
             value={totals.fanReach.toLocaleString()}
-            icon={<Users className="text-white" size={24} />}
+            icon={<Users className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.fan_reach, yesterday.fan_reach) : undefined}
             color="bg-gradient-to-br from-blue-500 to-blue-600"
           />
           <MetricCard
-            title="Engagement (Tương tác)"
+            title="Engagement"
             value={totals.engagement.toLocaleString()}
-            icon={<TrendingUp className="text-white" size={24} />}
+            icon={<TrendingUp className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.engagement, yesterday.engagement) : undefined}
             color="bg-gradient-to-br from-green-500 to-green-600"
           />
           <MetricCard
-            title="Storytellers (Chia sẻ)"
+            title="Storytellers"
             value={totals.storytellers.toLocaleString()}
-            icon={<Share2 className="text-white" size={24} />}
+            icon={<Share2 className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.storytellers, yesterday.storytellers) : undefined}
             color="bg-gradient-to-br from-purple-500 to-purple-600"
           />
           <MetricCard
-            title="CTR (Tỷ lệ click)"
+            title="CTR"
             value={`${ctr}%`}
-            icon={<MousePointerClick className="text-white" size={24} />}
+            icon={<MousePointerClick className="text-white" size={18} />}
             color="bg-gradient-to-br from-amber-500 to-orange-500"
           />
         </div>
 
         {/* Secondary Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <MetricCard
-            title="Lượt xem trang"
+            title="Page Views"
             value={totals.pageViews.toLocaleString()}
-            icon={<Eye className="text-white" size={24} />}
+            icon={<Eye className="text-white" size={18} />}
             color="bg-gradient-to-br from-cyan-500 to-cyan-600"
           />
           <MetricCard
-            title="Tổng clicks"
+            title="Clicks"
             value={totals.clicks.toLocaleString()}
-            icon={<MousePointerClick className="text-white" size={24} />}
+            icon={<MousePointerClick className="text-white" size={18} />}
             color="bg-gradient-to-br from-indigo-500 to-indigo-600"
           />
           <MetricCard
-            title="Negative Feedback"
+            title="Neg. Feedback"
             value={totals.negativeFeedback.toLocaleString()}
-            icon={<ThumbsDown className="text-white" size={24} />}
+            icon={<ThumbsDown className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.negative_feedback, yesterday.negative_feedback) : undefined}
             color="bg-gradient-to-br from-red-500 to-red-600"
           />
           <MetricCard
             title="Đơn hàng"
             value={totals.orders.toLocaleString()}
-            icon={<ShoppingCart className="text-white" size={24} />}
+            icon={<ShoppingCart className="text-white" size={18} />}
             color="bg-gradient-to-br from-pink-500 to-pink-600"
           />
         </div>
@@ -297,17 +297,17 @@ export default function AdminPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-8 shadow-lg mb-8"
+          className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-lg mb-6 sm:mb-8"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-amber-100 text-lg mb-2">Tổng Doanh Thu</p>
-              <p className="text-4xl font-bold text-white">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-amber-100 text-sm sm:text-lg mb-1 sm:mb-2">Tổng Doanh Thu</p>
+              <p className="text-xl sm:text-3xl md:text-4xl font-bold text-white truncate">
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totals.revenue)}
               </p>
             </div>
-            <div className="p-4 bg-white/20 rounded-2xl">
-              <DollarSign className="text-white" size={40} />
+            <div className="p-3 sm:p-4 bg-white/20 rounded-xl sm:rounded-2xl flex-shrink-0">
+              <DollarSign className="text-white" size={28} />
             </div>
           </div>
         </motion.div>

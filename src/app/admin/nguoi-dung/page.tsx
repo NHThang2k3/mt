@@ -286,7 +286,7 @@ export default function AdminUsersPage() {
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-lg">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                           {userData.name?.[0]?.toUpperCase() || userData.email?.[0]?.toUpperCase() || '?'}
                         </div>
                         <div>

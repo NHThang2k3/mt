@@ -218,12 +218,14 @@ export default function ProductDetailPage() {
                 {isAddingToCart ? (
                   <>
                     <Loader2 size={20} className="animate-spin" />
-                    Đang thêm...
+                    <span className="sm:hidden">Đang thêm...</span>
+                    <span className="hidden sm:inline">Đang thêm...</span>
                   </>
                 ) : (
                   <>
                     <ShoppingCart size={20} />
-                    Thêm vào giỏ hàng
+                    <span className="sm:hidden">Thêm</span>
+                    <span className="hidden sm:inline">Thêm vào giỏ hàng</span>
                   </>
                 )}
               </motion.button>
@@ -284,22 +286,22 @@ export default function ProductDetailPage() {
           <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6">
             Sản phẩm cùng miền
           </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {relatedProducts.map((p) => (
               <Link key={p.id} href={`/san-pham/${p.id}`}>
                 <motion.div
                   whileHover={{ y: -5 }}
-                  className="card p-4 flex gap-4"
+                  className="card p-4 flex flex-row gap-4"
                 >
-                  <div className="w-20 h-20 rounded-xl bg-[var(--color-cream)] flex items-center justify-center flex-shrink-0">
-                    <span className="text-3xl">{regionEmoji[p.region]}</span>
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-[var(--color-cream)] flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl sm:text-3xl">{regionEmoji[p.region]}</span>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--color-brown)] hover:text-[var(--color-gold)] transition-colors">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-[var(--color-brown)] hover:text-[var(--color-gold)] transition-colors text-sm sm:text-base line-clamp-2">
                       {p.name}
                     </h3>
-                    <p className="text-sm text-[var(--color-brown)]/60">{p.regionName}</p>
-                    <p className="font-bold text-[var(--color-gold)] mt-1">{formatPrice(p.price)}</p>
+                    <p className="text-xs sm:text-sm text-[var(--color-brown)]/60">{p.regionName}</p>
+                    <p className="font-bold text-[var(--color-gold)] mt-1 text-sm sm:text-base">{formatPrice(p.price)}</p>
                   </div>
                 </motion.div>
               </Link>

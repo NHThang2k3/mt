@@ -194,10 +194,7 @@ export default function MapPage() {
                   <div className="w-4 h-4 rounded bg-[#F97316] shadow-inner" />
                   <span className="text-[var(--color-brown)]/70">Miền Nam</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-[#FDE047] shadow-inner animate-pulse" />
-                  <span className="text-[var(--color-brown)]/70">Đang quét QR</span>
-                </div>
+               
               </div>
             </motion.div>
 
