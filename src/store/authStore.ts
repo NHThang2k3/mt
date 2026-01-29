@@ -35,9 +35,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     console.log('Auth initialization: Starting...');
 
-    // Safety timeout - if initialization takes more than 8 seconds, force it to complete
+    // Safety timeout - if initialization takes more than 20 seconds, force it to complete
     const timeoutPromise = new Promise<void>((_, reject) =>
-      setTimeout(() => reject(new Error('Auth initialization timeout')), 8000)
+      setTimeout(() => reject(new Error('Auth initialization timeout')), 20000)
     );
 
     try {

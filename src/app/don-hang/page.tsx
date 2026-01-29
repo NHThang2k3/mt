@@ -108,24 +108,34 @@ export default function OrdersPage() {
     } catch (error: any) {
       console.error('fetchOrders: Caught error:', error);
       
-      // Specifically handle AbortError which is common in React 19/Next 15+
-      if (error.name === 'AbortError' || error.message?.includes('aborted')) {
-        console.warn('AbortError caught. This often happens due to rapid re-renders or navigation.');
+      const isAbortError = error.name === 'AbortError' || 
+                         error.message?.includes('aborted') || 
+                         error.message?.includes('AbortError');
+
+      if (isAbortError) {
+        console.warn(`fetchOrders: Request was aborted (Attempt ${retryCount + 1}).`);
+        
         if (retryCount < 2) {
-          console.log('Retrying in 1s...');
+          const delay = (retryCount + 1) * 1000;
+          console.log(`Retrying silently in ${delay}ms...`);
           setTimeout(() => {
             fetchRef.current = false;
             fetchOrders(retryCount + 1);
-          }, 1000);
-          return;
+          }, delay);
+          return; // Don't set error state yet
         }
-        setFetchError('Kết nối bị gián đoạn. Vui lòng thử lại sau giây lát.');
+        setFetchError('Kết nối bị gián đoạn do phản hồi chậm. Vui lòng thử lại.');
       } else {
         setFetchError('Lỗi kết nối: ' + (error.message || 'Không thể kết nối đến máy chủ.'));
       }
     } finally {
-      setIsLoading(false);
-      // Only release the lock if we're not retrying
+      // Only set loading to false if we are NOT retrying
+      // This prevents the UI from flickering back to error/empty state
+      const isAbortError = error?.name === 'AbortError' || error?.message?.includes('aborted');
+      if (!isAbortError || retryCount >= 2) {
+        setIsLoading(false);
+      }
+      
       if (retryCount >= 0) {
         fetchRef.current = false;
       }
