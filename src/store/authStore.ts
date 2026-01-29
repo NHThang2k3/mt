@@ -19,7 +19,7 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
-  unlockProduct: (productId: string) => Promise<void>;
+  unlockProduct: (productIds: string | string[]) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -281,34 +281,46 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  unlockProduct: async (productId) => {
+  unlockProduct: async (productIds: string | string[]) => {
     const { user, profile } = get();
 
-    console.log('unlockProduct: Starting unlock for', productId);
-    console.log('unlockProduct: User', user?.id, 'Profile', profile?.id);
+    console.log('unlockProduct: Starting unlock for', productIds);
 
     if (!user || !profile) {
       console.error('unlockProduct: Missing user or profile');
       return;
     }
 
+    const inputIds = Array.isArray(productIds) ? productIds : [productIds];
     const currentProducts = profile.unlocked_products || [];
-    console.log('unlockProduct: Current products', currentProducts);
 
-    if (currentProducts.includes(productId)) {
-      console.log('unlockProduct: Product already unlocked');
+    // Create a new set of products to avoid duplicates
+    let newProducts = [...currentProducts];
+    let hasNew = false;
+
+    for (const id of inputIds) {
+      if (!newProducts.includes(id)) {
+        newProducts.push(id);
+        hasNew = true;
+
+        // If unlocking the combo, also unlock all 6 individual products
+        if (id === 'combo-6-vi') {
+          const allProductIds = ['bac-man', 'bac-mo', 'trung-sen', 'trung-dau', 'nam-dua', 'nam-mangcau'];
+          allProductIds.forEach(pId => {
+            if (!newProducts.includes(pId)) {
+              newProducts.push(pId);
+            }
+          });
+        }
+      }
+    }
+
+    if (!hasNew && !inputIds.includes('combo-6-vi')) {
+      console.log('unlockProduct: No new products to unlock');
       return;
     }
 
-    let newProducts = [...currentProducts, productId];
-
-    // If unlocking the combo, also unlock all 6 individual products
-    if (productId === 'combo-6-vi') {
-      const allProductIds = ['bac-man', 'bac-mo', 'trung-sen', 'trung-dau', 'nam-dua', 'nam-mangcau'];
-      newProducts = Array.from(new Set([...newProducts, ...allProductIds]));
-    }
-
-    console.log('unlockProduct: New products list', newProducts);
+    console.log('unlockProduct: Final products list', newProducts);
 
     // Check badges
     const bacProducts = ['bac-man', 'bac-mo'];
@@ -332,7 +344,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       newBadges.push('dai-su');
     }
 
-    console.log('unlockProduct: Calling updateProfile with', { unlocked_products: newProducts, badges: newBadges });
+    console.log('unlockProduct: Updating profile with', { unlocked_products: newProducts, badges: newBadges });
 
     await get().updateProfile({
       unlocked_products: newProducts,

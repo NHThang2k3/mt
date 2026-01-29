@@ -97,16 +97,14 @@ export default function QRScanPage() {
       setStatus('success');
       setNewBadge('dai-su');
       
-      // Unlock all products using internal IDs
+      // Unlock all products at once
       const allProductIds = [
         'bac-man', 'bac-mo', 
         'trung-sen', 'trung-dau', 
         'nam-dua', 'nam-mangcau'
       ];
       
-      for (const id of allProductIds) {
-        unlockProduct(id);
-      }
+      await unlockProduct(allProductIds);
       
       confetti({
         particleCount: 200,

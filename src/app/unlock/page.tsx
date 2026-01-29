@@ -44,14 +44,9 @@ function UnlockContent() {
 
       // Check for special "unlock all" code
       if (code === 'VIETCHARM_ALL') {
-        // Unlock all 6 products
+        // Unlock all 6 products at once
         const allProductIds = ['bac-man', 'bac-mo', 'trung-sen', 'trung-dau', 'nam-dua', 'nam-mangcau'];
-        
-        for (const productId of allProductIds) {
-          if (!profile?.unlocked_products?.includes(productId)) {
-            await unlockProduct(productId);
-          }
-        }
+        await unlockProduct(allProductIds);
 
         // Mark as unlock all
         setIsUnlockAll(true);
