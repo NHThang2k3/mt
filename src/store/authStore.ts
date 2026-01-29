@@ -42,14 +42,36 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       if (session?.user) {
-        const { data: profile, error: profileError } = await supabase
+        let { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
 
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
+        // If profile doesn't exist (e.g., after truncate or new user), create it
+        if (profileError || !profile) {
+          console.log('Profile not found, creating new profile for user:', session.user.id);
+          const newProfile = {
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+            unlocked_products: [],
+            badges: [],
+            created_at: new Date().toISOString()
+          };
+
+          const { data: createdProfile, error: createError } = await supabase
+            .from('profiles')
+            .upsert(newProfile)
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('Failed to create profile:', createError);
+          } else {
+            profile = createdProfile;
+            console.log('Created new profile:', profile);
+          }
         }
 
         set({
@@ -74,11 +96,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (!(window as any).__supabaseAuthListenerSet) {
         supabase.auth.onAuthStateChange(async (event, session) => {
           if (session?.user) {
-            const { data: profile } = await supabase
+            let { data: profile, error: profileError } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .single();
+
+            // If profile doesn't exist, create it
+            if (profileError || !profile) {
+              console.log('onAuthStateChange: Profile not found, creating new profile');
+              const newProfile = {
+                id: session.user.id,
+                email: session.user.email,
+                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                unlocked_products: [],
+                badges: [],
+                created_at: new Date().toISOString()
+              };
+
+              const { data: createdProfile, error: createError } = await supabase
+                .from('profiles')
+                .upsert(newProfile)
+                .select()
+                .single();
+
+              if (!createError && createdProfile) {
+                profile = createdProfile;
+                console.log('onAuthStateChange: Created new profile:', profile);
+              }
+            }
 
             set({ user: session.user, profile: profile || null, isInitialized: true });
             const CartStore = await getCartStore();
