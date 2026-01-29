@@ -180,13 +180,23 @@ export default function QRScannerPage() {
   }, [isValidSystemQR, extractCodeFromQR, getProductFromCode, profile, unlockProduct]);
 
   // Start scanning
-  const startScanning = useCallback(async () => {
-    setStatus('scanning');
+  const startScanning = useCallback(() => {
     setCameraError('');
+    setStatus('scanning');
     setIsScanning(true);
+  }, []);
 
-    // Use setTimeout to ensure the qr-reader div is mounted first
-    setTimeout(async () => {
+  // Effect to initialize camera when status becomes 'scanning'
+  useEffect(() => {
+    let active = true;
+
+    const initCamera = async () => {
+      if (status !== 'scanning') return;
+      
+      // Wait a tiny bit for Framer Motion transitions
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (!active) return;
+
       try {
         // Cleanup previous scanner if exists
         if (scannerRef.current) {
@@ -205,14 +215,21 @@ export default function QRScannerPage() {
         const readerElement = document.getElementById('qr-reader');
         if (!readerElement) {
           console.error('qr-reader element not found');
-          setCameraError('Không tìm thấy khung quét. Vui lòng thử lại.');
-          setStatus('idle');
-          setIsScanning(false);
-          return;
+          // Try one more time after another delay
+          await new Promise(resolve => setTimeout(resolve, 200));
+          if (!active) return;
+          const secondCheck = document.getElementById('qr-reader');
+          if (!secondCheck) {
+            setCameraError('Không tìm thấy khung quét. Vui lòng thử lại.');
+            setStatus('idle');
+            setIsScanning(false);
+            return;
+          }
         }
 
         // Dynamically import html5-qrcode
         const { Html5Qrcode } = await import('html5-qrcode');
+        if (!active) return;
         
         const html5QrCode = new Html5Qrcode('qr-reader');
         scannerRef.current = html5QrCode;
@@ -224,43 +241,41 @@ export default function QRScannerPage() {
             qrbox: { width: 250, height: 250 },
           },
           (decodedText) => {
-            handleScanSuccess(decodedText);
+            if (active) handleScanSuccess(decodedText);
           },
           (errorMessage) => {
-            // Ignore scan errors, just means no QR found yet
+            // Ignore scan errors
           }
         );
       } catch (err: any) {
+        if (!active) return;
         console.error('Camera error:', err);
-        console.error('Camera error name:', err.name);
-        console.error('Camera error message:', err.message);
         setIsScanning(false);
         
-        // Phân loại lỗi chi tiết hơn
+        // Phân loại lỗi
         let errorMsg = 'Không thể khởi động camera.';
-        
         if (err.name === 'NotAllowedError' || err.message?.includes('Permission')) {
-          errorMsg = 'Bạn cần cho phép truy cập camera. Vui lòng:\n1. Nhấn vào biểu tượng khóa 🔒 cạnh URL\n2. Bật quyền "Camera"\n3. Tải lại trang';
-        } else if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
-          errorMsg = 'Không tìm thấy camera trên thiết bị này.';
-        } else if (err.name === 'NotReadableError' || err.message?.includes('in use')) {
-          errorMsg = 'Camera đang được sử dụng bởi ứng dụng khác. Vui lòng đóng các ứng dụng khác và thử lại.';
-        } else if (err.name === 'OverconstrainedError') {
-          errorMsg = 'Camera không hỗ trợ cấu hình yêu cầu.';
-        } else if (err.message?.includes('insecure')) {
-          errorMsg = 'Camera chỉ hoạt động trên kết nối bảo mật (HTTPS).';
+          errorMsg = 'Vui lòng cho phép truy cập camera để quét mã.';
+        } else if (err.name === 'NotFoundError') {
+          errorMsg = 'Không tìm thấy camera.';
         } else {
-          errorMsg = `Không thể khởi động camera: ${err.message || 'Lỗi không xác định'}`;
+          errorMsg = `Lỗi camera: ${err.message || 'Lỗi không xác định'}`;
         }
         
         setCameraError(errorMsg);
         setStatus('idle');
-        
-        // Clear scanner ref on error
         scannerRef.current = null;
       }
-    }, 150); // Delay 150ms để React render xong
-  }, [handleScanSuccess]);
+    };
+
+    if (status === 'scanning') {
+      initCamera();
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [status, handleScanSuccess]);
 
   // Stop scanning
   const stopScanning = useCallback(async () => {
