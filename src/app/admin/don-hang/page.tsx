@@ -90,6 +90,7 @@ export default function AdminOrdersPage() {
     console.log(`Admin: Fetching all orders... (Attempt ${retryCount + 1})`);
     setIsLoading(true);
     setFetchError(null);
+    let caughtError: any = null;
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -105,16 +106,21 @@ export default function AdminOrdersPage() {
         setOrders(data || []);
       }
     } catch (error: any) {
+      caughtError = error;
       console.error('Admin: Caught error:', error);
       
-      // Specifically handle AbortError which is common in React 19/Next 15+
-      if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+      const isAbortError = error.name === 'AbortError' || 
+                         error.message?.includes('aborted') || 
+                         error.message?.includes('AbortError');
+
+      if (isAbortError) {
         console.warn('Admin AbortError caught. Retrying...');
         if (retryCount < 2) {
+          const delay = (retryCount + 1) * 1000;
           setTimeout(() => {
             fetchRef.current = false;
             fetchOrders(retryCount + 1);
-          }, 1000);
+          }, delay);
           return;
         }
         setFetchError('Kết nối bị gián đoạn. Vui lòng thử lại.');
@@ -122,7 +128,10 @@ export default function AdminOrdersPage() {
         setFetchError('Lỗi kết nối: ' + (error.message || 'Không thể kết nối đến máy chủ.'));
       }
     } finally {
-      setIsLoading(false);
+      const isAbortError = caughtError?.name === 'AbortError' || caughtError?.message?.includes('aborted');
+      if (!isAbortError || retryCount >= 2) {
+        setIsLoading(false);
+      }
       if (retryCount >= 0) {
         fetchRef.current = false;
       }
