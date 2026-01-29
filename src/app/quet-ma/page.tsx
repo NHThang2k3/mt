@@ -94,7 +94,6 @@ export default function QRScanPage() {
     if (code === 'VIETCHARM_ALL') {
       console.log('QR Scanner: Special code detected');
       setScanResult({ code, isSpecial: true });
-      setStatus('success');
       setNewBadge('dai-su');
       
       // Unlock all products at once
@@ -104,13 +103,19 @@ export default function QRScanPage() {
         'nam-dua', 'nam-mangcau'
       ];
       
-      await unlockProduct(allProductIds);
-      
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.5 }
-      });
+      try {
+        await unlockProduct(allProductIds);
+        setStatus('success');
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.5 }
+        });
+      } catch (err: any) {
+        console.error('QR Scanner: Error unlocking all products:', err);
+        setStatus('error');
+        setErrorMessage(err?.message || 'Có lỗi xảy ra khi lưu tiến độ');
+      }
       return;
     }
 
@@ -130,10 +135,14 @@ export default function QRScanPage() {
     }
 
     // Attempt to unlock using internal product ID
+    setScanResult({ product, code, isSpecial: product.isCombo });
+    
     try {
-      setScanResult({ product, code, isSpecial: product.isCombo });
+      console.log('QR Scanner: Attempting to unlock product:', product.id);
+      await unlockProduct(product.id);
+      console.log('QR Scanner: Unlock successful!');
+      
       setStatus('success');
-      await unlockProduct(product.id); // Use internal ID (e.g. 'bac-man')
       playSuccessSound();
       
       // Check for new badge
@@ -159,10 +168,10 @@ export default function QRScanPage() {
           origin: { y: 0.6 }
         });
       }
-    } catch (err) {
-      console.error('Unlock error:', err);
+    } catch (err: any) {
+      console.error('QR Scanner: Unlock error:', err);
       setStatus('error');
-      setErrorMessage('Có lỗi xảy ra khi lưu tiến độ. Vui lòng thử lại.');
+      setErrorMessage(err?.message || 'Có lỗi xảy ra khi lưu tiến độ. Vui lòng thử lại.');
     }
   }, [isValidSystemQR, extractCodeFromQR, profile, unlockProduct]);
 

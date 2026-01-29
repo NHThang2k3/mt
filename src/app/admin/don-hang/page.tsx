@@ -47,34 +47,39 @@ interface ShippingInfo {
 export default function AdminOrdersPage() {
   const router = useRouter();
   const { showToast } = useToast();
-  const { user, isInitialized, initialize } = useAuthStore();
+  const { user, isInitialized, initialize, isLoading: authLoading } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && !authLoading) {
       initialize();
     }
-  }, [isInitialized, initialize]);
+  }, [isInitialized, authLoading, initialize]);
 
   useEffect(() => {
-    if (isInitialized && (!user || user.email !== ADMIN_EMAIL)) {
+    // Only redirect after auth is fully initialized
+    if (isInitialized && !authLoading && (!user || user.email !== ADMIN_EMAIL) && !hasRedirected) {
+      setHasRedirected(true);
       router.push('/');
     }
-  }, [user, isInitialized, router]);
+  }, [user, isInitialized, authLoading, router, hasRedirected]);
 
   useEffect(() => {
-    if (isInitialized && user?.email === ADMIN_EMAIL) {
+    if (isInitialized && !authLoading && user?.email === ADMIN_EMAIL) {
       fetchOrders();
     }
-  }, [isInitialized, user?.email]);
+  }, [isInitialized, authLoading, user?.email]);
 
   const fetchOrders = async () => {
     setIsLoading(true);
+    setFetchError(null);
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -83,12 +88,14 @@ export default function AdminOrdersPage() {
 
       if (error) {
         console.error('Error fetching orders:', error);
+        setFetchError('Không thể tải danh sách đơn hàng');
         showToast('error', 'Không thể tải danh sách đơn hàng');
       } else {
         setOrders(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
+      setFetchError('Đã xảy ra lỗi khi tải đơn hàng');
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +191,7 @@ export default function AdminOrdersPage() {
     delivered: orders.filter(o => o.status === 'delivered').length,
   };
 
-  if (!isInitialized) {
+  if (!isInitialized || authLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <Loader2 size={40} className="animate-spin text-amber-500 mb-4" />
@@ -193,7 +200,7 @@ export default function AdminOrdersPage() {
     );
   }
 
-  if (user?.email !== ADMIN_EMAIL) {
+  if (!user || user?.email !== ADMIN_EMAIL) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
         <Shield size={64} className="text-red-500 mb-4" />

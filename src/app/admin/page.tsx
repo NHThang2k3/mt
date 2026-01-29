@@ -59,29 +59,32 @@ function MetricCard({ title, value, icon, change, color }: MetricCardProps) {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, isInitialized, initialize } = useAuthStore();
+  const { user, isInitialized, initialize, isLoading: authLoading } = useAuthStore();
   const [analytics, setAnalytics] = useState<AnalyticsDaily[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRange, setSelectedRange] = useState<'7d' | '30d' | 'all'>('7d');
   const [hasFetched, setHasFetched] = useState(false);
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && !authLoading) {
       initialize();
     }
-  }, [isInitialized, initialize]);
+  }, [isInitialized, authLoading, initialize]);
 
   useEffect(() => {
-    if (isInitialized && (!user || user.email !== ADMIN_EMAIL)) {
+    // Only redirect after auth is fully initialized
+    if (isInitialized && !authLoading && (!user || user.email !== ADMIN_EMAIL) && !hasRedirected) {
+      setHasRedirected(true);
       router.push('/');
     }
-  }, [user, isInitialized, router]);
+  }, [user, isInitialized, authLoading, router, hasRedirected]);
 
   useEffect(() => {
-    if (isInitialized && user?.email === ADMIN_EMAIL) {
+    if (isInitialized && !authLoading && user?.email === ADMIN_EMAIL) {
       fetchAnalytics();
     }
-  }, [isInitialized, user?.email, selectedRange]);
+  }, [isInitialized, authLoading, user?.email, selectedRange]);
 
   const fetchAnalytics = async () => {
     setIsLoading(true);
@@ -138,7 +141,7 @@ export default function AdminPage() {
     return Math.round(((todayVal - yesterdayVal) / yesterdayVal) * 100);
   };
 
-  if (!isInitialized) {
+  if (!isInitialized || authLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <motion.div
@@ -151,7 +154,7 @@ export default function AdminPage() {
     );
   }
 
-  if (user?.email !== ADMIN_EMAIL) {
+  if (!user || user?.email !== ADMIN_EMAIL) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
         <Shield size={64} className="text-red-500 mb-4" />

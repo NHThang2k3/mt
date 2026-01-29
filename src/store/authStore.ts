@@ -286,41 +286,73 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   updateProfile: async (updates) => {
-    const { user } = get();
+    const { user, profile } = get();
     if (!user) {
       console.error('updateProfile: No user logged in');
       throw new Error('No user logged in');
     }
 
-    console.log('updateProfile: Updating with', updates);
+    console.log('updateProfile: Starting update for user', user.id);
+    console.log('updateProfile: Updates:', JSON.stringify(updates));
+
+    // Merge updates with existing profile data for upsert
+    const fullData = {
+      id: user.id,
+      email: user.email || profile?.email,
+      name: profile?.name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+      ...updates
+    };
 
     // Retry logic for better reliability
-    let lastError = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single();
+    let lastError: any = null;
 
-      if (error) {
-        console.error(`updateProfile: Supabase error (attempt ${attempt + 1})`, error);
-        lastError = error;
-        // Wait before retry
-        if (attempt < 2) {
-          await new Promise(r => setTimeout(r, 500));
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      console.log(`updateProfile: Attempt ${attempt}/3`);
+
+      try {
+        // Use upsert instead of update for better reliability
+        const { data, error } = await supabase
+          .from('profiles')
+          .upsert(fullData, { onConflict: 'id' })
+          .select()
+          .single();
+
+        if (error) {
+          console.error(`updateProfile: Supabase error (attempt ${attempt})`, error.message, error.details, error.hint);
+          lastError = error;
+
+          // Wait before retry
+          if (attempt < 3) {
+            await new Promise(r => setTimeout(r, 800));
+            continue;
+          }
+        } else if (data) {
+          console.log('updateProfile: Success!', data);
+          set({ profile: data as Profile });
+          return; // Success!
+        } else {
+          console.error(`updateProfile: No data and no error (attempt ${attempt})`);
+          lastError = new Error('No data returned from update');
+
+          if (attempt < 3) {
+            await new Promise(r => setTimeout(r, 800));
+            continue;
+          }
+        }
+      } catch (networkError) {
+        console.error(`updateProfile: Network error (attempt ${attempt})`, networkError);
+        lastError = networkError;
+
+        if (attempt < 3) {
+          await new Promise(r => setTimeout(r, 800));
           continue;
         }
-      } else if (data) {
-        console.log('updateProfile: Success, new profile', data);
-        set({ profile: data as Profile });
-        return; // Success!
       }
     }
 
     // If we get here, all retries failed
-    throw lastError || new Error('Failed to update profile');
+    console.error('updateProfile: All retries failed, last error:', lastError);
+    throw lastError || new Error('Failed to update profile after 3 attempts');
   },
 
   unlockProduct: async (productIds: string | string[]) => {

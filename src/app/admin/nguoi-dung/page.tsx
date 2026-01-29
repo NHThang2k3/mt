@@ -52,29 +52,32 @@ interface ShippingInfo {
 
 export default function AdminUsersPage() {
   const router = useRouter();
-  const { user, isInitialized, initialize } = useAuthStore();
+  const { user, isInitialized, initialize, isLoading: authLoading } = useAuthStore();
   const [users, setUsers] = useState<UserWithStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && !authLoading) {
       initialize();
     }
-  }, [isInitialized, initialize]);
+  }, [isInitialized, authLoading, initialize]);
 
   useEffect(() => {
-    if (isInitialized && (!user || user.email !== ADMIN_EMAIL)) {
+    // Only redirect after auth is fully initialized
+    if (isInitialized && !authLoading && (!user || user.email !== ADMIN_EMAIL) && !hasRedirected) {
+      setHasRedirected(true);
       router.push('/');
     }
-  }, [user, isInitialized, router]);
+  }, [user, isInitialized, authLoading, router, hasRedirected]);
 
   useEffect(() => {
-    if (isInitialized && user?.email === ADMIN_EMAIL) {
+    if (isInitialized && !authLoading && user?.email === ADMIN_EMAIL) {
       fetchUsers();
     }
-  }, [isInitialized, user?.email]);
+  }, [isInitialized, authLoading, user?.email]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -142,7 +145,7 @@ export default function AdminUsersPage() {
   const totalRevenue = users.reduce((sum, u) => sum + u.totalSpent, 0);
   const totalOrders = users.reduce((sum, u) => sum + u.orderCount, 0);
 
-  if (!isInitialized) {
+  if (!isInitialized || authLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <Loader2 size={40} className="animate-spin text-amber-500 mb-4" />
@@ -151,7 +154,7 @@ export default function AdminUsersPage() {
     );
   }
 
-  if (user?.email !== ADMIN_EMAIL) {
+  if (!user || user?.email !== ADMIN_EMAIL) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
         <Shield size={64} className="text-red-500 mb-4" />
