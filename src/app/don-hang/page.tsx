@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -70,16 +70,26 @@ export default function OrdersPage() {
     }
   }, [user, isInitialized]);
 
-  const fetchOrders = async () => {
+  const fetchRef = useRef(false);
+
+  const fetchOrders = async (retryCount = 0) => {
     if (!user?.id) {
       console.warn('fetchOrders: No user ID available');
       setIsLoading(false);
       return;
     }
+
+    // Prevent concurrent fetches unless it's a deliberate retry
+    if (fetchRef.current && retryCount === 0) {
+      console.log('fetchOrders: Fetch already in progress, skipping');
+      return;
+    }
     
-    console.log('fetchOrders: Fetching for user', user.id);
+    fetchRef.current = true;
+    console.log(`fetchOrders: Fetching for user ${user.id} (Attempt ${retryCount + 1})`);
     setIsLoading(true);
     setFetchError(null);
+
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -88,17 +98,37 @@ export default function OrdersPage() {
         .order('created_at', { ascending: false });
 
       if (error) {
+        // Handle specific Supabase errors
         console.error('Error fetching orders:', error.message, error.details);
-        setFetchError(`Lỗi: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
+        setFetchError(`Lỗi hệ thống: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
       } else {
         console.log(`fetchOrders: Found ${data?.length || 0} orders`);
         setOrders(data || []);
       }
     } catch (error: any) {
-      console.error('Error fetching orders:', error);
-      setFetchError('Đã xảy ra lỗi kết nối khi tải đơn hàng.');
+      console.error('fetchOrders: Caught error:', error);
+      
+      // Specifically handle AbortError which is common in React 19/Next 15+
+      if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+        console.warn('AbortError caught. This often happens due to rapid re-renders or navigation.');
+        if (retryCount < 2) {
+          console.log('Retrying in 1s...');
+          setTimeout(() => {
+            fetchRef.current = false;
+            fetchOrders(retryCount + 1);
+          }, 1000);
+          return;
+        }
+        setFetchError('Kết nối bị gián đoạn. Vui lòng thử lại sau giây lát.');
+      } else {
+        setFetchError('Lỗi kết nối: ' + (error.message || 'Không thể kết nối đến máy chủ.'));
+      }
     } finally {
       setIsLoading(false);
+      // Only release the lock if we're not retrying
+      if (retryCount >= 0) {
+        fetchRef.current = false;
+      }
     }
   };
 
@@ -211,7 +241,7 @@ export default function OrdersPage() {
               Vui lòng kiểm tra kết nối mạng và thử lại.
             </p>
             <button
-              onClick={fetchOrders}
+              onClick={() => fetchOrders(0)}
               className="btn-primary inline-flex items-center gap-2"
             >
               <Loader2 size={18} className={isLoading ? 'animate-spin' : 'hidden'} />

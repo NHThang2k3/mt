@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -77,8 +77,17 @@ export default function AdminOrdersPage() {
     }
   }, [isInitialized, authLoading, user?.email]);
 
-  const fetchOrders = async () => {
-    console.log('Admin: Fetching all orders...');
+  const fetchRef = useRef(false);
+
+  const fetchOrders = async (retryCount = 0) => {
+    // Prevent concurrent fetches unless it's a deliberate retry
+    if (fetchRef.current && retryCount === 0) {
+      console.log('Admin fetchOrders: Fetch already in progress, skipping');
+      return;
+    }
+
+    fetchRef.current = true;
+    console.log(`Admin: Fetching all orders... (Attempt ${retryCount + 1})`);
     setIsLoading(true);
     setFetchError(null);
     try {
@@ -89,17 +98,34 @@ export default function AdminOrdersPage() {
 
       if (error) {
         console.error('Admin: Error fetching orders:', error.message, error.details);
-        setFetchError(`Lỗi: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
+        setFetchError(`Lỗi hệ thống: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
         showToast('error', 'Không thể tải danh sách đơn hàng');
       } else {
         console.log(`Admin: Found ${data?.length || 0} orders`);
         setOrders(data || []);
       }
     } catch (error: any) {
-      console.error('Admin: Unexpected error:', error);
-      setFetchError('Đã xảy ra lỗi kết nối khi tải đơn hàng');
+      console.error('Admin: Caught error:', error);
+      
+      // Specifically handle AbortError which is common in React 19/Next 15+
+      if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+        console.warn('Admin AbortError caught. Retrying...');
+        if (retryCount < 2) {
+          setTimeout(() => {
+            fetchRef.current = false;
+            fetchOrders(retryCount + 1);
+          }, 1000);
+          return;
+        }
+        setFetchError('Kết nối bị gián đoạn. Vui lòng thử lại.');
+      } else {
+        setFetchError('Lỗi kết nối: ' + (error.message || 'Không thể kết nối đến máy chủ.'));
+      }
     } finally {
       setIsLoading(false);
+      if (retryCount >= 0) {
+        fetchRef.current = false;
+      }
     }
   };
 
@@ -238,7 +264,7 @@ export default function AdminOrdersPage() {
           </div>
 
           <button
-            onClick={fetchOrders}
+            onClick={() => fetchOrders(0)}
             disabled={isLoading}
             className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
           >
