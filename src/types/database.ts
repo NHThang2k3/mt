@@ -46,6 +46,8 @@ export interface Database {
           total: number
           status: 'pending' | 'confirmed' | 'shipped' | 'delivered'
           shipping_info: Json
+          payment_method: string | null
+          payment_status: string | null
           created_at: string
         }
         Insert: {
@@ -55,6 +57,8 @@ export interface Database {
           total: number
           status?: 'pending' | 'confirmed' | 'shipped' | 'delivered'
           shipping_info: Json
+          payment_method?: string | null
+          payment_status?: string | null
           created_at?: string
         }
         Update: {
@@ -64,6 +68,8 @@ export interface Database {
           total?: number
           status?: 'pending' | 'confirmed' | 'shipped' | 'delivered'
           shipping_info?: Json
+          payment_method?: string | null
+          payment_status?: string | null
           created_at?: string
         }
         Relationships: []

@@ -78,6 +78,7 @@ export default function AdminOrdersPage() {
   }, [isInitialized, authLoading, user?.email]);
 
   const fetchOrders = async () => {
+    console.log('Admin: Fetching all orders...');
     setIsLoading(true);
     setFetchError(null);
     try {
@@ -87,15 +88,16 @@ export default function AdminOrdersPage() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching orders:', error);
-        setFetchError('Không thể tải danh sách đơn hàng');
+        console.error('Admin: Error fetching orders:', error.message, error.details);
+        setFetchError(`Lỗi: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
         showToast('error', 'Không thể tải danh sách đơn hàng');
       } else {
+        console.log(`Admin: Found ${data?.length || 0} orders`);
         setOrders(data || []);
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setFetchError('Đã xảy ra lỗi khi tải đơn hàng');
+    } catch (error: any) {
+      console.error('Admin: Unexpected error:', error);
+      setFetchError('Đã xảy ra lỗi kết nối khi tải đơn hàng');
     } finally {
       setIsLoading(false);
     }

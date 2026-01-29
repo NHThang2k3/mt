@@ -71,8 +71,13 @@ export default function OrdersPage() {
   }, [user, isInitialized]);
 
   const fetchOrders = async () => {
-    if (!user) return;
+    if (!user?.id) {
+      console.warn('fetchOrders: No user ID available');
+      setIsLoading(false);
+      return;
+    }
     
+    console.log('fetchOrders: Fetching for user', user.id);
     setIsLoading(true);
     setFetchError(null);
     try {
@@ -83,14 +88,15 @@ export default function OrdersPage() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching orders:', error);
-        setFetchError('Không thể tải danh sách đơn hàng. Vui lòng thử lại.');
+        console.error('Error fetching orders:', error.message, error.details);
+        setFetchError(`Lỗi: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
       } else {
+        console.log(`fetchOrders: Found ${data?.length || 0} orders`);
         setOrders(data || []);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching orders:', error);
-      setFetchError('Đã xảy ra lỗi khi tải đơn hàng.');
+      setFetchError('Đã xảy ra lỗi kết nối khi tải đơn hàng.');
     } finally {
       setIsLoading(false);
     }
