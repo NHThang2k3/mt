@@ -90,6 +90,7 @@ export default function OrdersPage() {
     setIsLoading(true);
     setFetchError(null);
 
+    let caughtError: any = null;
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -106,6 +107,7 @@ export default function OrdersPage() {
         setOrders(data || []);
       }
     } catch (error: any) {
+      caughtError = error;
       console.error('fetchOrders: Caught error:', error);
       
       const isAbortError = error.name === 'AbortError' || 
@@ -131,7 +133,7 @@ export default function OrdersPage() {
     } finally {
       // Only set loading to false if we are NOT retrying
       // This prevents the UI from flickering back to error/empty state
-      const isAbortError = error?.name === 'AbortError' || error?.message?.includes('aborted');
+      const isAbortError = caughtError?.name === 'AbortError' || caughtError?.message?.includes('aborted');
       if (!isAbortError || retryCount >= 2) {
         setIsLoading(false);
       }
