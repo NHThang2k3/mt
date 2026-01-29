@@ -76,7 +76,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
           // If profile doesn't exist, create it
           if (profileError || !profile) {
-            console.log('Profile not found, creating new profile for user:', session.user.id);
+            if (profileError && profileError.code !== 'PGRST116') {
+              console.warn('Auth initialization: Error fetching profile:', profileError);
+            }
+
+            console.log('Profile not found or error, ensuring profile exists for user:', session.user.id);
             const newProfile = {
               id: session.user.id,
               email: session.user.email,
@@ -94,6 +98,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
             if (!createError && createdProfile) {
               profile = createdProfile;
+              console.log('Auth initialization: New profile created successfully');
+            } else if (createError) {
+              console.error('Auth initialization: Profile creation failed:', createError);
             }
           }
 
@@ -375,11 +382,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .eq('id', user.id)
         .single();
 
-      if (error || !freshProfile) {
-        console.error('unlockProduct: Could not fetch profile', error);
-        throw new Error('Không thể tải thông tin người dùng');
+      if (error) {
+        // If it's just that the profile record doesn't exist yet, that's okay
+        if (error.code === 'PGRST116') {
+          console.log('unlockProduct: Profile not found in DB, will create one on save');
+          currentProfile = {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+            unlocked_products: [],
+            badges: [],
+            created_at: new Date().toISOString()
+          } as Profile;
+        } else {
+          console.error('unlockProduct: Could not fetch profile', error);
+          throw new Error('Lỗi kết nối: Không thể tải thông tin người dùng. Vui lòng kiểm tra mạng.');
+        }
+      } else if (!freshProfile) {
+        console.warn('unlockProduct: Fetch returned no profile and no error, using skeleton');
+        currentProfile = {
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+          unlocked_products: [],
+          badges: [],
+          created_at: new Date().toISOString()
+        } as Profile;
+      } else {
+        currentProfile = freshProfile as Profile;
       }
-      currentProfile = freshProfile as Profile;
       set({ profile: currentProfile });
     }
 
