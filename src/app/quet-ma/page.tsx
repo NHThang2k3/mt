@@ -60,10 +60,25 @@ export default function QRScannerPage() {
     }
   }, [isInitialized, initialize]);
 
-  // Validate QR code belongs to our system
-  const isValidSystemQR = useCallback((code: string): boolean => {
-    return VALID_QR_PATTERNS.some(pattern => pattern.test(code));
+  // Extract code from QR content (could be URL or just code)
+  const extractCodeFromQR = useCallback((qrContent: string): string => {
+    // If it's a URL, extract the code parameter
+    if (qrContent.includes('/unlock?code=')) {
+      const match = qrContent.match(/[?&]code=([^&]+)/);
+      if (match) {
+        return match[1];
+      }
+    }
+    // Otherwise, it's a direct code
+    return qrContent;
   }, []);
+
+  // Validate QR code belongs to our system
+  const isValidSystemQR = useCallback((qrContent: string): boolean => {
+    const code = extractCodeFromQR(qrContent);
+    console.log('QR Scanner: Extracted code:', code);
+    return VALID_QR_PATTERNS.some(pattern => pattern.test(code));
+  }, [extractCodeFromQR]);
 
   // Get product from QR code
   const getProductFromCode = useCallback((code: string): typeof products[0] | undefined => {
@@ -96,10 +111,14 @@ export default function QRScannerPage() {
       return;
     }
 
+    // Extract the actual code from URL if needed
+    const code = extractCodeFromQR(decodedText);
+    console.log('QR Scanner: Processing code:', code);
+
     // Check for special code
-    if (decodedText === 'VIETCHARM_ALL') {
+    if (code === 'VIETCHARM_ALL') {
       console.log('QR Scanner: Special code detected');
-      setScanResult({ code: decodedText, isSpecial: true });
+      setScanResult({ code, isSpecial: true });
       setStatus('success');
       
       // Unlock all products
@@ -120,8 +139,8 @@ export default function QRScannerPage() {
       return;
     }
 
-    // Get product info
-    const product = getProductFromCode(decodedText);
+    // Get product info using the extracted code
+    const product = getProductFromCode(code);
     console.log('QR Scanner: Product from code:', product?.id);
     
     if (!product) {
@@ -138,7 +157,7 @@ export default function QRScannerPage() {
     
     if (profile?.unlocked_products?.includes(productId)) {
       console.log('QR Scanner: Already unlocked');
-      setScanResult({ code: decodedText, product });
+      setScanResult({ code, product });
       setStatus('already');
       return;
     }
@@ -148,7 +167,7 @@ export default function QRScannerPage() {
     await unlockProduct(productId);
     console.log('QR Scanner: unlockProduct completed');
     
-    setScanResult({ code: decodedText, product });
+    setScanResult({ code, product });
     setStatus('success');
     
     // Fire confetti
@@ -157,7 +176,7 @@ export default function QRScannerPage() {
       spread: 60,
       origin: { y: 0.6 }
     });
-  }, [isValidSystemQR, getProductFromCode, profile, unlockProduct]);
+  }, [isValidSystemQR, extractCodeFromQR, getProductFromCode, profile, unlockProduct]);
 
   // Start scanning
   const startScanning = useCallback(async () => {
