@@ -100,6 +100,7 @@ export default function QRScannerPage() {
       } catch (e) {
         console.log('Scanner already stopped');
       }
+      scannerRef.current = null; // Clear ref để có thể start lại
     }
     setIsScanning(false);
 
@@ -184,68 +185,81 @@ export default function QRScannerPage() {
     setCameraError('');
     setIsScanning(true);
 
-    try {
-      // Cleanup previous scanner if exists
-      if (scannerRef.current) {
-        try {
-          const state = scannerRef.current.getState?.();
-          if (state === 2) { // SCANNING state
-            await scannerRef.current.stop();
+    // Use setTimeout to ensure the qr-reader div is mounted first
+    setTimeout(async () => {
+      try {
+        // Cleanup previous scanner if exists
+        if (scannerRef.current) {
+          try {
+            const state = scannerRef.current.getState?.();
+            if (state === 2) { // SCANNING state
+              await scannerRef.current.stop();
+            }
+          } catch (e) {
+            console.log('Cleanup previous scanner:', e);
           }
-        } catch (e) {
-          console.log('Cleanup previous scanner:', e);
+          scannerRef.current = null;
         }
+
+        // Check if qr-reader element exists
+        const readerElement = document.getElementById('qr-reader');
+        if (!readerElement) {
+          console.error('qr-reader element not found');
+          setCameraError('Không tìm thấy khung quét. Vui lòng thử lại.');
+          setStatus('idle');
+          setIsScanning(false);
+          return;
+        }
+
+        // Dynamically import html5-qrcode
+        const { Html5Qrcode } = await import('html5-qrcode');
+        
+        const html5QrCode = new Html5Qrcode('qr-reader');
+        scannerRef.current = html5QrCode;
+
+        await html5QrCode.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+          },
+          (decodedText) => {
+            handleScanSuccess(decodedText);
+          },
+          (errorMessage) => {
+            // Ignore scan errors, just means no QR found yet
+          }
+        );
+      } catch (err: any) {
+        console.error('Camera error:', err);
+        console.error('Camera error name:', err.name);
+        console.error('Camera error message:', err.message);
+        setIsScanning(false);
+        
+        // Phân loại lỗi chi tiết hơn
+        let errorMsg = 'Không thể khởi động camera.';
+        
+        if (err.name === 'NotAllowedError' || err.message?.includes('Permission')) {
+          errorMsg = 'Bạn cần cho phép truy cập camera. Vui lòng:\n1. Nhấn vào biểu tượng khóa 🔒 cạnh URL\n2. Bật quyền "Camera"\n3. Tải lại trang';
+        } else if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
+          errorMsg = 'Không tìm thấy camera trên thiết bị này.';
+        } else if (err.name === 'NotReadableError' || err.message?.includes('in use')) {
+          errorMsg = 'Camera đang được sử dụng bởi ứng dụng khác. Vui lòng đóng các ứng dụng khác và thử lại.';
+        } else if (err.name === 'OverconstrainedError') {
+          errorMsg = 'Camera không hỗ trợ cấu hình yêu cầu.';
+        } else if (err.message?.includes('insecure')) {
+          errorMsg = 'Camera chỉ hoạt động trên kết nối bảo mật (HTTPS).';
+        } else {
+          errorMsg = `Không thể khởi động camera: ${err.message || 'Lỗi không xác định'}`;
+        }
+        
+        setCameraError(errorMsg);
+        setStatus('idle');
+        
+        // Clear scanner ref on error
         scannerRef.current = null;
       }
-
-      // Dynamically import html5-qrcode
-      const { Html5Qrcode } = await import('html5-qrcode');
-      
-      const html5QrCode = new Html5Qrcode('qr-reader');
-      scannerRef.current = html5QrCode;
-
-      await html5QrCode.start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText) => {
-          handleScanSuccess(decodedText);
-        },
-        (errorMessage) => {
-          // Ignore scan errors, just means no QR found yet
-        }
-      );
-    } catch (err: any) {
-      console.error('Camera error:', err);
-      console.error('Camera error name:', err.name);
-      console.error('Camera error message:', err.message);
-      setIsScanning(false);
-      
-      // Phân loại lỗi chi tiết hơn
-      let errorMsg = 'Không thể khởi động camera.';
-      
-      if (err.name === 'NotAllowedError' || err.message?.includes('Permission')) {
-        errorMsg = 'Bạn cần cho phép truy cập camera. Vui lòng:\n1. Nhấn vào biểu tượng khóa 🔒 cạnh URL\n2. Bật quyền "Camera"\n3. Tải lại trang';
-      } else if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
-        errorMsg = 'Không tìm thấy camera trên thiết bị này.';
-      } else if (err.name === 'NotReadableError' || err.message?.includes('in use')) {
-        errorMsg = 'Camera đang được sử dụng bởi ứng dụng khác. Vui lòng đóng các ứng dụng khác và thử lại.';
-      } else if (err.name === 'OverconstrainedError') {
-        errorMsg = 'Camera không hỗ trợ cấu hình yêu cầu.';
-      } else if (err.message?.includes('insecure')) {
-        errorMsg = 'Camera chỉ hoạt động trên kết nối bảo mật (HTTPS).';
-      } else {
-        errorMsg = `Không thể khởi động camera: ${err.message || 'Lỗi không xác định'}`;
-      }
-      
-      setCameraError(errorMsg);
-      setStatus('idle');
-      
-      // Clear scanner ref on error
-      scannerRef.current = null;
-    }
+    }, 150); // Delay 150ms để React render xong
   }, [handleScanSuccess]);
 
   // Stop scanning
