@@ -35,7 +35,15 @@ Mứt mận Mộc Châu của VietCharm được làm từ những trái mận h
 Khi thưởng thức, vị chua nhẹ chạm đầu lưỡi, sau đó vị ngọt lan dần, cân bằng và không gắt. Mứt mận mang đến cảm giác mộc mạc, gần gũi – như một lát cắt nhỏ của núi rừng được giữ lại trong hũ mứt giản dị.`,
     ingredients: 'Mận hậu tươi, đường mía tinh luyện',
     origin: 'Cao nguyên Mộc Châu (Sơn La) – vùng trồng mận hậu truyền thống',
-    features: 'Ít đường, không chất bảo quản, chế biến thủ công'
+    features: 'Ít đường, không chất bảo quản, chế biến thủ công',
+    album: [
+      '/images/mut_man.jpg',
+      '/images/man1.JPG',
+      '/images/man2.JPG',
+      '/images/man3.JPG',
+      '/images/man4.JPG',
+      '/images/man5.JPG'
+    ]
   },
   {
     id: 'bac-mo',
@@ -54,7 +62,15 @@ Mứt mơ Ba Vì của VietCharm được làm từ những trái mơ chín vàn
 Khi thưởng thức, vị chua dịu lan nhẹ nơi đầu lưỡi, sau đó là vị ngọt vừa phải, cân bằng và dễ chịu. Mứt mơ không quá nổi bật, nhưng đủ sâu để gợi cảm giác thư thái – như một buổi sớm ở Ba Vì, nơi thời gian trôi chậm và mọi thứ đều nhẹ nhàng.`,
     ingredients: 'Mơ tươi, đường mía tinh luyện',
     origin: 'Vùng trồng mơ truyền thống tại Ba Vì (Hà Nội) và khu vực ven núi Tản',
-    features: 'Ít đường, không chất bảo quản, chế biến thủ công'
+    features: 'Ít đường, không chất bảo quản, chế biến thủ công',
+    album: [
+      '/images/mut_mo.jpg',
+      '/images/mo1.JPG',
+      '/images/mo2.JPG',
+      '/images/mo3.JPG',
+      '/images/mo4.JPG',
+      '/images/mo5.JPG'
+    ]
   },
   // Miền Trung
   {
@@ -74,7 +90,15 @@ Mứt hạt sen Huế của VietCharm được tạo nên từ tinh thần ấy.
 Mứt sen mang sắc vàng hanh dịu mắt, vị ngọt đậm mà tinh. Chỉ cần vài viên nhỏ cùng một chén trà nóng, vị sen và hơi ấm hòa quyện, tạo nên cảm giác thư thái và gửi gắm ý nghĩa sum vầy, đủ đầy, an yên cho một năm trọn vẹn.`,
     ingredients: 'Hạt sen tươi, đường mía tinh luyện',
     origin: 'Hồ sen làng Phú Mậu (Phú Vang) và khu vực Hương Sơ – Hương Long (TP. Huế)',
-    features: 'Ít đường, không chất bảo quản, chế biến thủ công'
+    features: 'Ít đường, không chất bảo quản, chế biến thủ công',
+    album: [
+      '/images/hat_sen.jpg',
+      '/images/hatsen1.JPG',
+      '/images/hatsen2.JPG',
+      '/images/hatsen3.JPG',
+      '/images/hatsen4.JPG',
+      '/images/hatsen5.JPG'
+    ]
   },
   {
     id: 'trung-dau',
@@ -121,7 +145,15 @@ Mứt dừa Bến Tre của VietCharm được làm từ cùi dừa bánh tẻ, 
 Khi thưởng thức, vị béo của dừa lan nhẹ nơi đầu lưỡi, hòa cùng vị ngọt thanh, mang lại cảm giác gần gũi và ấm áp – như chính con người miền Tây chân thành, mộc mạc. Mứt dừa không cầu kỳ, nhưng đủ sâu để gợi nhớ hương vị Tết quê nhà.`,
     ingredients: 'Dừa tươi Bến Tre, đường mía tinh luyện',
     origin: 'Các vườn dừa tại tỉnh Bến Tre',
-    features: 'Ít ngọt, không chất bảo quản, chế biến thủ công'
+    features: 'Ít ngọt, không chất bảo quản, chế biến thủ công',
+    album: [
+      '/images/mut_dua.jpg',
+      '/images/dua1.JPG',
+      '/images/dua2.JPG',
+      '/images/dua3.JPG',
+      '/images/dua4.JPG',
+      '/images/dua5.JPG'
+    ]
   },
   {
     id: 'nam-mangcau',
@@ -140,7 +172,15 @@ Mứt mãng cầu Tiền Giang của VietCharm được làm từ mãng cầu ch
 Khi thưởng thức, vị chua chạm nhẹ đầu lưỡi rồi tan dần trong vị ngọt dịu, tạo cảm giác tươi mới và dễ chịu. Đây là loại mứt phù hợp với những ai yêu thích sự hài hòa, không quá đậm nhưng đủ để lưu lại dư vị lâu dài.`,
     ingredients: 'Mãng cầu tươi Tiền Giang, đường mía tinh luyện',
     origin: 'Vườn trái cây Cái Bè – Cai Lậy (Tiền Giang)',
-    features: 'Chua ngọt cân bằng, không chất bảo quản'
+    features: 'Chua ngọt cân bằng, không chất bảo quản',
+    album: [
+      '/images/mut_mangcau.jpg',
+      '/images/mangcau1.JPG',
+      '/images/mangcau2.JPG',
+      '/images/mangcau3.JPG',
+      '/images/mangcau4.JPG',
+      '/images/mangcau5.JPG'
+    ]
   },
   // Combo đặc biệt
   {
