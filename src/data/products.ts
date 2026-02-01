@@ -13,6 +13,7 @@ export interface Product {
   features?: string;
   weight?: string;
   isCombo?: boolean;
+  album?: string[];
 }
 
 export const products: Product[] = [
@@ -92,7 +93,15 @@ Mứt dâu Đà Lạt của VietCharm được làm từ dâu thu hoạch khi v�
 Khi thưởng thức, vị chua thanh chạm nhẹ đầu lưỡi rồi vị ngọt lan dần, đủ đầy mà không gắt. Chỉ cần vài lát mứt nhỏ dùng cùng bánh mì, sữa chua hay một tách trà, hương vị cao nguyên đã hiện lên trọn vẹn, để lại cảm giác dễ chịu rất lâu sau đó.`,
     ingredients: 'Dâu tươi Đà Lạt, đường mía tinh luyện',
     origin: 'Vườn dâu tại phường 7 – phường 8 (TP. Đà Lạt) và xã Xuân Thọ',
-    features: 'Ít đường, không chất bảo quản, chế biến thủ công'
+    features: 'Ít đường, không chất bảo quản, chế biến thủ công',
+    album: [
+      '/images/dau_tay.jpg',
+      '/images/dautay1.JPG',
+      '/images/dautay2.JPG',
+      '/images/dautay3.JPG',
+      '/images/dautay4.JPG',
+      '/images/dautay5.JPG'
+    ]
   },
   // Miền Nam
   {
@@ -142,7 +151,7 @@ Khi thưởng thức, vị chua chạm nhẹ đầu lưỡi rồi tan dần tron
     weight: '6 hũ x 150g',
     region: 'combo',
     regionName: 'Combo đặc biệt',
-    image: '/images/combo_6_vi.jpg',
+    image: '/images/combo6.JPG',
     description: 'Trọn bộ 6 hương vị đặc sản từ 3 miền Việt Nam',
     story: `Combo 6 Vị Di Sản là cách hoàn hảo để khám phá trọn vẹn hành trình ẩm thực ba miền Việt Nam trong một hộp quà.
 
