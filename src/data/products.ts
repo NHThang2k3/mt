@@ -26,7 +26,7 @@ export const products: Product[] = [
     weight: '250g',
     region: 'bac',
     regionName: 'Miền Bắc',
-    image: '/images/man1.JPG',
+    image: '/images/man2.JPG',
     description: 'Dư vị núi rừng Tây Bắc trong từng lát mận',
     story: `Mộc Châu hiện ra trong làn sương mỏng, những triền đồi xanh mướt nối tiếp nhau và mùa mận chín nhuộm tím cả cao nguyên. Nơi đây, mận không chỉ là trái cây theo mùa mà còn là ký ức, là hương vị gắn liền với nhịp sống chậm rãi của vùng đất Tây Bắc.
 
@@ -79,7 +79,7 @@ Khi thưởng thức, vị chua dịu lan nhẹ nơi đầu lưỡi, sau đó l�
     weight: '250g',
     region: 'trung',
     regionName: 'Miền Trung',
-    image: '/images/hatsen1.JPG',
+    image: '/images/hatsen2.JPG',
     description: 'Khi vị thanh của cố đô chạm vào nhịp sống hiện đại',
     story: `Có những vùng đất không cần ồn ào để được nhớ đến, và Huế là một nơi như thế. Thành phố lặng lẽ bên dòng Hương Giang, nơi nhịp sống chậm rãi và sen Huế hiện lên như biểu tượng của sự thuần khiết, thanh tao trong văn hóa cố đô.
 
@@ -132,7 +132,7 @@ Khi thưởng thức, vị chua thanh chạm nhẹ đầu lưỡi rồi vị ng�
     weight: '250g',
     region: 'nam',
     regionName: 'Miền Nam',
-    image: '/images/dua1.JPG',
+    image: '/images/dua2.JPG',
     description: 'Vị béo ngọt gói trọn hương quê',
     story: `Bến Tre được mệnh danh là xứ dừa của miền Tây Nam Bộ – nơi những hàng dừa nghiêng bóng soi mình xuống kênh rạch, gắn liền với đời sống và ẩm thực của người dân qua bao thế hệ. Dừa không chỉ là cây trồng chủ lực mà còn là biểu tượng của sự bền bỉ, hiền hòa và trù phú của vùng đất này.
 
