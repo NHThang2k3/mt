@@ -37,7 +37,6 @@ Khi thưởng thức, vị chua nhẹ chạm đầu lưỡi, sau đó vị ngọ
     origin: 'Cao nguyên Mộc Châu (Sơn La) – vùng trồng mận hậu truyền thống',
     features: 'Ít đường, không chất bảo quản, chế biến thủ công',
     album: [
-      '/images/mut_man.jpg',
       '/images/man1.JPG',
       '/images/man2.JPG',
       '/images/man3.JPG',
@@ -64,7 +63,6 @@ Khi thưởng thức, vị chua dịu lan nhẹ nơi đầu lưỡi, sau đó l�
     origin: 'Vùng trồng mơ truyền thống tại Ba Vì (Hà Nội) và khu vực ven núi Tản',
     features: 'Ít đường, không chất bảo quản, chế biến thủ công',
     album: [
-      '/images/mut_mo.jpg',
       '/images/mo1.JPG',
       '/images/mo2.JPG',
       '/images/mo3.JPG',
@@ -92,7 +90,6 @@ Mứt sen mang sắc vàng hanh dịu mắt, vị ngọt đậm mà tinh. Chỉ 
     origin: 'Hồ sen làng Phú Mậu (Phú Vang) và khu vực Hương Sơ – Hương Long (TP. Huế)',
     features: 'Ít đường, không chất bảo quản, chế biến thủ công',
     album: [
-      '/images/hat_sen.jpg',
       '/images/hatsen1.JPG',
       '/images/hatsen2.JPG',
       '/images/hatsen3.JPG',
@@ -119,7 +116,6 @@ Khi thưởng thức, vị chua thanh chạm nhẹ đầu lưỡi rồi vị ng�
     origin: 'Vườn dâu tại phường 7 – phường 8 (TP. Đà Lạt) và xã Xuân Thọ',
     features: 'Ít đường, không chất bảo quản, chế biến thủ công',
     album: [
-      '/images/dau_tay.jpg',
       '/images/dautay1.JPG',
       '/images/dautay2.JPG',
       '/images/dautay3.JPG',
@@ -147,7 +143,6 @@ Khi thưởng thức, vị béo của dừa lan nhẹ nơi đầu lưỡi, hòa 
     origin: 'Các vườn dừa tại tỉnh Bến Tre',
     features: 'Ít ngọt, không chất bảo quản, chế biến thủ công',
     album: [
-      '/images/mut_dua.jpg',
       '/images/dua1.JPG',
       '/images/dua2.JPG',
       '/images/dua3.JPG',
@@ -174,7 +169,6 @@ Khi thưởng thức, vị chua chạm nhẹ đầu lưỡi rồi tan dần tron
     origin: 'Vườn trái cây Cái Bè – Cai Lậy (Tiền Giang)',
     features: 'Chua ngọt cân bằng, không chất bảo quản',
     album: [
-      '/images/mut_mangcau.jpg',
       '/images/mangcau1.JPG',
       '/images/mangcau2.JPG',
       '/images/mangcau3.JPG',
