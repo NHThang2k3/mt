@@ -26,7 +26,7 @@ export const products: Product[] = [
     weight: '250g',
     region: 'bac',
     regionName: 'Miền Bắc',
-    image: '/images/mut_man.jpg',
+    image: '/images/man1.JPG',
     description: 'Dư vị núi rừng Tây Bắc trong từng lát mận',
     story: `Mộc Châu hiện ra trong làn sương mỏng, những triền đồi xanh mướt nối tiếp nhau và mùa mận chín nhuộm tím cả cao nguyên. Nơi đây, mận không chỉ là trái cây theo mùa mà còn là ký ức, là hương vị gắn liền với nhịp sống chậm rãi của vùng đất Tây Bắc.
 
@@ -53,7 +53,7 @@ Khi thưởng thức, vị chua nhẹ chạm đầu lưỡi, sau đó vị ngọ
     weight: '250g',
     region: 'bac',
     regionName: 'Miền Bắc',
-    image: '/images/mut_mo.jpg',
+    image: '/images/mo1.JPG',
     description: 'Dư vị dịu dàng từ miền đồi núi phía Bắc',
     story: `Ba Vì hiện lên với những dãy núi trập trùng, mây trắng bảng lảng và không khí mát lành quanh năm. Nơi đây không chỉ nổi tiếng với rừng quốc gia và làng quê yên bình, mà còn được biết đến là vùng trồng mơ truyền thống của miền Bắc, nơi những cây mơ âm thầm kết trái mỗi độ giao mùa.
 
@@ -81,7 +81,7 @@ Khi thưởng thức, vị chua dịu lan nhẹ nơi đầu lưỡi, sau đó l�
     weight: '250g',
     region: 'trung',
     regionName: 'Miền Trung',
-    image: '/images/hat_sen.jpg',
+    image: '/images/hatsen1.JPG',
     description: 'Khi vị thanh của cố đô chạm vào nhịp sống hiện đại',
     story: `Có những vùng đất không cần ồn ào để được nhớ đến, và Huế là một nơi như thế. Thành phố lặng lẽ bên dòng Hương Giang, nơi nhịp sống chậm rãi và sen Huế hiện lên như biểu tượng của sự thuần khiết, thanh tao trong văn hóa cố đô.
 
@@ -108,7 +108,7 @@ Mứt sen mang sắc vàng hanh dịu mắt, vị ngọt đậm mà tinh. Chỉ 
     weight: '250g',
     region: 'trung',
     regionName: 'Miền Trung',
-    image: '/images/dau_tay.jpg',
+    image: '/images/dautay1.JPG',
     description: 'Ngọt lành từ cao nguyên sương mù',
     story: `Đà Lạt hiện ra rất khẽ, không ồn ào cũng chẳng vội vàng. Thành phố cao nguyên với sương sớm, nắng dịu và cái se lạnh quen thuộc tạo nên nhịp sống chậm rãi, nơi những trái dâu lớn lên tự nhiên, mang sắc đỏ hồng trong trẻo và vị chua thanh rất riêng.
 
@@ -136,7 +136,7 @@ Khi thưởng thức, vị chua thanh chạm nhẹ đầu lưỡi rồi vị ng�
     weight: '250g',
     region: 'nam',
     regionName: 'Miền Nam',
-    image: '/images/mut_dua.jpg',
+    image: '/images/dua1.JPG',
     description: 'Vị béo ngọt gói trọn hương quê',
     story: `Bến Tre được mệnh danh là xứ dừa của miền Tây Nam Bộ – nơi những hàng dừa nghiêng bóng soi mình xuống kênh rạch, gắn liền với đời sống và ẩm thực của người dân qua bao thế hệ. Dừa không chỉ là cây trồng chủ lực mà còn là biểu tượng của sự bền bỉ, hiền hòa và trù phú của vùng đất này.
 
@@ -163,7 +163,7 @@ Khi thưởng thức, vị béo của dừa lan nhẹ nơi đầu lưỡi, hòa 
     weight: '250g',
     region: 'nam',
     regionName: 'Miền Nam',
-    image: '/images/mut_mangcau.jpg',
+    image: '/images/mangcau1.JPG',
     description: 'Vị chua ngọt dịu êm miền nhớ',
     story: `Tiền Giang là vựa trái cây lớn của miền Tây Nam Bộ, nổi tiếng với những miệt vườn trĩu quả tại Cái Bè, Cai Lậy. Trong đó, mãng cầu là loại trái cây quen thuộc, mang vị chua ngọt tự nhiên, được người dân địa phương chế biến thành nhiều món truyền thống, đặc biệt là mứt.
 
@@ -207,7 +207,13 @@ Mỗi hũ 150g được đóng gói tinh tế, phù hợp làm quà tặng ý ng
     ingredients: 'Đầy đủ 6 loại mứt truyền thống từ ba miền',
     origin: 'Tổng hợp từ các vùng nguyên liệu truyền thống khắp Việt Nam',
     features: 'Tiết kiệm 125k, đóng gói cao cấp, phù hợp làm quà tặng',
-    isCombo: true
+    isCombo: true,
+    album: [
+      '/images/combo6.JPG',
+      '/images/combo1.JPG',
+      '/images/combo2.JPG',
+      '/images/combo3.JPG'
+    ]
   }
 ];
 
