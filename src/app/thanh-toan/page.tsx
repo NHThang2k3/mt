@@ -23,6 +23,15 @@ export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore();
   const { user, profile } = useAuthStore();
   
+  const rawTotal = getTotal();
+  const titleCount = profile?.badges?.length || 0;
+  let discountPercent = 0;
+  if (titleCount >= 3) discountPercent = 20;
+  else if (titleCount === 2) discountPercent = 15;
+  else if (titleCount === 1) discountPercent = 10;
+  const discountAmount = Math.floor(rawTotal * discountPercent / 100);
+  const finalTotal = rawTotal - discountAmount;
+  
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -85,13 +94,19 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
     
     try {
-      const total = getTotal();
-      const orderItems = items.map(item => ({
-        id: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity
-      }));
+      const orderItems = items.map(item => {
+        let name = item.product.name;
+        if (item.isPack10) name += ' (Gói 10 hũ)';
+        if (item.selectedSelections && item.selectedSelections.length > 0) {
+          name += ` [Chọn: ${item.selectedSelections.join(', ')}]`;
+        }
+        return {
+          id: item.id,
+          name: name,
+          price: item.isPack10 ? 450000 : item.product.price,
+          quantity: item.quantity
+        };
+      });
 
       // Save order to database
       const { data: orderData, error } = await supabase
@@ -99,7 +114,7 @@ export default function CheckoutPage() {
         .insert({
           user_id: user?.id || null,
           items: orderItems,
-          total: total,
+          total: finalTotal,
           status: 'pending',
           shipping_info: {
             name: formData.name,
@@ -119,14 +134,14 @@ export default function CheckoutPage() {
         const localOrderId = `LOCAL_${Date.now()}`;
         setOrderId(localOrderId);
         const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
-        trackPurchase(localOrderId, total, itemCount, user?.id);
+        trackPurchase(localOrderId, finalTotal, itemCount, user?.id);
         setStep(3);
         showToast('success', 'Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
         return;
       }
 
       const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
-      trackPurchase(orderData.id, total, itemCount, user?.id);
+      trackPurchase(orderData.id, finalTotal, itemCount, user?.id);
       
       setOrderId(orderData.id);
       setStep(3);
@@ -143,13 +158,19 @@ export default function CheckoutPage() {
   const handleVNPayPayment = async () => {
     setIsSubmitting(true);
     try {
-      const total = getTotal();
-      const orderItems = items.map(item => ({
-        id: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity
-      }));
+      const orderItems = items.map(item => {
+        let name = item.product.name;
+        if (item.isPack10) name += ' (Gói 10 hũ)';
+        if (item.selectedSelections && item.selectedSelections.length > 0) {
+          name += ` [Chọn: ${item.selectedSelections.join(', ')}]`;
+        }
+        return {
+          id: item.id,
+          name: name,
+          price: item.isPack10 ? 450000 : item.product.price,
+          quantity: item.quantity
+        };
+      });
 
       // Simulate successful payment by creating order with 'confirmed' status
       const { data: orderData, error } = await supabase
@@ -157,7 +178,7 @@ export default function CheckoutPage() {
         .insert({
           user_id: user?.id || null,
           items: orderItems,
-          total: total,
+          total: finalTotal,
           status: 'pending',
           shipping_info: {
             name: formData.name,
@@ -175,7 +196,7 @@ export default function CheckoutPage() {
       if (error) throw error;
 
       const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
-      trackPurchase(orderData.id, total, itemCount, user?.id);
+      trackPurchase(orderData.id, finalTotal, itemCount, user?.id);
       
       setOrderId(orderData.id);
       setStep(3);
@@ -343,16 +364,24 @@ export default function CheckoutPage() {
             <div className="bg-[var(--color-cream)] rounded-xl p-6 mb-6">
               <h3 className="font-semibold text-[var(--color-brown)] mb-4">Đơn hàng của bạn</h3>
               {items.map(item => (
-                <div key={item.product.id} className="flex justify-between py-2 border-b border-[var(--border)] last:border-0">
+                <div key={item.id} className="flex justify-between py-2 border-b border-[var(--border)] last:border-0">
                   <span className="text-[var(--color-brown)]/80">
-                    {item.product.name} x {item.quantity}
+                    {item.product.name} {item.isPack10 ? '(Gói 10 hũ)' : ''} x {item.quantity}
                   </span>
-                  <span className="font-medium">{formatPrice(item.product.price * item.quantity)}</span>
+                  <span className="font-medium">{formatPrice((item.isPack10 ? 450000 : item.product.price) * item.quantity)}</span>
                 </div>
               ))}
+              
+              {discountPercent > 0 && (
+                <div className="flex justify-between py-2 border-b border-[var(--border)]">
+                  <span className="text-green-600 font-medium">Giảm giá hạng thẻ ({discountPercent}%)</span>
+                  <span className="font-medium text-green-600">-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
+              
               <div className="flex justify-between pt-4 mt-2 border-t-2 border-[var(--color-gold)]">
                 <span className="font-bold text-[var(--color-brown)]">Tổng cộng</span>
-                <span className="font-bold text-xl text-[var(--color-gold)]">{formatPrice(getTotal())}</span>
+                <span className="font-bold text-xl text-[var(--color-gold)]">{formatPrice(finalTotal)}</span>
               </div>
             </div>
 

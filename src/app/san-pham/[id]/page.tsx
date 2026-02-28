@@ -23,6 +23,8 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState(product?.image || '');
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isPack10, setIsPack10] = useState(false);
+  const [selectedSelections, setSelectedSelections] = useState<string[]>([]);
   const addItem = useCartStore((state) => state.addItem);
   const { user } = useAuthStore();
   const { showToast } = useToast();
@@ -76,15 +78,22 @@ export default function ProductDetailPage() {
       return;
     }
     
+    if (product.comboChoices && selectedSelections.length !== product.comboChoices) {
+      showToast('error', `Vui lòng chọn đủ ${product.comboChoices} hương vị`);
+      return;
+    }
+
     setIsAddingToCart(true);
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    for (let i = 0; i < quantity; i++) {
-      addItem(product);
-    }
+    addItem(product, {
+      selectedSelections: product.comboChoices ? selectedSelections : undefined,
+      isPack10: !product.isCombo ? isPack10 : false,
+      quantity
+    });
     // Track add to cart
-    trackAddToCart(product.id, product.name, product.price * quantity, user?.id);
-    showToast('cart', `Đã thêm ${quantity} ${product.name} vào giỏ hàng`);
+    trackAddToCart(product.id, product.name, (isPack10 ? 450000 : product.price) * quantity, user?.id);
+    showToast('cart', `Đã thêm ${quantity} ${isPack10 ? 'Gói 10 hũ ' : ''}${product.name} vào giỏ hàng`);
     setIsAddingToCart(false);
   };
 
@@ -192,11 +201,11 @@ export default function ProductDetailPage() {
             
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <span className="text-3xl font-bold text-[var(--color-gold)]">
-                {formatPrice(product.price)}
+                {formatPrice(isPack10 ? 450000 : product.price)}
               </span>
               {product.weight && (
                 <span className="text-lg text-[var(--color-brown)]/60">
-                  / {product.weight}
+                   {isPack10 ? '/ 10 hũ x 250g' : `/ ${product.weight}`}
                 </span>
               )}
               <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
@@ -218,6 +227,73 @@ export default function ProductDetailPage() {
                 "{product.story}"
               </p>
             </div>
+
+            {/* Options for Combo */}
+            {product.comboChoices && (
+              <div className="mb-6">
+                <h3 className="font-semibold text-[var(--color-brown)] mb-3">
+                  Chọn {product.comboChoices} hương vị ({selectedSelections.length}/{product.comboChoices}):
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {products.filter(p => !p.isCombo).map(p => {
+                    const isSelected = selectedSelections.includes(p.name);
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedSelections(prev => prev.filter(name => name !== p.name));
+                          } else if (selectedSelections.length < product.comboChoices!) {
+                            setSelectedSelections(prev => [...prev, p.name]);
+                          } else {
+                            showToast('error', `Bạn chỉ được chọn ${product.comboChoices} hương vị`);
+                          }
+                        }}
+                        className={`p-3 rounded-xl border-2 text-left transition-colors flex items-center gap-2 ${
+                          isSelected 
+                            ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-brown)]' 
+                            : 'border-[var(--border)] hover:border-[var(--color-gold)]/50 text-[var(--color-brown)]/80'
+                        }`}
+                      >
+                        <span className="text-xl">{productEmoji[p.id]}</span>
+                        <span className="text-sm font-medium leading-tight">{p.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Pack of 10 Option for Regular Products */}
+            {!product.isCombo && (
+              <div className="mb-6">
+                <h3 className="font-semibold text-[var(--color-brown)] mb-3">Tùy chọn mua hàng:</h3>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => setIsPack10(false)}
+                    className={`flex-1 p-3 rounded-xl border-2 text-center transition-colors ${
+                      !isPack10 
+                        ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-brown)] font-bold' 
+                        : 'border-[var(--border)] hover:border-[var(--color-gold)]/50 text-[var(--color-brown)]/80'
+                    }`}
+                  >
+                    1 hũ (250g) <br />
+                    <span className="text-[var(--color-gold)] font-bold">{formatPrice(product.price)}</span>
+                  </button>
+                  <button
+                    onClick={() => setIsPack10(true)}
+                    className={`flex-1 p-3 rounded-xl border-2 text-center transition-colors ${
+                      isPack10 
+                        ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-brown)] font-bold' 
+                        : 'border-[var(--border)] hover:border-[var(--color-gold)]/50 text-[var(--color-brown)]/80'
+                    }`}
+                  >
+                    10 hũ (2,5kg) <br />
+                    <span className="text-[var(--color-gold)] font-bold">{formatPrice(450000)}</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Quantity & Add to Cart */}
             <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -263,6 +339,16 @@ export default function ProductDetailPage() {
                 )}
               </motion.button>
             </div>
+
+            <a 
+              href="https://facebook.com/vietcharm" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mb-6 btn-secondary text-center flex items-center justify-center gap-2 py-3 border-[var(--color-gold)] text-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-white transition-colors rounded-full"
+            >
+              <Share2 size={18} />
+              Liên hệ mua số lượng lớn giá sỉ tại Fanpage
+            </a>
 
             <div className="flex gap-4">
               <button className="flex items-center gap-2 text-[var(--color-brown)]/60 hover:text-[var(--color-red)] transition-colors">

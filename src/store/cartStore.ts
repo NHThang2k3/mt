@@ -5,21 +5,34 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { Product } from '@/data/products';
 
 export interface CartItem {
+  id: string;
   product: Product;
   quantity: number;
+  selectedSelections?: string[];
+  isPack10?: boolean;
 }
 
 interface CartState {
   items: CartItem[];
   userId: string | null;
-  addItem: (product: Product) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addItem: (product: Product, options?: { selectedSelections?: string[], isPack10?: boolean, quantity?: number }) => void;
+  removeItem: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
   getTotal: () => number;
   getItemCount: () => number;
   setUserId: (userId: string | null) => void;
 }
+
+// Helper to generate a unique cart item ID
+const generateCartItemId = (product: Product, options?: { selectedSelections?: string[], isPack10?: boolean }) => {
+  let id = product.id;
+  if (options?.isPack10) id += '-pack10';
+  if (options?.selectedSelections?.length) {
+    id += '-' + [...options.selectedSelections].sort().join('-');
+  }
+  return id;
+};
 
 // Helper to get storage key for a user
 const getStorageKey = (userId: string | null) => {
@@ -59,18 +72,27 @@ export const useCartStore = create<CartState>()(
       items: [],
       userId: null,
 
-      addItem: (product: Product) => {
+      addItem: (product: Product, options?: { selectedSelections?: string[], isPack10?: boolean, quantity?: number }) => {
         set((state) => {
-          const existingItem = state.items.find(item => item.product.id === product.id);
+          const itemId = generateCartItemId(product, options);
+          const existingItem = state.items.find(item => item.id === itemId);
+          const addQty = options?.quantity || 1;
+
           let newItems: CartItem[];
           if (existingItem) {
             newItems = state.items.map(item =>
-              item.product.id === product.id
-                ? { ...item, quantity: item.quantity + 1 }
+              item.id === itemId
+                ? { ...item, quantity: item.quantity + addQty }
                 : item
             );
           } else {
-            newItems = [...state.items, { product, quantity: 1 }];
+            newItems = [...state.items, {
+              id: itemId,
+              product,
+              quantity: addQty,
+              selectedSelections: options?.selectedSelections,
+              isPack10: options?.isPack10
+            }];
           }
           // Save to user-specific storage
           saveCartForUser(state.userId, newItems);
@@ -78,22 +100,22 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      removeItem: (productId: string) => {
+      removeItem: (itemId: string) => {
         set((state) => {
-          const newItems = state.items.filter(item => item.product.id !== productId);
+          const newItems = state.items.filter(item => item.id !== itemId);
           saveCartForUser(state.userId, newItems);
           return { items: newItems };
         });
       },
 
-      updateQuantity: (productId: string, quantity: number) => {
+      updateQuantity: (itemId: string, quantity: number) => {
         if (quantity <= 0) {
-          get().removeItem(productId);
+          get().removeItem(itemId);
           return;
         }
         set((state) => {
           const newItems = state.items.map(item =>
-            item.product.id === productId
+            item.id === itemId
               ? { ...item, quantity }
               : item
           );
@@ -110,7 +132,10 @@ export const useCartStore = create<CartState>()(
 
       getTotal: () => {
         return get().items.reduce(
-          (total, item) => total + item.product.price * item.quantity,
+          (total, item) => {
+            const price = item.isPack10 ? 450000 : item.product.price;
+            return total + price * item.quantity;
+          },
           0
         );
       },

@@ -14,10 +14,18 @@ export default function CartPage() {
   const [isClearing, setIsClearing] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const router = useRouter();
-  const { items, removeItem, updateQuantity, clearCart } = useCartStore();
-  const { user, isInitialized, initialize } = useAuthStore();
+  const { items, removeItem, updateQuantity, clearCart, getTotal } = useCartStore();
+  const { user, profile, isInitialized, initialize } = useAuthStore();
 
-  const total = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const rawTotal = getTotal();
+  const titleCount = profile?.badges?.length || 0;
+  let discountPercent = 0;
+  if (titleCount >= 3) discountPercent = 20;
+  else if (titleCount === 2) discountPercent = 15;
+  else if (titleCount === 1) discountPercent = 10;
+  
+  const discountAmount = Math.floor(rawTotal * discountPercent / 100);
+  const finalTotal = rawTotal - discountAmount;
 
   useEffect(() => {
     setMounted(true);
@@ -142,7 +150,7 @@ export default function CartPage() {
             <AnimatePresence>
               {items.map((item, index) => (
                 <motion.div
-                  key={item.product.id}
+                  key={item.id}
                   layout
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -163,8 +171,13 @@ export default function CartPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-[var(--color-brown)]">
-                          {item.product.name}
+                          {item.product.name} {item.isPack10 ? '(Gói 10 hũ)' : ''}
                         </h3>
+                        {item.selectedSelections && item.selectedSelections.length > 0 && (
+                          <p className="text-xs text-[var(--color-brown)]/80 mt-1 mb-1 italic">
+                            Đã chọn: {item.selectedSelections.join(', ')}
+                          </p>
+                        )}
                         <p className="text-sm text-[var(--color-brown)]/60">
                           {item.product.regionName}
                         </p>
@@ -172,7 +185,7 @@ export default function CartPage() {
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => removeItem(item.product.id)}
+                        onClick={() => removeItem(item.id)}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <Trash2 size={18} />
@@ -185,7 +198,7 @@ export default function CartPage() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-colors"
                         >
                           <Minus size={14} />
@@ -196,7 +209,7 @@ export default function CartPage() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-colors"
                         >
                           <Plus size={14} />
@@ -204,7 +217,7 @@ export default function CartPage() {
                       </div>
 
                       <span className="font-bold text-lg text-[var(--color-gold)]">
-                        {formatPrice(item.product.price * item.quantity)}
+                        {formatPrice((item.isPack10 ? 450000 : item.product.price) * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -250,9 +263,17 @@ export default function CartPage() {
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-[var(--color-brown)]/70">
-                  <span>Tạm tính ({items.reduce((acc, item) => acc + item.quantity, 0)} sản phẩm)</span>
-                  <span>{formatPrice(total)}</span>
+                  <span>Tạm tính ({items.reduce((acc, item) => acc + item.quantity, 0)} mục)</span>
+                  <span>{formatPrice(rawTotal)}</span>
                 </div>
+                
+                {discountPercent > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Giảm giá hạng thẻ ({discountPercent}%)</span>
+                    <span>-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
+                
                 <div className="flex justify-between text-[var(--color-brown)]/70">
                   <span>Phí vận chuyển</span>
                   <span className="text-green-600 font-medium">Miễn phí</span>
@@ -260,7 +281,7 @@ export default function CartPage() {
                 <div className="border-t-2 border-dashed border-[var(--border)] pt-4">
                   <div className="flex justify-between text-lg font-bold text-[var(--color-brown)]">
                     <span>Tổng cộng</span>
-                    <span className="text-xl text-[var(--color-gold)]">{formatPrice(total)}</span>
+                    <span className="text-xl text-[var(--color-gold)]">{formatPrice(finalTotal)}</span>
                   </div>
                 </div>
               </div>

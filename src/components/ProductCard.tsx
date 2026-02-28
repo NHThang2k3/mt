@@ -57,6 +57,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       router.push('/dang-nhap');
       return;
     }
+
+    if (product.comboChoices) {
+      showToast('info', 'Vui lòng chọn hương vị cho combo');
+      router.push(`/san-pham/${product.id}`);
+      return;
+    }
+
     
     setIsAddingToCart(true);
     // Simulate a small delay for better UX

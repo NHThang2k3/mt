@@ -13,6 +13,7 @@ export interface Product {
   features?: string;
   weight?: string;
   isCombo?: boolean;
+  comboChoices?: number;
   album?: string[];
 }
 
@@ -177,6 +178,60 @@ Khi thưởng thức, vị chua chạm nhẹ đầu lưỡi rồi tan dần tron
     ]
   },
   // Combo đặc biệt
+  {
+    id: 'combo-trai-nghiem',
+    name: 'Combo Trải Nghiệm 2 Món',
+    nameEn: 'Experience 2-Flavor Combo',
+    price: 98000,
+    weight: '2 hũ x 250g',
+    region: 'combo',
+    regionName: 'Combo đặc biệt',
+    image: '/images/combo4.JPG', // Tạm dùng hình ảnh có sẵn
+    description: 'Chọn 2 trong 6 hương vị mứt đặc sản',
+    story: 'Trải nghiệm ngẫu hứng 2 hương vị tùy chọn từ bản đồ mứt di sản.',
+    ingredients: 'Mứt truyền thống tự chọn',
+    origin: 'Việt Nam',
+    features: 'Tùy chọn đa dạng, phù hợp dùng thử',
+    isCombo: true,
+    comboChoices: 2,
+    album: ['/images/combo4.JPG']
+  },
+  {
+    id: 'combo-3-mien',
+    name: 'Combo 3 Miền',
+    nameEn: '3 Regions Combo',
+    price: 139000,
+    weight: '3 hũ x 250g',
+    region: 'combo',
+    regionName: 'Combo đặc biệt',
+    image: '/images/combo1.JPG', // Tạm dùng hình ảnh có sẵn
+    description: 'Chọn 3 trong 6 hương vị mứt đặc sản',
+    story: 'Khám phá sự giao thoa ẩm thực qua 3 hương vị tự chọn từ các vùng miền.',
+    ingredients: 'Mứt truyền thống tự chọn',
+    origin: 'Việt Nam',
+    features: 'Đa dạng hương vị, tiết kiệm hơn',
+    isCombo: true,
+    comboChoices: 3,
+    album: ['/images/combo1.JPG']
+  },
+  {
+    id: 'combo-gia-dinh',
+    name: 'Combo Gia Đình',
+    nameEn: 'Family Combo',
+    price: 189000,
+    weight: '4 hũ x 250g',
+    region: 'combo',
+    regionName: 'Combo đặc biệt',
+    image: '/images/combo2.JPG', // Tạm dùng hình ảnh có sẵn
+    description: 'Chọn 4 trong 6 hương vị mứt đặc sản',
+    story: 'Hương vị đủ đầy cho cả gia đình cùng nhâm nhi dịp cuối năm.',
+    ingredients: 'Mứt truyền thống tự chọn',
+    origin: 'Việt Nam',
+    features: 'Phù hợp gia đình, tối ưu chi phí',
+    isCombo: true,
+    comboChoices: 4,
+    album: ['/images/combo2.JPG']
+  },
   {
     id: 'combo-6-vi',
     name: 'Combo 6 Vị Di Sản',
