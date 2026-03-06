@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ToastProvider } from "@/components/Toast";
 import PageViewTracker from "@/components/PageViewTracker";
+import ChatBot from "@/components/ChatBot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <ChatBot />
         </ToastProvider>
       </body>
     </html>
