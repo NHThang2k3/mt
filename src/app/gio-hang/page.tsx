@@ -20,9 +20,9 @@ export default function CartPage() {
   const rawTotal = getTotal();
   const titleCount = profile?.badges?.length || 0;
   let discountPercent = 0;
-  if (titleCount >= 3) discountPercent = 20;
-  else if (titleCount === 2) discountPercent = 15;
-  else if (titleCount === 1) discountPercent = 10;
+  if (titleCount >= 3) discountPercent = 35;
+  else if (titleCount === 2) discountPercent = 25;
+  else if (titleCount === 1) discountPercent = 20;
   
   const discountAmount = Math.floor(rawTotal * discountPercent / 100);
   const finalTotal = rawTotal - discountAmount;

@@ -208,5 +208,5 @@ export type AnalyticsDaily = Database['public']['Tables']['analytics_daily']['Ro
 export type ProductReview = Database['public']['Tables']['product_reviews']['Row']
 
 // Admin email constant
-export const ADMIN_EMAIL = 'nguyenhuuthang02032003@gmail.com';
+export const ADMIN_EMAIL = 'dtth11122003@gmail.com';
 
