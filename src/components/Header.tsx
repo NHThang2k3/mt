@@ -119,9 +119,8 @@ export default function Header() {
             </button>
 
 
-            {mounted && user && (
+            {/* {mounted && user && (
               <>
-                {/* QR Scanner Button - Mobile/Tablet */}
                 <Link
                   href="/quet-ma"
                   className="p-2 rounded-full bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-red)] hover:opacity-90 transition-opacity shadow-md"
@@ -141,7 +140,7 @@ export default function Header() {
                   )}
                 </Link>
               </>
-            )}
+            )} */}
             
             {mounted && user ? (
               <div className="hidden sm:flex items-center gap-3">
