@@ -20,9 +20,12 @@ import {
   QrCode
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 import { ADMIN_EMAIL } from '@/types/database';
+import { useAuthStore } from '@/store/authStore';
 import type { AnalyticsDaily } from '@/types/database';
+
 
 interface MetricCardProps {
   title: string;
@@ -59,6 +62,8 @@ function MetricCard({ title, value, icon, change, color }: MetricCardProps) {
 
 export default function AdminPage() {
   const router = useRouter();
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const { user, isInitialized, initialize, isLoading: authLoading } = useAuthStore();
   const [analytics, setAnalytics] = useState<AnalyticsDaily[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -149,7 +154,7 @@ export default function AdminPage() {
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           className="w-12 h-12 border-4 border-[var(--color-gold)] border-t-transparent rounded-full mb-4"
         />
-        <p className="text-gray-500 animate-pulse">Đang kiểm tra quyền truy cập...</p>
+        <p className="text-gray-500 animate-pulse">{t.checkingAccess}</p>
       </div>
     );
   }
@@ -158,10 +163,10 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
         <Shield size={64} className="text-red-500 mb-4" />
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Truy cập bị từ chối</h1>
-        <p className="text-gray-500 text-center mb-6">Bạn không có quyền truy cập vào trang quản trị này.</p>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.accessDenied}</h1>
+        <p className="text-gray-500 text-center mb-6">{t.noAdminPermission}</p>
         <Link href="/" className="btn-primary">
-          Quay về trang chủ
+          {t.backToHome}
         </Link>
       </div>
     );
@@ -182,8 +187,8 @@ export default function AdminPage() {
               <Shield className="text-white" size={24} />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-              <p className="text-sm text-gray-500">Theo dõi tiêu chí đo lường</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{t.adminTitle}</h1>
+              <p className="text-sm text-gray-500">{t.metricsTitle}</p>
             </div>
           </div>
 
@@ -201,7 +206,7 @@ export default function AdminPage() {
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  {range === '7d' ? '7 ngày' : range === '30d' ? '30 ngày' : 'Tất cả'}
+                  {range === '7d' ? t.last7Days : range === '30d' ? t.last30Days : t.allTime}
                 </button>
               ))}
             </div>
@@ -209,35 +214,34 @@ export default function AdminPage() {
             <button
               onClick={fetchAnalytics}
               className="p-2 sm:p-3 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
-              title="Làm mới dữ liệu"
+              title={t.refresh}
             >
               <RefreshCw size={18} className={`text-gray-600 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
 
-            {/* Action Buttons */}
             <Link
               href="/admin/don-hang"
               className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-sm hover:from-purple-600 hover:to-purple-700 transition-all text-sm"
-              title="Quản lý đơn hàng"
+              title={t.manageOrders}
             >
               <ShoppingCart size={18} />
-              <span className="hidden sm:inline font-medium">Đơn Hàng</span>
+              <span className="hidden sm:inline font-medium">{t.orders}</span>
             </Link>
 
             <Link
               href="/admin/nguoi-dung"
               className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-sm hover:from-blue-600 hover:to-blue-700 transition-all text-sm"
-              title="Quản lý người dùng"
+              title={t.manageUsers}
             >
               <Users size={18} />
-              <span className="hidden sm:inline font-medium">Người Dùng</span>
+              <span className="hidden sm:inline font-medium">{t.users}</span>
             </Link>
 
             <Link
               href="/qr-codes/qr-codes-preview.html"
               target="_blank"
               className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-xl shadow-sm hover:from-amber-600 hover:to-orange-600 transition-all text-sm"
-              title="Xem QR Codes sản phẩm"
+              title={t.viewQrCodes}
             >
               <QrCode size={18} />
               <span className="hidden sm:inline font-medium">QR Codes</span>
@@ -245,67 +249,64 @@ export default function AdminPage() {
           </div>
         </motion.div>
 
-        {/* Main Metrics Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <MetricCard
-            title="Fan Reach"
+            title={t.fanReach}
             value={totals.fanReach.toLocaleString()}
             icon={<Users className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.fan_reach, yesterday.fan_reach) : undefined}
             color="bg-gradient-to-br from-blue-500 to-blue-600"
           />
           <MetricCard
-            title="Engagement"
+            title={t.engagement}
             value={totals.engagement.toLocaleString()}
             icon={<TrendingUp className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.engagement, yesterday.engagement) : undefined}
             color="bg-gradient-to-br from-green-500 to-green-600"
           />
           <MetricCard
-            title="Storytellers"
+            title={t.storytellers}
             value={totals.storytellers.toLocaleString()}
             icon={<Share2 className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.storytellers, yesterday.storytellers) : undefined}
             color="bg-gradient-to-br from-purple-500 to-purple-600"
           />
           <MetricCard
-            title="CTR"
+            title={t.ctr}
             value={`${ctr}%`}
             icon={<MousePointerClick className="text-white" size={18} />}
             color="bg-gradient-to-br from-amber-500 to-orange-500"
           />
         </div>
 
-        {/* Secondary Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <MetricCard
-            title="Page Views"
+            title={t.pageViews}
             value={totals.pageViews.toLocaleString()}
             icon={<Eye className="text-white" size={18} />}
             color="bg-gradient-to-br from-cyan-500 to-cyan-600"
           />
           <MetricCard
-            title="Clicks"
+            title={t.clicks}
             value={totals.clicks.toLocaleString()}
             icon={<MousePointerClick className="text-white" size={18} />}
             color="bg-gradient-to-br from-indigo-500 to-indigo-600"
           />
           <MetricCard
-            title="Neg. Feedback"
+            title={t.negFeedback}
             value={totals.negativeFeedback.toLocaleString()}
             icon={<ThumbsDown className="text-white" size={18} />}
             change={today && yesterday ? getChange(today.negative_feedback, yesterday.negative_feedback) : undefined}
             color="bg-gradient-to-br from-red-500 to-red-600"
           />
           <MetricCard
-            title="Đơn hàng"
+            title={t.ordersCount}
             value={totals.orders.toLocaleString()}
             icon={<ShoppingCart className="text-white" size={18} />}
             color="bg-gradient-to-br from-pink-500 to-pink-600"
           />
         </div>
 
-        {/* Revenue Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -314,9 +315,9 @@ export default function AdminPage() {
         >
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-amber-100 text-sm sm:text-lg mb-1 sm:mb-2">Tổng Doanh Thu</p>
+              <p className="text-amber-100 text-sm sm:text-lg mb-1 sm:mb-2">{t.totalRevenue}</p>
               <p className="text-xl sm:text-3xl md:text-4xl font-bold text-white truncate">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totals.revenue)}
+                {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(totals.revenue)}
               </p>
             </div>
             <div className="p-3 sm:p-4 bg-white/20 rounded-xl sm:rounded-2xl flex-shrink-0">
@@ -325,7 +326,6 @@ export default function AdminPage() {
           </div>
         </motion.div>
 
-        {/* Daily Data Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -335,7 +335,7 @@ export default function AdminPage() {
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center gap-3">
               <BarChart3 className="text-amber-500" size={24} />
-              <h2 className="text-xl font-bold text-gray-800">Chi Tiết Theo Ngày</h2>
+              <h2 className="text-xl font-bold text-gray-800">{t.dailyDetails}</h2>
             </div>
           </div>
 
@@ -346,23 +346,23 @@ export default function AdminPage() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
                     <div className="flex items-center gap-2">
                       <Calendar size={16} />
-                      Ngày
+                      {t.date}
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Fan Reach</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Page Views</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Engagement</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Storytellers</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">CTR</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Neg. Feedback</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Doanh thu</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">{t.fanReach}</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">{t.pageViews}</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">{t.engagement}</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">{t.storytellers}</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">{t.ctr}</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">{t.negFeedback}</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">{t.revenue}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {analytics.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                      {isLoading ? 'Đang tải...' : 'Chưa có dữ liệu analytics'}
+                      {isLoading ? t.loading : t.noAnalyticsData}
                     </td>
                   </tr>
                 ) : (
@@ -377,7 +377,7 @@ export default function AdminPage() {
                         className="hover:bg-gray-50 transition-colors"
                       >
                         <td className="px-6 py-4 text-sm text-gray-800 font-medium">
-                          {new Date(day.date).toLocaleDateString('vi-VN', {
+                          {new Date(day.date).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US', {
                             weekday: 'short',
                             day: '2-digit',
                             month: '2-digit',
@@ -395,7 +395,7 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-800 text-right font-medium">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(day.total_revenue)}
+                          {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(day.total_revenue)}
                         </td>
                       </motion.tr>
                     );

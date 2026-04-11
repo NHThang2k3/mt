@@ -7,13 +7,20 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/components/Toast';
 import { supabase } from '@/lib/supabase';
 import type { ProductReview } from '@/types/database';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
+
+
 
 interface ProductReviewsProps {
   productId: string;
 }
 
 export default function ProductReviews({ productId }: ProductReviewsProps) {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const { user, profile } = useAuthStore();
+
   const { showToast } = useToast();
   
   const [reviews, setReviews] = useState<ProductReview[]>([]);
@@ -57,13 +64,14 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      showToast('error', 'Vui lòng đăng nhập để gửi đánh giá');
+      showToast('error', t.loginToReviewAlert);
       return;
     }
     if (!newComment.trim()) {
-      showToast('error', 'Vui lòng nhập nội dung đánh giá');
+      showToast('error', t.commentRequired);
       return;
     }
+
 
     setIsSubmitting(true);
     
@@ -92,11 +100,12 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       setReviews([data, ...reviews]);
       setNewComment('');
       setNewRating(5);
-      showToast('success', 'Cảm ơn bạn đã đánh giá sản phẩm!');
+      showToast('success', t.thanksReview);
     } catch (error) {
       console.error('Error saving review:', error);
-      showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại!');
+      showToast('error', language === 'vi' ? 'Có lỗi xảy ra. Vui lòng thử lại!' : 'An error occurred. Please try again!');
     } finally {
+
       setIsSubmitting(false);
     }
   };
@@ -115,8 +124,9 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       }
 
       setReviews(reviews.filter(r => r.id !== id));
-      showToast('success', 'Đã xóa đánh giá');
+      showToast('success', t.deleteReview);
     } catch (error) {
+
       console.error('Error deleting review:', error);
       showToast('error', 'Có lỗi xảy ra');
     }
@@ -132,8 +142,9 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         <div>
           <h2 className="text-2xl font-bold text-[var(--color-brown)] flex items-center gap-3 mb-2">
             <MessageSquare size={24} className="text-[var(--color-gold)]" />
-            Đánh giá từ khách hàng
+            {t.customerReviews}
           </h2>
+
           <div className="flex items-center gap-4">
             <div className="flex items-center">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -148,8 +159,9 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
               {averageRating.toFixed(1)} / 5
             </span>
             <span className="text-[var(--color-brown)]/50">
-              ({reviews.length} đánh giá)
+              ({reviews.length} {language === 'vi' ? 'đánh giá' : 'reviews'})
             </span>
+
           </div>
         </div>
 
@@ -164,8 +176,9 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
             }}
             className="btn-secondary whitespace-nowrap"
           >
-            Viết đánh giá của bạn
+            {t.writeReview}
           </button>
+
         )}
       </div>
 
@@ -174,12 +187,14 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         <div className="lg:col-span-1 border-r border-[var(--border)] pr-0 lg:pr-12">
           {user ? (
             <form id="review-form" onSubmit={handleSubmit} className="sticky top-24">
-              <h3 className="font-bold text-[var(--color-brown)] mb-6">Gửi đánh giá của bạn</h3>
+              <h3 className="font-bold text-[var(--color-brown)] mb-6">{t.writeReview}</h3>
+
               
               <div className="mb-6">
                 <label className="block text-sm font-medium text-[var(--color-brown)]/60 mb-2">
-                  Đánh giá của bạn
+                  {t.reviewsTitle}
                 </label>
+
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -204,15 +219,17 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
               <div className="mb-6">
                 <label className="block text-sm font-medium text-[var(--color-brown)]/60 mb-2">
-                  Nội dung bình luận
+                  {language === 'vi' ? 'Nội dung bình luận' : 'Comment content'}
                 </label>
+
                 <textarea
                   ref={commentInputRef}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                  placeholder={t.reviewPlaceholder}
                   className="w-full rounded-2xl border-[var(--border)] p-4 focus:ring-2 focus:ring-[var(--color-gold)] focus:border-transparent min-h-[120px] resize-none"
                 />
+
               </div>
 
               <motion.button
@@ -225,23 +242,25 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 {isSubmitting ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Đang gửi...
+                    {t.sending}
                   </>
                 ) : (
                   <>
                     <Send size={18} />
-                    Gửi đánh giá
+                    {t.submitReview}
                   </>
                 )}
+
               </motion.button>
             </form>
           ) : (
             <div className="bg-[var(--color-cream)] rounded-2xl p-6 text-center">
               <p className="text-[var(--color-brown)]/70 mb-4">
-                Vui lòng đăng nhập để gửi đánh giá cho sản phẩm này.
+                {t.loginToReview}
               </p>
-              <a href="/dang-nhap" className="btn-secondary w-full inline-block">Đăng nhập ngay</a>
+              <a href="/dang-nhap" className="btn-secondary w-full inline-block">{t.loginNow}</a>
             </div>
+
           )}
         </div>
 
@@ -301,9 +320,10 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 ))
               ) : (
                 <div className="text-center py-12 text-[var(--color-brown)]/50">
-                  Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
+                  {t.beFirstReview}
                 </div>
               )}
+
             </AnimatePresence>
           )}
         </div>

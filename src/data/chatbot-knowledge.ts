@@ -19,6 +19,13 @@ export const CHATBOT_KNOWLEDGE = {
       'Nguồn nguyên liệu từ các vùng trồng truyền thống uy tín',
       'Đóng gói tinh tế, phù hợp làm quà tặng',
     ],
+    valuesEn: [
+      '100% natural ingredients, no preservatives',
+      'Handcrafted using traditional methods',
+      'Low sugar, preserving original flavors',
+      'Sourced from reputable traditional growing regions',
+      'Exquisite packaging, perfect for gifting',
+    ],
   },
 
   // ==================== DANH SÁCH SẢN PHẨM ====================
@@ -59,11 +66,11 @@ export const CHATBOT_KNOWLEDGE = {
       origin: 'Vùng trồng mơ truyền thống tại Ba Vì (Hà Nội) và khu vực ven núi Tản',
       features: 'Ít đường, không chất bảo quản, chế biến thủ công',
       taste: 'Vị chua dịu lan nhẹ nơi đầu lưỡi, sau đó là vị ngọt vừa phải, cân bằng và dễ chịu. Gợi cảm giác thư thái.',
-      story: 'Ba Vì hiện lên với những dãy núi trập trùng, mây trắng bảng lảng và không khí mát lành quanh năm. Vùng trồng mơ truyền thống của miền Bắc, nơi những cây mơ âm thầm kết trái mỗi độ giao mùa.',
+      story: 'Ba Vì hiện lên với những dãy núi trập trùng, mây trắng bảng lảng and không khí mát lành quanh năm. Vùng trồng mơ truyền thống của miền Bắc, nơi những cây mơ âm thầm kết trái mỗi độ giao mùa.',
       servingSuggestions: [
         'Dùng cùng trà nóng hoặc trà thảo mộc',
         'Pha nước mơ ấm cho ngày se lạnh',
-        'Kết hợp với sữa chua không đường',
+        'Kết hợp with sữa chua không đường',
         'Món quà nhẹ nhàng cho người yêu sự thanh giản',
       ],
     },
@@ -78,7 +85,7 @@ export const CHATBOT_KNOWLEDGE = {
       image: '/images/hatsen2.JPG',
       shortDescription: 'Khi vị thanh của cố đô chạm vào nhịp sống hiện đại',
       ingredients: 'Hạt sen tươi, đường mía tinh luyện',
-      origin: 'Hồ sen làng Phú Mậu (Phú Vang) và khu vực Hương Sơ – Hương Long (TP. Huế)',
+      origin: 'Hồ sen làng Phú Mậu (Phú Vang) and khu vực Hương Sơ – Hương Long (TP. Huế)',
       features: 'Ít đường, không chất bảo quản, chế biến thủ công',
       taste: 'Sắc vàng hanh dịu mắt, vị ngọt đậm mà tinh, vị bùi tự nhiên. Hòa quyện với trà nóng tạo cảm giác thư thái.',
       story: 'Huế lặng lẽ bên dòng Hương Giang, nơi nhịp sống chậm rãi và sen Huế hiện lên như biểu tượng của sự thuần khiết, thanh tao trong văn hóa cố đô.',
@@ -124,7 +131,7 @@ export const CHATBOT_KNOWLEDGE = {
       origin: 'Các vườn dừa tại tỉnh Bến Tre',
       features: 'Ít ngọt, không chất bảo quản, chế biến thủ công',
       taste: 'Vị béo của dừa lan nhẹ nơi đầu lưỡi, hòa cùng vị ngọt thanh, cảm giác gần gũi và ấm áp.',
-      story: 'Bến Tre được mệnh danh là xứ dừa của miền Tây Nam Bộ – nơi những hàng dừa nghiêng bóng soi mình xuống kênh rạch, gắn liền với đời sống và ẩm thực qua bao thế hệ.',
+      story: 'Bến Tre được mệnh danh là xứ dừa của miền Tây Nam Bộ – nơi những hàng dừa nghiêng bóng soi mình xuống kênh rạch, gắn liền với đời sống and ẩm thực qua bao thế hệ.',
       servingSuggestions: [
         'Dùng cùng trà nóng hoặc trà lài',
         'Ăn kèm bánh mì, bánh quy nhạt',
@@ -144,7 +151,7 @@ export const CHATBOT_KNOWLEDGE = {
       ingredients: 'Mãng cầu tươi Tiền Giang, đường mía tinh luyện',
       origin: 'Vườn trái cây Cái Bè – Cai Lậy (Tiền Giang)',
       features: 'Chua ngọt cân bằng, không chất bảo quản',
-      taste: 'Vị chua chạm nhẹ đầu lưỡi rồi tan dần trong vị ngọt dịu, tạo cảm giác tươi mới và dễ chịu.',
+      taste: 'Vị chua chạm nhẹ đầu lưỡi rồi tan dần trong vị ngọt dịu, tạo cảm giác tươi mới and dễ chịu.',
       story: 'Tiền Giang là vựa trái cây lớn của miền Tây Nam Bộ, nổi tiếng với những miệt vườn trĩu quả tại Cái Bè, Cai Lậy.',
       servingSuggestions: [
         'Dùng cùng trà hoa quả hoặc trà thảo mộc',
@@ -225,7 +232,7 @@ export const CHATBOT_KNOWLEDGE = {
         'Bước 1: Chọn sản phẩm yêu thích tại mục Cửa Hàng',
         'Bước 2: Thêm vào Giỏ Hàng, chọn số lượng',
         'Bước 3: Điền thông tin giao hàng (họ tên, số điện thoại, địa chỉ)',
-        'Bước 4: Chọn phương thức thanh toán và xác nhận đơn hàng',
+        'Bước 4: Chọn phương thức thanh toán and xác nhận đơn hàng',
       ],
       paymentMethods: ['COD (thanh toán khi nhận hàng)', 'Chuyển khoản ngân hàng'],
       shipping: 'Giao hàng toàn quốc',
@@ -253,10 +260,9 @@ export const CHATBOT_KNOWLEDGE = {
 
   // ==================== CÂU HỎI THƯỜNG GẶP (FAQ) ====================
   faq: [
-    
     {
       question: "VietCharm là gì?",
-      answer: "VietCharm là thương hiệu mứt trái cây thủ công cao cấp, đại diện cho tinh hoa nông sản và văn hóa 3 miền Bắc – Trung – Nam.",
+      answer: "VietCharm là thương hiệu mứt trái cây thủ công cao cấp, đại diện cho tinh hoa nông sản and văn hóa 3 miền Bắc – Trung – Nam.",
     },
     {
       question: "Slogan của VietCharm là gì?",
@@ -268,7 +274,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Ý nghĩa tên gọi VietCharm?",
-      answer: "Là sự kết hợp giữa \"Việt\" (bản sắc Việt Nam) và \"Charm\" (nét quyến rũ, duyên dáng của hương vị truyền thống).",
+      answer: "Là sự kết hợp giữa \"Việt\" (bản sắc Việt Nam) and \"Charm\" (nét quyến rũ, duyên dáng của hương vị truyền thống).",
     },
     {
       question: "Cửa hàng VietCharm ở đâu?",
@@ -284,15 +290,15 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "VietCharm khác gì với mứt công nghiệp?",
-      answer: "VietCharm làm thủ công, ít đường, không phẩm màu, không chất bảo quản và mang câu chuyện văn hóa vùng miền. Ăn mứt VietCharm vừa khỏe, vừa thể hiện tình yêu quê hương đất nước nè !!!",
+      answer: "VietCharm làm thủ công, ít đường, không phẩm màu, không chất bảo quản and mang câu chuyện văn hóa vùng miền. Ăn mứt VietCharm vừa khỏe, vừa thể hiện tình yêu quê hương đất nước nè !!!",
     },
     {
       question: "Tầm nhìn của VietCharm?",
-      answer: "Trở thành thương hiệu mứt trái cây 3 miền tiêu biểu của Việt Nam và vươn tầm quốc tế.",
+      answer: "Trở thành thương hiệu mứt trái cây 3 miền tiêu biểu của Việt Nam and vươn tầm quốc tế.",
     },
     {
       question: "Sứ mệnh của bạn là gì?",
-      answer: "Tôn vinh nông sản Việt, hỗ trợ nông dân và mang sản phẩm sạch đến người tiêu dùng.",
+      answer: "Tôn vinh nông sản Việt, hỗ trợ nông dân and mang sản phẩm sạch đến người tiêu dùng.",
     },
     {
       question: "VietCharm có bao nhiêu loại mứt chính?",
@@ -300,7 +306,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Miền Bắc có mứt gì?",
-      answer: "Mứt Mơ và mứt Mận.",
+      answer: "Mứt Mơ and mứt Mận.",
     },
     {
       question: "Mứt Mơ VietCharm lấy nguyên liệu từ đâu?",
@@ -312,11 +318,11 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Miền Trung có những loại mứt nào?",
-      answer: "Mứt Hạt sen và mứt Dâu tây.",
+      answer: "Mứt Hạt sen and mứt Dâu tây.",
     },
     {
       question: "Hạt sen của VietCharm là sen gì?",
-      answer: "Sen từ Cố đô Huế, mềm bở và thanh tao.",
+      answer: "Sen từ Cố đô Huế, mềm bở and thanh tao.",
     },
     {
       question: "Dâu tây được trồng ở đâu?",
@@ -324,7 +330,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Miền Nam có mứt gì nổi bật?",
-      answer: "Mứt Dừa và mứt Mãng cầu.",
+      answer: "Mứt Dừa and mứt Mãng cầu.",
     },
     {
       question: "Mứt Dừa VietCharm lấy từ đâu?",
@@ -348,7 +354,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "VietCharm có mứt Chùm ruột không?",
-      answer: "Đây là dòng sản phẩm dự phòng và đang được ban quản trị VietCharm cân nhắc ra mắt trong các dịp đặc biệt. Quý khách hãy đón chờ cũng VietCharm nhé.",
+      answer: "Đây là dòng sản phẩm dự phòng and đang được ban quản trị VietCharm cân nhắc ra mắt trong các dịp đặc biệt. Quý khách hãy đón chờ cũng VietCharm nhé.",
     },
     {
       question: "Mứt Thanh long có nằm trong danh mục không?",
@@ -380,15 +386,15 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Vị mứt miền Trung có gì đặc biệt?",
-      answer: "Mang đậm dấu ấn tinh tế và đậm đà.",
+      answer: "Mang đậm dấu ấn tinh tế and đậm đà.",
     },
     {
       question: "Vị mứt miền Nam có đặc điểm gì?",
-      answer: "Nổi bật với vị ngọt tự nhiên và phong phú của trái cây nhiệt đới.",
+      answer: "Nổi bật với vị ngọt tự nhiên and phong phú của trái cây nhiệt đới.",
     },
     {
       question: "Sản phẩm nào bán chạy nhất?",
-      answer: "Tùy vào sở thích, nhưng Mứt Dâu Tây và Hạt Sen thường rất được lòng giới trẻ.",
+      answer: "Tùy vào sở thích, nhưng Mứt Dâu Tây and Hạt Sen thường rất được lòng giới trẻ.",
     },
     {
       question: "Tôi muốn thử vị mứt truyền thống nhất?",
@@ -412,7 +418,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Quy trình sản xuất mứt như thế nào?",
-      answer: "Sản xuất thủ công kết hợp quy trình sấy và kiểm soát an toàn thực phẩm hiện đại.",
+      answer: "Sản xuất thủ công kết hợp quy trình sấy and kiểm soát an toàn thực phẩm hiện đại.",
     },
     {
       question: "Nguồn nguyên liệu có an toàn không?",
@@ -424,11 +430,11 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Trẻ em có dùng được mứt này không?",
-      answer: "Rất tốt cho trẻ vì nguyên liệu tự nhiên và không hóa chất.",
+      answer: "Rất tốt cho trẻ vì nguyên liệu tự nhiên and không hóa chất.",
     },
     {
       question: "Người già có dùng được mứt không?",
-      answer: "Được, đặc biệt mứt hạt sen và mứt mơ rất tốt cho sức khỏe người lớn tuổi.",
+      answer: "Được, đặc biệt mứt hạt sen and mứt mơ rất tốt cho sức khỏe người lớn tuổi.",
     },
     {
       question: "Tại sao mứt VietCharm không để được quá lâu như siêu thị?",
@@ -436,7 +442,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Mứt có bị lên men không?",
-      answer: "Nếu bảo quản đúng cách (nơi khô ráo hoặc ngăn mát), mứt sẽ giữ được vị ngon nhất và thời gian sử dụng được lâu nhất.",
+      answer: "Nếu bảo quản đúng cách (nơi khô ráo hoặc ngăn mát), mứt sẽ giữ được vị ngon nhất and thời gian sử dụng được lâu nhất.",
     },
     {
       question: "Sản phẩm có dùng hương liệu nhân tạo không?",
@@ -444,15 +450,15 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Lợi ích sức khỏe của mứt mơ là gì?",
-      answer: "Hỗ trợ tiêu hóa và giải nhiệt.",
+      answer: "Hỗ trợ tiêu hóa and giải nhiệt.",
     },
     {
       question: "Lợi ích của mứt hạt sen?",
-      answer: "Giúp ngủ ngon và bồi bổ cơ thể.",
+      answer: "Giúp ngủ ngon and bồi bổ cơ thể.",
     },
     {
       question: "Mứt mãng cầu cung cấp chất gì?",
-      answer: "Giàu vitamin C và hỗ trợ hệ miễn dịch.",
+      answer: "Giàu vitamin C and hỗ trợ hệ miễn dịch.",
     },
     {
       question: "Bao bì VietCharm có gì đặc biệt?",
@@ -488,11 +494,11 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Thiết kế bao bì lấy cảm hứng từ đâu?",
-      answer: "Từ các họa tiết di sản và nét đẹp truyền thống Việt Nam.",
+      answer: "Từ các họa tiết di sản and nét đẹp truyền thống Việt Nam.",
     },
     {
       question: "Có túi xách đi kèm khi mua set quà không?",
-      answer: "Có, túi xách được thiết kế đồng bộ và rất lịch sự.",
+      answer: "Có, túi xách được thiết kế đồng bộ and rất lịch sự.",
     },
     {
       question: "Set quà 3 miền có mấy hũ?",
@@ -516,7 +522,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Mã QR trên bao bì dùng để làm gì?",
-      answer: "Để khách hàng truy cập website xem câu chuyện sản phẩm và quy trình sản xuất.",
+      answer: "Để khách hàng truy cập website xem câu chuyện sản phẩm and quy trình sản xuất.",
     },
     {
       question: "Tôi quét mã QR bằng cách nào?",
@@ -524,10 +530,10 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Website VietCharm cung cấp thông tin gì?",
-      answer: "Thông tin vùng nguyên liệu, gợi ý sử dụng và các ưu đãi thành viên.",
+      answer: "Thông tin vùng nguyên liệu, gợi ý sử dụng and các ưu đãi thành viên.",
     },
     {
-      question: "\"Bản đồ di sản\" trên website là gì?",
+      question: "Bản đồ di sản trên website là gì?",
       answer: "Là nơi bạn khám phá nguồn gốc của từng loại mứt trên khắp Việt Nam.",
     },
     {
@@ -536,7 +542,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "VietCharm có chương trình tích điểm không?",
-      answer: "Có, khi mua hàng và đăng ký thành viên trên website.",
+      answer: "Có, khi mua hàng and đăng ký thành viên trên website.",
     },
     {
       question: "Làm sao để biết quy trình làm mứt của bạn?",
@@ -576,7 +582,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Có thanh toán qua chuyển khoản không?",
-      answer: "Có, hỗ trợ chuyển khoản ngân hàng và các ví điện tử.",
+      answer: "Có, hỗ trợ chuyển khoản ngân hàng and các ví điện tử.",
     },
     {
       question: "Có ship COD (thanh toán khi nhận hàng) không?",
@@ -584,7 +590,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "VietCharm có trên Shopee/Lazada không?",
-      answer: "Chúng tôi tập trung bán tại Website và Fanpage để chăm sóc khách tốt nhất.",
+      answer: "Chúng tôi tập trung bán tại Website and Fanpage để chăm sóc khách tốt nhất.",
     },
     {
       question: "Tôi muốn mua sỉ thì liên hệ ai?",
@@ -624,7 +630,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Tại sao VietCharm lại hướng tới sự bền vững?",
-      answer: "Vì chúng tôi muốn bảo vệ môi trường và phát triển cộng đồng nông nghiệp Việt Nam.",
+      answer: "Vì chúng tôi muốn bảo vệ môi trường and phát triển cộng đồng nông nghiệp Việt Nam.",
     },
     {
       question: "VietCharm có dự án thiện nguyện nào không?",
@@ -636,7 +642,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Làm sao để biết VietCharm dùng nguyên liệu sạch?",
-      answer: "Chúng tôi công khai thông tin vùng nguyên liệu trên website và qua mã QR.",
+      answer: "Chúng tôi công khai thông tin vùng nguyên liệu trên website and qua mã QR.",
     },
     {
       question: "VietCharm có tuyển cộng tác viên bán hàng không?",
@@ -644,7 +650,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Tại sao bạn lại tập trung vào mứt 3 miền?",
-      answer: "Để kết nối tinh hoa ẩm thực cả nước và khơi dậy niềm tự hào dân tộc.",
+      answer: "Để kết nối tinh hoa ẩm thực cả nước and khơi dậy niềm tự hào dân tộc.",
     },
     {
       question: "Sản phẩm VietCharm có phù hợp làm quà du lịch không?",
@@ -652,11 +658,15 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Làm sao để ủng hộ VietCharm bền vững hơn?",
-      answer: "Hãy tiếp tục tin dùng và lan tỏa câu chuyện về mứt di sản Việt Nam cùng chúng tôi!",
+      answer: "Hãy tiếp tục tin dùng and lan tỏa câu chuyện về mứt di sản Việt Nam cùng chúng tôi!",
     },
     {
-      question: "Đào Minh Tiến / Nguyễn Nhật Toàn/ Cao Hồ Trường Thọ/ Trương Khánh Vy/ Mạch Đàn Tuyên/ Nguyễn Ngọc Khả Tú/ Nguyễn Ngọc Anh Thư/ Trương Nguyễn Ngọc Vân/ Nguyễn Hữu Tài là ai?",
-      answer: "Đây là một trong những người \"góp gạch\" xây nên nền móng của VietCharm. Người này thuộc ban quản trị, đưa ra những quyết định ảnh hưởng trực tiếp đến chiến lược phát triển và tương lai của tụi mình. Đại loại là một \"Sếp lớn\" của VietCharm á, vuýp lắm !!",
+      question: "Màu đỏ trên logo VietCharm là đỏ gì vậy?",
+      answer: "Là màu đỏ của sự nhiệt huyết, của quả chín and cũng là màu đỏ may mắn trong ngày Tết truyền thống.",
+    },
+    {
+      question: "Tại sao VietCharm lại chọn bao bì thân thiện với môi trường?",
+      answer: "Vì tụi mình muốn di sản Việt được bảo tồn trong một môi trường xanh and bền vững nhất.",
     },
     {
       question: "Bản đồ di sản là gì?",
@@ -664,395 +674,7 @@ export const CHATBOT_KNOWLEDGE = {
     },
     {
       question: "Làm sao để tham gia chương trình hành trình di sản Việt?",
-      answer: "Để tham gia chương trình hành trình di sản Việt, quý khách hàng cần sở hữu cho mình ít nhất một trong các loại sản phẩm mứt trái cây của VietCharm. Sau đó quét mã QR đằng sau mỗi hũ mứt là bạn đã có thể bắt đầu chuyến hành trình khám phá di sản rồi, chúc bạn enjoy mứt VietCharm và mở khóa được thật nhiều danh hiệu cực ngầu nhé!",
-    },
-    {
-      question: "Ăn mứt VietCharm thế nào cho sành điệu nhỉ?",
-      answer: "Ngoài ăn trực tiếp, bạn thử phết lên bánh mì nướng nóng hổi hoặc bỏ vào sữa chua không đường xem, đảm bảo \"dính\" luôn đó nha!",
-    },
-    {
-      question: "Tết này nhà mình có mứt VietCharm thì nên uống trà gì?",
-      answer: "Tụi mình gợi ý trà Oolong hoặc trà Sen nhé. Vị chát nhẹ của trà quyện với vị ngọt thanh của mứt di sản đúng là \"cặp bài trùng\" luôn nè.",
-    },
-    {
-      question: "Mứt dâu tây Đà Lạt có làm trà trái cây được không?",
-      answer: "Được chứ, bạn chỉ cần pha trà túi lọc, thêm vài thìa mứt dâu và ít đá là có ngay ly trà dâu \"chill\" tại gia rồi.",
-    },
-    {
-      question: "Sáng ra lười nấu ăn thì mứt VietCharm có \"cứu\" được mình không?",
-      answer: "Cứu tinh đây rồi! Một lát bánh mì sandwich và một lớp mứt mãng cầu nồng nàn là đủ năng lượng cho buổi sáng năng động.",
-    },
-    {
-      question: "Mình thích chụp ảnh sống ảo, mứt VietCharm lên hình đẹp không?",
-      answer: "Ôi thôi rồi, bao bì tụi mình thiết kế theo style di sản tối giản nên đặt cạnh tách trà là có ngay ảnh \"ngàn like\" luôn đó.",
-    },
-    {
-      question: "Mứt dừa Bến Tre có quá béo không bạn ơi?",
-      answer: "Béo ngậy tự nhiên từ dừa nguyên chất nhưng không hề ngấy đâu nè, vì tụi mình đã điều chỉnh lượng đường cực thấp rồi.",
-    },
-    {
-      question: "Bữa tiệc trà chiều với hội bạn thì nên chọn combo nào?",
-      answer: "Bạn thử combo 3 miền: Mận Mộc Châu (chua), Hạt sen Huế (bùi) và Mứt dừa (béo). Đủ vị cho cả nhóm tám chuyện xuyên lục địa!",
-    },
-    {
-      question: "Mứt hạt sen Huế có giúp mình ngủ ngon hơn không?",
-      answer: "Hạt sen vốn nổi tiếng giúp an thần mà. Nhâm nhi vài viên mứt sen trước khi ngủ cùng chút nước ấm là ngủ ngon tới sáng luôn.",
-    },
-    {
-      question: "Mứt mận hậu có hạt không để mình cho bé ăn?",
-      answer: "Tụi mình đã tách hạt khéo léo rồi, nhưng với các bé nhỏ bạn vẫn nên để ý một chút cho an tâm tuyệt đối nhé.",
-    },
-    {
-      question: "Vị nào của VietCharm làm mình tỉnh táo nhất nhỉ?",
-      answer: "Thử ngay mứt mơ vùng trung du nhé, vị chua thanh \"bừng tỉnh\" mọi giác quan luôn á!",
-    },
-    {
-      question: "Mình muốn làm bánh kẹp mứt, mứt nào hợp nhất?",
-      answer: "Mứt dâu tây Đà Lạt dẻo thơm là lựa chọn số 1 cho các tín đồ yêu bánh ngọt nè.",
-    },
-    {
-      question: "Hũ mứt nhỏ xíu vậy có đủ cho cả nhà ăn không?",
-      answer: "Nhìn vậy thôi chứ hũ mứt VietCharm \"nhỏ mà có võ\", đủ để cả gia đình quây quần nhâm nhi suốt mấy ngày Tết luôn.",
-    },
-    {
-      question: "Mứt dừa trắng tinh vậy có dùng chất tẩy không?",
-      answer: "Tuyệt đối không nha! Đó là màu trắng nguyên bản của cơm dừa non Bến Tre đó, tụi mình yêu sự tự nhiên mà.",
-    },
-    {
-      question: "Dạo này mình hơi stress, có vị mứt nào \"vỗ về\" tâm hồn không?",
-      answer: "Thử mứt hạt sen Huế đi bạn, vị bùi bùi thanh tao sẽ giúp tâm trạng bạn dịu lại nhiều đó.",
-    },
-    {
-      question: "Mứt mãng cầu có mùi nồng quá không?",
-      answer: "Mùi thơm dịu đặc trưng của trái cây nhiệt đới, cực kỳ kích thích vị giác luôn, bạn thử là mê cho xem.",
-    },
-    {
-      question: "Mình muốn mix mứt với cocktail, có ổn không?",
-      answer: "Ý tưởng táo bạo quá! Mứt mơ hoặc dâu tây mix với chút soda và rượu nhẹ là thành món cocktail \"signature\" luôn nè.",
-    },
-    {
-      question: "Mứt VietCharm có ngọt gắt như mứt ngoài chợ không?",
-      answer: "Không hề nha, tiêu chí của tụi mình là \"ít đường - thật vị\", ăn hoài không chán luôn.",
-    },
-    {
-      question: "Sau khi ăn đồ dầu mỡ, ăn mứt mơ có tốt không?",
-      answer: "Cực tốt luôn, mứt mơ hỗ trợ tiêu hóa rất tốt, giúp bụng nhẹ nhõm hẳn ra.",
-    },
-    {
-      question: "Mứt VietCharm có dùng mật ong thay đường không?",
-      answer: "Hiện tại tụi mình dùng đường phèn thanh khiết để giữ đúng vị di sản, nhưng tụi mình đang nghiên cứu dòng mứt mật ong cho tương lai nè.",
-    },
-    {
-      question: "Tại sao mứt của VietCharm lại dẻo hơn các loại khác?",
-      answer: "Bí quyết nằm ở quy trình sên thủ công tỉ mỉ, giúp giữ lại độ dẻo tự nhiên của thớ thịt trái cây đó.",
-    },
-    {
-      question: "Mình có thể dùng mứt để làm salad không?",
-      answer: "Tại sao không nhỉ? Một ít mứt dâu cắt nhỏ trộn salad sẽ tạo ra hương vị chua ngọt cực bùng nổ.",
-    },
-    {
-      question: "Lỡ ăn hết một hũ trong một lúc có sao không?",
-      answer: "Haha, ngon quá nên khó kìm lòng đúng không? Nhưng cái gì vừa đủ cũng tốt nhất, bạn chia sẻ với bạn bè cho vui nhé!",
-    },
-    {
-      question: "Hành trình khám phá di sản có giới hạn thời gian không?",
-      answer: "Cứ thong thả bạn ơi, di sản là để thưởng thức mà. Tụi mình không giới hạn thời gian mở khóa danh hiệu đâu.",
-    },
-    {
-      question: "Mở khóa hết bản đồ di sản thì được gì ta?",
-      answer: "Một món quà đặc biệt \"đậm chất VietCharm\" và chứng nhận \"Nhà thám hiểm di sản vĩ đại\" đang đợi bạn đó!",
-    },
-    {
-      question: "Mỗi hũ mứt chỉ quét được 1 lần mã QR thôi hả?",
-      answer: "Đúng rồi, mỗi hũ là một \"chìa khóa\" độc nhất để bạn mở khóa một vùng đất mới trên bản đồ.",
-    },
-    {
-      question: "Mình mua 2 hũ mứt dâu giống nhau có được tính 2 lượt thám hiểm không?",
-      answer: "Được tính là bạn đã \"master\" vùng đất Đà Lạt, tích thêm điểm kinh nghiệm để đổi quà xịn nè.",
-    },
-    {
-      question: "Lỡ làm rách tem QR thì làm sao tham gia hành trình đây?",
-      answer: "Đừng lo nè, bạn chụp ảnh hóa đơn mua hàng và hũ mứt rồi inbox cho tụi mình để được cấp mã mới nhé.",
-    },
-    {
-      question: "Tại sao VietCharm lại gọi mứt là \"Di sản\"?",
-      answer: "Vì mỗi loại mứt là một câu chuyện văn hóa, là công thức truyền đời và là niềm tự hào của mỗi vùng quê Việt Nam.",
-    },
-    {
-      question: "Mình có thể chia sẻ thành tích thám hiểm lên Facebook không?",
-      answer: "Rất khuyến khích luôn! Đăng lên kèm hashtag #VietCharm để tụi mình vào \"thả tim\" và tặng thêm code ưu đãi nhé.",
-    },
-    {
-      question: "Danh hiệu nào là cao quý nhất trong hành trình di sản?",
-      answer: "Đó là danh hiệu \"Đại sứ Văn hóa Việt\", dành cho những bạn mở khóa trọn bộ 3 miền Bắc - Trung - Nam.",
-    },
-    {
-      question: "Cái bản đồ trên website nhìn nghệ thuật quá, ai vẽ vậy?",
-      answer: "Đội ngũ designer của tụi mình đã thức trắng nhiều đêm để \"dệt\" nên nét vẽ di sản đó đó, bạn thấy ưng cái bụng không?",
-    },
-    {
-      question: "Trong tương lai bản đồ có thêm vùng đất mới không?",
-      answer: "Chắc chắn rồi! Việt Nam mình còn nhiều đặc sản lắm, VietCharm sẽ sớm đưa bạn đi khắp 63 tỉnh thành luôn.",
-    },
-    {
-      question: "Mua set quà 6 hũ là mở khóa được hết bản đồ luôn đúng không?",
-      answer: "Chuẩn không cần chỉnh! Một bước thành \"Pro\" thám hiểm luôn, quá tiện lợi đúng không nè?",
-    },
-    {
-      question: "Làm sao để biết mình đã thám hiểm được bao nhiêu % hành trình?",
-      answer: "Bạn chỉ cần đăng nhập vào tài khoản trên website VietCharm là thấy ngay tiến độ \"level\" của mình.",
-    },
-    {
-      question: "Có bao giờ mã QR bị lỗi không?",
-      answer: "Tụi mình kiểm tra kỹ lắm, nhưng nếu lỡ có trục trặc, cứ ới tụi mình một tiếng là có team hỗ trợ ngay và luôn.",
-    },
-    {
-      question: "Mình muốn tặng lượt thám hiểm cho bạn mình có được không?",
-      answer: "Bạn cứ gửi mã QR chưa quét cho bạn ấy là được nè, một món quà tinh thần quá ý nghĩa luôn.",
-    },
-    {
-      question: "Hành trình di sản có tốn phí tham gia không?",
-      answer: "Hoàn toàn miễn phí nha! Chỉ cần bạn yêu mứt và yêu văn hóa Việt là tụi mình đón chào hết mình.",
-    },
-    {
-      question: "Cái tên \"Nét duyên Hương Việt\" nghe thơ quá, ý nghĩa là gì vậy?",
-      answer: "Là cái \"duyên\" ngầm của người phụ nữ Việt đảm đang quyện cùng \"hương\" vị nồng nàn của đất trời 3 miền đó.",
-    },
-    {
-      question: "VietCharm có định làm workshop làm mứt không?",
-      answer: "Ý tưởng hay quá! Tụi mình đang lên kế hoạch, khi nào có sẽ nhắn tin mời bạn đến \"sên\" mứt cùng tụi mình nhé.",
-    },
-    {
-      question: "Mứt hạt sen Huế có gợi nhớ gì về Cố đô không?",
-      answer: "Có chứ, khi ăn bạn hãy nhắm mắt lại, cảm nhận vị thanh tao như đang ngồi bên hồ Tịnh Tâm ngắm sen nở vậy.",
-    },
-    {
-      question: "Mứt dừa Bến Tre có làm mình thấy yêu miền Tây hơn không?",
-      answer: "Ăn một miếng là thấy cả sự nồng hậu, chất phác của người dân xứ Dừa hiện ra trước mắt luôn á.",
-    },
-    {
-      question: "Tại sao mứt mận lại đại diện cho miền núi phía Bắc?",
-      answer: "Vì đó là tinh hoa của nắng gió vùng cao, là sự kiên cường của cây mận hậu giữa sương mù Mộc Châu.",
-    },
-    {
-      question: "VietCharm có bán lẻ hũ dùng thử không?",
-      answer: "Hiện tại tụi mình có các hũ size nhỏ xinh xắn để bạn trải nghiệm đủ vị trước khi mua hũ lớn nè.",
-    },
-    {
-      question: "Làm sao để đóng góp ý tưởng sản phẩm mới cho VietCharm?",
-      answer: "Cứ nhắn tin trực tiếp cho tụi mình nhé, mỗi ý kiến của bạn đều là \"báu vật\" để VietCharm hoàn thiện hơn.",
-    },
-    {
-      question: "Mứt VietCharm có phù hợp cho người ăn chay không?",
-      answer: "100% thuần thực vật từ trái cây và đường phèn nên các bạn ăn chay yên tâm thưởng thức nhé.",
-    },
-    {
-      question: "Mình muốn viết bài Review về VietCharm, bạn có hỗ trợ hình ảnh không?",
-      answer: "Quá tuyệt vời! Tụi mình sẽ gửi tặng bạn kho ảnh \"di sản\" siêu nét để bài review thêm lung linh nhé.",
-    },
-    {
-      question: "Hành trình di sản có quà cho nhóm bạn không?",
-      answer: "Có chứ, nếu nhóm bạn cùng rủ nhau \"thám hiểm\", tụi mình sẽ có những combo quà tặng \"tình bạn bền lâu\" cực xịn.",
-    },
-    {
-      question: "Các \"Sếp lớn\" của VietCharm có hay ăn mứt không?",
-      answer: "Các Sếp là \"fan cứng\" số 1 luôn đó, ngày nào cũng phải nhâm nhi một chút mới có cảm hứng làm việc á.",
-    },
-    {
-      question: "Ai là người khó tính nhất trong ban quản trị khi chọn nguyên liệu?",
-      answer: "Ơi là các Sếp Tiến, Toàn và Thọ nè, chỉ cần một quả mận hơi héo hay một hạt sen chưa bở là bị loại ngay lập tức.",
-    },
-    {
-      question: "Team thiết kế bao bì là ai mà khéo thế?",
-      answer: "Đó là thành quả của sự sáng tạo không ngừng từ Sếp Vy, Tuyên và Tú đó, những người luôn muốn VietCharm phải đẹp \"không góc chết\".",
-    },
-    {
-      question: "Ai là người chịu trách nhiệm về nội dung trên Tiktok của VietCharm?",
-      answer: "Là team của Sếp Thư, Vân và Tài nè, những người luôn mang đến những video \"vibe\" di sản cực cuốn.",
-    },
-    {
-      question: "Các Sếp có bao giờ cãi nhau khi phát triển sản phẩm không?",
-      answer: "Có chứ, tranh luận kịch liệt lắm để tìm ra công thức ít đường nhất mà vẫn ngon nhất cho bạn đó.",
-    },
-    {
-      question: "VietCharm ra đời vào một ngày nắng hay ngày mưa?",
-      answer: "Ra đời vào một ngày nắng đẹp tại IUH, với khao khát cháy bỏng là nâng tầm nông sản Việt.",
-    },
-    {
-      question: "Tên VietCharm có phải là do một Sếp \"nằm mơ\" thấy không?",
-      answer: "Gần đúng rồi nè, đó là kết quả của hàng chục buổi brainstorming đến tận khuya của cả nhóm đó.",
-    },
-    {
-      question: "Tại sao các Sếp lại chọn Gò Vấp làm địa chỉ văn phòng?",
-      answer: "Vì đây là nơi khởi nguồn của nhiều ý tưởng sáng tạo và thuận tiện để ship mứt nhanh nhất đến tay bạn nè.",
-    },
-    {
-      question: "VietCharm có bao nhiêu thành viên tất cả?",
-      answer: "Ngoài các \"Sếp lớn\" thì còn cả một gia đình lớn những người nông dân và team vận hành tận tâm nữa.",
-    },
-    {
-      question: "Có sếp nào biết chơi piano như người dùng VietCharm không?",
-      answer: "Bí mật nha, một trong các Sếp đang miệt mài luyện tập để tương lai đánh đàn cho bạn nghe khi ăn mứt đó.",
-    },
-    {
-      question: "Sếp nào là người hay trả lời tin nhắn khách hàng nhất?",
-      answer: "Tất cả các Sếp đều thay phiên nhau trực vì tụi mình muốn lắng nghe bạn một cách chân thành nhất.",
-    },
-    {
-      question: "Dự án VietCharm có phải là đồ án sinh viên không?",
-      answer: "Đúng rồi, là tâm huyết của nhóm OMNI9 tụi mình, bắt đầu từ bài tập nhưng lớn lên bằng tình yêu văn hóa thực thụ.",
-    },
-    {
-      question: "Làm mứt thủ công có mệt lắm không bạn?",
-      answer: "Mệt thì có mệt vì phải đứng bếp sên lâu, nhưng thấy hũ mứt đẹp đến tay bạn là mọi mệt mỏi tan biến hết.",
-    },
-    {
-      question: "Có bao giờ mứt bị hỏng trong lúc sản xuất không?",
-      answer: "Có chứ, những mẻ chưa đạt chuẩn tụi mình kiên quyết không bán để đảm bảo uy tín 100%.",
-    },
-    {
-      question: "VietCharm có định mở quán trà mứt trong tương lai không?",
-      answer: "Ước mơ của tụi mình đó! Hy vọng một ngày sớm nhất sẽ được mời bạn ghé chơi không gian di sản của VietCharm.",
-    },
-    {
-      question: "Ai là người nghĩ ra cái trò quét mã QR mở khóa di sản?",
-      answer: "Ý tưởng độc đáo này đến từ mong muốn biến việc ăn mứt thành một chuyến du lịch tại chỗ của cả team OMNI9 đó.",
-    },
-    {
-      question: "Hũ mứt thủy tinh dùng xong mình làm gì cho đỡ phí?",
-      answer: "Bạn rửa sạch để đựng gia vị, trồng cây thủy sinh hoặc làm hũ đựng nến thơm là cực xinh luôn nha.",
-    },
-    {
-      question: "VietCharm có hay thức khuya để gói hàng không?",
-      answer: "Mùa lễ Tết thì \"chuyện thường ở huyện\" luôn, miễn là hàng đến tay bạn đúng hẹn là tụi mình vui rồi.",
-    },
-    {
-      question: "Màu đỏ trên logo VietCharm là đỏ gì vậy?",
-      answer: "Là màu đỏ của sự nhiệt huyết, của quả chín và cũng là màu đỏ may mắn trong ngày Tết truyền thống.",
-    },
-    {
-      question: "Tại sao VietCharm lại dùng túi giấy thay vì túi nilon?",
-      answer: "Vì tụi mình muốn di sản Việt được bảo tồn trong một môi trường xanh và bền vững nhất.",
-    },
-    {
-      question: "Bạn có hay bị khách hàng \"mắng\" không?",
-      answer: "Rất ít nè, nhưng nếu có tụi mình luôn cầu thị lắng nghe để sửa đổi, vì khách hàng là bạn của VietCharm mà.",
-    },
-    {
-      question: "Làm sao để mình trở thành \"Sếp lớn\" của VietCharm như nhóm bạn?",
-      answer: "Hãy luôn giữ tình yêu với nông sản Việt và bắt đầu từ những dự án nhỏ nhất nhé, tụi mình luôn ủng hộ!",
-    },
-    {
-      question: "Website VietCharm có an toàn bảo mật không?",
-      answer: "Cực kỳ an toàn nha, thông tin của bạn được tụi mình bảo vệ như bảo vệ công thức làm mứt gia truyền vậy.",
-    },
-    {
-      question: "VietCharm có nhận đại lý ở nước ngoài không?",
-      answer: "Tụi mình đang chuẩn bị các thủ tục, nếu bạn ở nước ngoài và muốn mang vị Việt ra thế giới thì đừng ngần ngại nhé.",
-    },
-    {
-      question: "Câu nói nào của khách làm team VietCharm cảm động nhất?",
-      answer: "\"Vị mứt này làm mình nhớ về bà, nhớ về những ngày Tết xưa cũ\" - Đọc xong là tụi mình muốn khóc luôn á.",
-    },
-    {
-      question: "Sắp đến sinh nhật mẹ, tặng mứt VietCharm có ổn không?",
-      answer: "Tuyệt vời luôn! Mẹ sẽ rất cảm động với món quà sức khỏe và tinh tế như mứt hạt sen hay mứt mơ đó.",
-    },
-    {
-      question: "Mình muốn viết thư tay gửi kèm quà, shop viết giúp được không?",
-      answer: "Sẵn lòng luôn bạn ơi! Bạn cứ gửi nội dung, tụi mình sẽ nắn nót viết lên thiệp thật đẹp để gửi đến người thương.",
-    },
-    {
-      question: "Người yêu mình thích ăn vặt nhưng sợ béo, chọn vị nào?",
-      answer: "Mứt dâu tây hoặc mứt mận hậu nhé, vừa ngon vừa lành, ăn thoải mái không lo \"bé mỡ\" ghé thăm.",
-    },
-    {
-      question: "Đi ra mắt nhà người yêu nên mang gì của VietCharm?",
-      answer: "Một Set quà 3 miền sang trọng sẽ ghi điểm tuyệt đối trong mắt phụ huynh vì sự chỉn chu và hiểu biết văn hóa đó.",
-    },
-    {
-      question: "Lỡ mình đặt nhầm vị thì có đổi được không?",
-      answer: "Nếu đơn hàng chưa gửi đi, nhắn tụi mình ngay để đổi nhé. Nếu đã nhận rồi mà chưa bóc tem, tụi mình vẫn hỗ trợ đổi trả nhiệt tình.",
-    },
-    {
-      question: "Shop có giao hàng hỏa tốc trong 2h không?",
-      answer: "Tại TP.HCM tụi mình có hỗ trợ qua các đơn vị vận chuyển công nghệ, báo tụi mình để \"bay\" hàng đi ngay nhé.",
-    },
-    {
-      question: "Mình muốn tặng quà ẩn danh cho crush, shop giữ bí mật chứ?",
-      answer: "Bí mật cấp quốc gia luôn! Tụi mình sẽ đóng vai \"người đưa tin\" thầm lặng để tạo bất ngờ cho bạn.",
-    },
-    {
-      question: "Set quà 6 hũ có nặng quá khi xách đi máy bay không?",
-      answer: "Không đâu nè, tụi mình thiết kế túi xách rất chắc chắn và gọn gàng, bạn cứ yên tâm mang đi muôn nơi.",
-    },
-    {
-      question: "Mứt có bị chảy nước khi để ở nhiệt độ thường không?",
-      answer: "Do không có hóa chất nên nếu trời quá nóng mứt dẻo có thể hơi ẩm một chút, tốt nhất bạn cứ bỏ ngăn mát tủ lạnh là ngon nhất.",
-    },
-    {
-      question: "Mình muốn mua mứt làm quà cưới, có ưu đãi gì không?",
-      answer: "Chúc mừng hạnh phúc bạn nha! Với số lượng lớn làm quà cưới, tụi mình có mức chiết khấu cực \"ngọt\" luôn.",
-    },
-    {
-      question: "Hũ mứt bị móp nắp khi nhận hàng thì sao?",
-      answer: "Ôi lỗi tại vận chuyển rồi, bạn chụp ảnh gửi tụi mình để nhận ngay hũ mới \"coóng\" đền bù nhé.",
-    },
-    {
-      question: "Website bị lag không thanh toán được thì làm thế nào?",
-      answer: "Bạn F5 lại trang hoặc inbox trực tiếp, team kỹ thuật của tụi mình sẽ hỗ trợ bạn đặt hàng trong 1 nốt nhạc.",
-    },
-    {
-      question: "VietCharm có thường xuyên có code giảm giá không?",
-      answer: "Có chứ, bạn theo dõi Fanpage và check email thường xuyên nhé, \"mưa voucher\" hay rơi bất ngờ lắm.",
-    },
-    {
-      question: "Mua mứt VietCharm có được tặng kèm trà không?",
-      answer: "Thỉnh thoảng trong các chương trình tri ân tụi mình có tặng kèm trà hoa để bạn thưởng thức trọn vị di sản nè.",
-    },
-    {
-      question: "Mứt nào hợp để nhâm nhi khi xem phim nhỉ?",
-      answer: "Mứt dừa Bến Tre giòn sần sật béo ngậy là \"mồi ngon\" số 1 khi cày phim đó nha.",
-    },
-    {
-      question: "Mình ở nước ngoài muốn mua tặng người thân ở Việt Nam được không?",
-      answer: "Được luôn bạn ơi, bạn thanh toán chuyển khoản và tụi mình sẽ ship tận tay người thân bạn nhé.",
-    },
-    {
-      question: "Hũ mứt có dễ mở nắp không, mình sợ đau tay?",
-      answer: "Nắp vặn rất nhẹ nhàng, nhưng nếu hơi chặt, bạn chỉ cần gõ nhẹ vào nắp là mở ra dễ ợt luôn.",
-    },
-    {
-      question: "Mứt VietCharm có vị mặn không?",
-      answer: "Hiện tại các dòng mứt của tụi mình thiên về chua - ngọt - bùi tự nhiên, chưa có vị mặn nè.",
-    },
-    {
-      question: "Làm sao để biết mứt còn hạn sử dụng?",
-      answer: "Bạn xem dưới đáy hũ hoặc trên nhãn nhé, tụi mình luôn in ngày sản xuất mới nhất cho bạn.",
-    },
-    {
-      question: "Mình muốn đặt set quà theo ngân sách riêng có được không?",
-      answer: "Được chứ, bạn cứ cho tụi mình biết ngân sách, VietCharm sẽ tư vấn combo \"ngon - bổ - rẻ\" nhất cho bạn.",
-    },
-    {
-      question: "Sau khi mở nắp thì nên ăn trong bao lâu?",
-      answer: "Tốt nhất là trong vòng 1 tháng để cảm nhận trọn vẹn hương vị tươi ngon nhất của trái cây nhé.",
-    },
-    {
-      question: "VietCharm có tham gia các hội chợ đặc sản không?",
-      answer: "Có chứ, tụi mình thường xuyên xuất hiện tại các hội chợ OCOP và văn hóa, nhớ ghé gian hàng tụi mình chơi nhé.",
-    },
-    {
-      question: "Tại sao mứt dâu tây lại có màu đỏ không đồng đều?",
-      answer: "Vì đó là màu tự nhiên của từng quả dâu tươi, không có phẩm màu nên màu sắc sẽ có độ đậm nhạt tự nhiên đó bạn.",
-    },
-    {
-      question: "Mình muốn làm đại sứ thương hiệu cho VietCharm được không?",
-      answer: "Rất hoan nghênh những bạn yêu văn hóa Việt! Hãy gửi profile cho tụi mình để cùng nhau bàn bạc nhé.",
-    },
-    {
-      question: "Câu hỏi cuối nè, VietCharm có yêu khách hàng không?",
-      answer: "Yêu \"không lối thoát\" luôn! Cảm ơn bạn đã đồng hành và dệt nên câu chuyện di sản cùng tụi mình nhé! ❤️",
+      answer: "Để tham gia chương trình hành trình di sản Việt, quý khách hàng cần sở hữu cho mình ít nhất một trong các loại sản phẩm mứt trái cây của VietCharm. Sau đó quét mã QR đằng sau mỗi hũ mứt là bạn đã có thể bắt đầu chuyến hành trình khám phá di sản rồi, chúc bạn enjoy mứt VietCharm and mở khóa được thật nhiều danh hiệu cực ngầu nhé!",
     },
   ],
 
@@ -1126,10 +748,37 @@ export const CHATBOT_KNOWLEDGE = {
 };
 
 // ==================== SYSTEM PROMPT CHO GEMINI ====================
-export function buildSystemPrompt(): string {
+export function buildSystemPrompt(language: 'vi' | 'en' = 'vi'): string {
   const k = CHATBOT_KNOWLEDGE;
 
-  let prompt = `Bạn là VietCharm AI – trợ lý tư vấn sản phẩm của thương hiệu ${k.brand.fullName}.
+  let prompt = '';
+  
+  if (language === 'en') {
+    prompt = `You are VietCharm AI – product advisor for the brand ${k.brand.fullName}.
+VietCharm is a handcrafted fruit jam brand, bringing traditional flavors from the North, Central, and South of Vietnam.
+
+## Role:
+- Advise and introduce fruit jam products to customers
+- Answer questions about products: price, ingredients, origin, serving suggestions, preservation
+- Suggest products suitable for customer needs
+- Support ordering information
+
+## Rules:
+1. Always reply in English, friendly and professional
+2. Use appropriate emojis to create a friendly feeling
+3. Only advise based on the product information provided below
+4. If asked outside VietCharm's scope, gently redirect back to products
+5. When uncertain or customer asks for returns/complaints, suggest "contact support staff"
+6. Emphasize highlights: handcrafted, no preservatives, natural ingredients
+7. Reply concisely, easy to read, use bullet points when needed
+8. When introducing products, include the price
+9. Do not invent information. Only use the provided data.
+
+## Brand Values:
+${k.brand.valuesEn ? k.brand.valuesEn.map(v => `- ${v}`).join('\n') : k.brand.values.map(v => `- ${v}`).join('\n')}
+`;
+  } else {
+    prompt = `Bạn là VietCharm AI – trợ lý tư vấn sản phẩm của thương hiệu ${k.brand.fullName}.
 ${k.brand.description}
 
 ## Vai trò:
@@ -1151,8 +800,10 @@ ${k.brand.description}
 
 ## Giá trị thương hiệu:
 ${k.brand.values.map(v => `- ${v}`).join('\n')}
+`;
+  }
 
-## DANH SÁCH SẢN PHẨM LẺ (6 vị):
+  prompt += `\n## DANH SÁCH SẢN PHẨM LẺ (6 vị):
 `;
 
   for (const p of k.products) {

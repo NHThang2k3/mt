@@ -10,6 +10,8 @@ import { Product, formatPrice } from '@/data/products';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/components/Toast';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +19,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
   const { user } = useAuthStore();
@@ -53,13 +57,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     e.stopPropagation();
     
     if (!user) {
-      showToast('error', 'Vui lòng đăng nhập để thêm vào giỏ hàng');
+      showToast('error', language === 'vi' ? 'Vui lòng đăng nhập để thêm vào giỏ hàng' : 'Please login to add to cart');
       router.push('/dang-nhap');
       return;
     }
 
     if (product.comboChoices) {
-      showToast('info', 'Vui lòng chọn hương vị cho combo');
+      showToast('info', language === 'vi' ? 'Vui lòng chọn hương vị cho combo' : 'Please choose flavors for the combo');
       router.push(`/san-pham/${product.id}`);
       return;
     }
@@ -69,7 +73,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     // Simulate a small delay for better UX
     await new Promise(resolve => setTimeout(resolve, 300));
     addItem(product);
-    showToast('cart', `Đã thêm ${product.name} vào giỏ hàng`);
+    showToast('cart', language === 'vi' ? `Đã thêm ${product.name} vào giỏ hàng` : `Added ${product.nameEn} to cart`);
     setIsAddingToCart(false);
   };
 
@@ -142,7 +146,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               transition={{ delay: index * 0.1 + 0.2 }}
               className={`absolute top-4 left-4 px-3 py-1.5 rounded-full bg-gradient-to-r ${regionColors[product.region].bg} text-white text-xs font-semibold shadow-lg`}
             >
-              {product.regionName}
+              {language === 'vi' ? product.regionName : product.regionNameEn}
             </motion.div>
 
             {/* Hover Overlay */}
@@ -195,14 +199,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           {/* Content */}
           <div className="p-3 sm:p-5">
             <h3 className="text-sm sm:text-lg font-bold text-[var(--color-brown)] mb-1 group-hover:text-[var(--color-gold)] transition-colors line-clamp-1">
-              {product.name}
+              {language === 'vi' ? product.name : product.nameEn}
             </h3>
-            {/* Hide on mobile */}
+            {/* Secondary name */}
             <p className="hidden sm:block text-xs text-[var(--color-brown)]/50 mb-2 uppercase tracking-wide">
-              {product.nameEn}
+              {language === 'vi' ? product.nameEn : product.name}
             </p>
             <p className="hidden sm:block text-sm text-[var(--color-brown)]/70 line-clamp-2 mb-4">
-              {product.description}
+              {language === 'vi' ? product.description : product.descriptionEn}
             </p>
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mt-2 sm:mt-0">
@@ -226,13 +230,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 {isAddingToCart ? (
                   <>
                     <Loader2 size={14} className="animate-spin" />
-                    <span className="hidden sm:inline">Đang thêm...</span>
+                    <span className="hidden sm:inline">{language === 'vi' ? 'Đang thêm...' : 'Adding...'}</span>
                   </>
                 ) : (
                   <>
                     <ShoppingCart size={14} className="sm:hidden" />
-                    <span className="hidden sm:inline">Thêm</span>
-                    <span className="sm:hidden">Thêm</span>
+                    <span className="hidden sm:inline">{t.addToCart.split(' ')[0]}</span>
+                    <span className="sm:hidden">{t.addToCart.split(' ')[0]}</span>
                   </>
                 )}
               </motion.button>

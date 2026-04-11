@@ -8,6 +8,8 @@ import { ShoppingCart, User, Menu, X, LogOut, Shield, Package, QrCode } from 'lu
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { ADMIN_EMAIL } from '@/types/database';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,6 +19,8 @@ export default function Header() {
   const pathname = usePathname();
   const itemCount = useCartStore((state) => state.items.reduce((acc, item) => acc + item.quantity, 0));
   const { user, profile, signOut, initialize, isInitialized } = useAuthStore();
+  const { language, toggleLanguage } = useLanguageStore();
+  const t = translations[language];
 
   useEffect(() => {
     setMounted(true);
@@ -33,11 +37,11 @@ export default function Header() {
   const isAdmin = user?.email === ADMIN_EMAIL;
 
   const navLinks = [
-    { href: '/', label: 'Trang Chủ' },
-    { href: '/cua-hang', label: 'Cửa Hàng' },
-    { href: '/ban-do', label: 'Bản Đồ Di Sản' },
-    { href: '/blog', label: 'Văn Hóa' },
-    ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
+    { href: '/', label: t.home },
+    { href: '/cua-hang', label: t.store },
+    { href: '/ban-do', label: t.heritageMap },
+    { href: '/blog', label: t.culture },
+    ...(isAdmin ? [{ href: '/admin', label: t.admin, icon: Shield }] : []),
   ];
 
   const handleSignOut = async () => {
@@ -96,6 +100,25 @@ export default function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
+            {/* Language Switcher */}
+            <button
+              onClick={toggleLanguage}
+              className="px-3 py-1.5 rounded-full border border-[var(--color-gold)]/30 hover:border-[var(--color-gold)] bg-white shadow-sm flex items-center gap-2 transition-all hover:shadow-md group"
+              title={language === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className={`text-xs font-bold transition-colors ${language === 'vi' ? 'text-[var(--color-gold)]' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                  VN
+                </span>
+                <div className="w-[1px] h-3 bg-gray-200" />
+                <span className={`text-xs font-bold transition-colors ${language === 'en' ? 'text-[var(--color-gold)]' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                  EN
+                </span>
+              </div>
+              
+            </button>
+
+
             {mounted && user && (
               <>
                 {/* QR Scanner Button - Mobile/Tablet */}
@@ -134,7 +157,7 @@ export default function Header() {
                     {profile?.name || user.email?.split('@')[0]}
                   </p>
                   <p className="text-xs text-[var(--color-brown)]/60">
-                    {profile?.badges?.length || 0} danh hiệu
+                    {profile?.badges?.length || 0} {t.badges}
                   </p>
                 </div>
                 <button
@@ -156,7 +179,7 @@ export default function Header() {
                 className="hidden sm:flex items-center gap-2 btn-secondary py-2 px-4"
               >
                 <User size={18} />
-                <span>Đăng Nhập</span>
+                <span>{t.login}</span>
               </Link>
             )}
 
@@ -204,7 +227,7 @@ export default function Header() {
                     {profile?.name || user.email}
                   </p>
                   <p className="text-sm text-[var(--color-brown)]/60">
-                    {profile?.badges?.length || 0} danh hiệu
+                    {profile?.badges?.length || 0} {t.badges}
                   </p>
                 </div>
                 <Link
@@ -217,7 +240,7 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <QrCode size={18} className={pathname === '/quet-ma' ? 'text-[var(--color-gold)]' : 'text-[var(--color-gold)]'} />
-                  <span className="font-medium">Quét Mã QR</span>
+                  <span className="font-medium">{t.scanQr}</span>
                 </Link>
                 <Link
                   href="/don-hang"
@@ -229,7 +252,7 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Package size={18} />
-                  Đơn Hàng Của Tôi
+                  {t.myOrders}
                 </Link>
                 <button
                   onClick={handleSignOut}
@@ -241,7 +264,7 @@ export default function Header() {
                   ) : (
                     <LogOut size={18} />
                   )}
-                  {isLoggingOut ? 'Đang xử lý...' : 'Đăng Xuất'}
+                  {isLoggingOut ? '...' : t.logout}
                 </button>
               </>
             ) : (
@@ -255,7 +278,7 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <User size={18} />
-                Đăng Nhập
+                {t.login}
               </Link>
             )}
           </nav>

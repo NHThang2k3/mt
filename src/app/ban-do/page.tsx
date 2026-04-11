@@ -10,6 +10,10 @@ import { badgeInfo } from '@/store/userStore';
 import { MapRegion } from '@/data/vietnam-map';
 
 // Dynamic import VietnamMap với ssr: false để tránh lỗi hydration
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
+
+// Dynamic import VietnamMap với ssr: false để tránh lỗi hydration
 const VietnamMap = dynamic(() => import('@/components/VietnamMap'), {
   ssr: false,
   loading: () => (
@@ -19,17 +23,23 @@ const VietnamMap = dynamic(() => import('@/components/VietnamMap'), {
   )
 });
 
+
 type Region = 'bac' | 'trung' | 'nam';
 
 export default function MapPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const { user, profile, initialize, isInitialized } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [hasError, setHasError] = useState(false);
 
+
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMounted(true);
       if (!isInitialized) {
+
         initialize();
       }
     } catch (err) {
@@ -65,29 +75,30 @@ export default function MapPage() {
   const regions = [
     {
       id: 'bac',
-      name: 'Miền Bắc',
+      name: t.north,
       products: ['bac-man', 'bac-mo'],
-      productNames: ['Mứt Mận Mộc Châu', 'Mứt Mơ Ba Vì'],
+      productNames: language === 'vi' ? ['Mứt Mận Mộc Châu', 'Mứt Mơ Ba Vì'] : ['Moc Chau Plum Jam', 'Ba Vi Apricot Jam'],
       color: '#22C55E', // Green
       position: { top: '15%', left: '25%' }
     },
     {
       id: 'trung',
-      name: 'Miền Trung',
+      name: t.central,
       products: ['trung-sen', 'trung-dau'],
-      productNames: ['Mứt Hạt Sen Huế', 'Mứt Dâu Tây Đà Lạt'],
+      productNames: language === 'vi' ? ['Mứt Hạt Sen Huế', 'Mứt Dâu Tây Đà Lạt'] : ['Hue Lotus Seed Jam', 'Da Lat Strawberry Jam'],
       color: '#A855F7', // Purple
       position: { top: '45%', left: '30%' }
     },
     {
       id: 'nam',
-      name: 'Miền Nam',
+      name: t.south,
       products: ['nam-dua', 'nam-mangcau'],
-      productNames: ['Mứt Dừa Bến Tre', 'Mứt Mãng Cầu Tiền Giang'],
+      productNames: language === 'vi' ? ['Mứt Dừa Bến Tre', 'Mứt Mãng Cầu Tiền Giang'] : ['Ben Tre Coconut Jam', 'Tien Giang Soursop Jam'],
       color: '#F97316', // Orange
       position: { top: '75%', left: '22%' }
     }
   ];
+
 
   const isRegionUnlocked = (regionId: string) => 
     unlockedRegions.includes(regionId as Region);
@@ -103,14 +114,15 @@ export default function MapPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="text-6xl mb-4">😢</div>
-        <h1 className="text-xl font-bold text-[var(--color-brown)] mb-2">Đã xảy ra lỗi</h1>
-        <p className="text-[var(--color-brown)]/70 mb-4 text-center">Vui lòng tải lại trang</p>
+        <h1 className="text-xl font-bold text-[var(--color-brown)] mb-2">{language === 'vi' ? 'Đã xảy ra lỗi' : 'An error occurred'}</h1>
+        <p className="text-[var(--color-brown)]/70 mb-4 text-center">{language === 'vi' ? 'Vui lòng tải lại trang' : 'Please reload the page'}</p>
         <button 
           onClick={() => window.location.reload()}
           className="btn-primary"
         >
-          Tải lại trang
+          {language === 'vi' ? 'Tải lại trang' : 'Reload page'}
         </button>
+
       </div>
     );
   }
@@ -132,13 +144,13 @@ export default function MapPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-4xl md:text-5xl font-bold text-[var(--color-brown)] mb-4">
-            Bản Đồ Di Sản
+            {t.heritageMapTitle}
           </h1>
           <p className="text-[var(--color-brown)]/70 max-w-2xl mx-auto px-4">
-            Thắp sáng bản đồ Việt Nam bằng cách sưu tập mứt từ khắp ba miền. 
-            Quét mã QR trên sản phẩm để mở khóa!
+            {t.heritageMapHero}
           </p>
         </motion.div>
+
       </section>
 
       <div className="section pt-0">
@@ -152,12 +164,13 @@ export default function MapPage() {
           >
             <LogIn size={32} className="mx-auto mb-3 text-[var(--color-gold)]" />
             <p className="text-[var(--color-brown)] mb-4">
-              Đăng nhập để lưu tiến độ và mở khóa bản đồ di sản của bạn!
+              {t.loginToSave}
             </p>
             <Link href="/dang-nhap" className="btn-primary inline-flex items-center gap-2">
-              Đăng Nhập Ngay
+              {t.loginNow}
             </Link>
           </motion.div>
+
         )}
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -205,12 +218,12 @@ export default function MapPage() {
                 {/* Islands Labels */}
                 <div className="absolute top-[45%] left-[58%] pointer-events-none">
                    <div className="text-[10px] md:text-xs font-bold text-[var(--color-brown)]/60 flex items-center gap-1">
-                      <span>Quần đảo Hoàng Sa</span>
+                      <span>{t.tmHoangSa}</span>
                    </div>
                 </div>
                 <div className="absolute top-[82%] left-[82%] pointer-events-none">
                    <div className="text-[10px] md:text-xs font-bold text-[var(--color-brown)]/60 flex items-center gap-1">
-                      <span>Quần đảo Trường Sa</span>
+                      <span>{t.tmTruongSa}</span>
                    </div>
                 </div>
               </div>
@@ -219,22 +232,23 @@ export default function MapPage() {
               <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm border-t border-gray-100 pt-6">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-gray-700 shadow-inner" />
-                  <span className="text-[var(--color-brown)]/70">Chưa mở khóa</span>
+                  <span className="text-[var(--color-brown)]/70">{t.lockedStatus}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-[#22C55E] shadow-inner" />
-                  <span className="text-[var(--color-brown)]/70">Miền Bắc</span>
+                  <span className="text-[var(--color-brown)]/70">{t.north}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-[#A855F7] shadow-inner" />
-                  <span className="text-[var(--color-brown)]/70">Miền Trung</span>
+                  <span className="text-[var(--color-brown)]/70">{t.central}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-[#F97316] shadow-inner" />
-                  <span className="text-[var(--color-brown)]/70">Miền Nam</span>
+                  <span className="text-[var(--color-brown)]/70">{t.south}</span>
                 </div>
                
               </div>
+
             </motion.div>
 
           </div>
@@ -249,7 +263,7 @@ export default function MapPage() {
             >
               <h3 className="text-lg font-bold text-[var(--color-brown)] mb-4 flex items-center gap-2">
                 <Award size={20} className="text-[var(--color-gold)]" />
-                Danh Hiệu
+                {t.badges.toUpperCase()}
               </h3>
               <div className="space-y-3">
                 {(Object.keys(badgeInfo) as Array<keyof typeof badgeInfo>).map((key) => {
@@ -267,11 +281,16 @@ export default function MapPage() {
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{badge.icon}</span>
                         <div>
-                          <p className="font-semibold text-[var(--color-brown)]">{badge.name}</p>
-                          <p className="text-xs text-[var(--color-brown)]/60">{badge.description}</p>
+                          <p className="font-semibold text-[var(--color-brown)]">
+                            {language === 'vi' ? badge.name : badge.nameEn}
+                          </p>
+                          <p className="text-xs text-[var(--color-brown)]/60">
+                            {language === 'vi' ? badge.description : badge.descriptionEn}
+                          </p>
                         </div>
                       </div>
                     </div>
+
                   );
                 })}
               </div>
@@ -286,8 +305,9 @@ export default function MapPage() {
             >
               <h3 className="text-lg font-bold text-[var(--color-brown)] mb-4 flex items-center gap-2">
                 <MapPin size={20} className="text-[var(--color-gold)]" />
-                Tiến Độ
+                {t.progress}
               </h3>
+
               <div className="space-y-4">
                 {regions.map((region) => {
                   const unlocked = getUnlockedCount(region.products);
@@ -337,9 +357,10 @@ export default function MapPage() {
             {/* QR Hint */}
             <div className="card p-6 bg-[var(--color-gold)]/10 border-2 border-[var(--color-gold)]/30">
               <p className="text-sm text-[var(--color-brown)] text-center">
-                💡 <strong>Mẹo:</strong> Quét mã QR trên mỗi hũ mứt để mở khóa vùng tương ứng trên bản đồ!
+                {t.qrHint}
               </p>
             </div>
+
           </div>
         </div>
       </div>

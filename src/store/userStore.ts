@@ -101,17 +101,24 @@ export const useUserStore = create<UserState>()(
 export const badgeInfo = {
   'khoi-hanh': {
     name: 'Người Khởi Hành Di Sản',
+    nameEn: 'Heritage Explorer',
     description: 'Bạn đã khám phá trọn vẹn văn hóa ẩm thực của một miền!',
+    descriptionEn: 'You have fully explored the culinary culture of one region!',
     icon: '🌟'
   },
   'ket-noi': {
     name: 'Người Kết Nối Văn Hóa',
+    nameEn: 'Culture Connector',
     description: 'Bạn đã kết nối văn hóa ẩm thực của hai miền Việt Nam!',
+    descriptionEn: 'You have connected the culinary culture of two regions in Vietnam!',
     icon: '🏆'
   },
   'dai-su': {
     name: 'Đại Sứ Di Sản Việt',
+    nameEn: 'Vietnam Heritage Ambassador',
     description: 'Bạn đã trở thành Đại Sứ Di Sản, khám phá trọn vẹn hương vị 3 miền!',
+    descriptionEn: 'You are now a Heritage Ambassador, having fully explored the flavors of all 3 regions!',
     icon: '👑'
   }
 };
+

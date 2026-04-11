@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, Sparkles, ChevronDown, Search, X, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { products, formatPrice } from '@/data/products';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 type RegionFilter = 'all' | 'bac' | 'trung' | 'nam' | 'combo';
 
@@ -13,6 +15,8 @@ const minProductPrice = Math.min(...products.map(p => p.price));
 const maxProductPrice = Math.max(...products.map(p => p.price));
 
 export default function ShopPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const [filter, setFilter] = useState<RegionFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState<[number, number]>([minProductPrice, maxProductPrice]);
@@ -41,18 +45,18 @@ export default function ShopPage() {
   }, [filter, searchQuery, priceRange]);
 
   const regions: { value: RegionFilter; label: string; color: string; emoji: string }[] = [
-    { value: 'all', label: 'Tất Cả', color: 'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-dark)]', emoji: '🍯' },
-    { value: 'bac', label: 'Miền Bắc', color: 'bg-gradient-to-r from-green-500 to-emerald-600', emoji: '🍑' },
-    { value: 'trung', label: 'Miền Trung', color: 'bg-gradient-to-r from-purple-500 to-pink-600', emoji: '🌸' },
-    { value: 'nam', label: 'Miền Nam', color: 'bg-gradient-to-r from-orange-500 to-amber-600', emoji: '🥥' },
+    { value: 'all', label: t.allRegions, color: 'bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-dark)]', emoji: '🍯' },
+    { value: 'bac', label: t.north, color: 'bg-gradient-to-r from-green-500 to-emerald-600', emoji: '🍑' },
+    { value: 'trung', label: t.central, color: 'bg-gradient-to-r from-purple-500 to-pink-600', emoji: '🌸' },
+    { value: 'nam', label: t.south, color: 'bg-gradient-to-r from-orange-500 to-amber-600', emoji: '🥥' },
     { value: 'combo', label: 'Combo', color: 'bg-gradient-to-r from-amber-500 to-red-500', emoji: '🎁' },
   ];
 
   const pricePresets = [
-    { label: 'Tất cả', min: minProductPrice, max: maxProductPrice },
-    { label: 'Dưới 100k', min: minProductPrice, max: 100000 },
+    { label: t.priceAll, min: minProductPrice, max: maxProductPrice },
+    { label: t.priceUnder100, min: minProductPrice, max: 100000 },
     { label: '100k - 150k', min: 100000, max: 150000 },
-    { label: 'Trên 150k', min: 150000, max: maxProductPrice },
+    { label: t.priceOver150, min: 150000, max: maxProductPrice },
   ];
 
   const containerVariants = {
@@ -95,15 +99,14 @@ export default function ShopPage() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-gold)]/10 text-[var(--color-gold)] text-sm font-medium mb-6"
           >
             <Sparkles size={16} />
-            Bộ sưu tập mứt truyền thống
+            {language === 'vi' ? 'Bộ sưu tập mứt truyền thống' : 'Traditional Jam Collection'}
           </motion.span>
           
           <h1 className="text-4xl md:text-6xl font-bold text-[var(--color-brown)] mb-4">
-            Cửa Hàng
+            {t.shopTitle}
           </h1>
           <p className="text-[var(--color-brown)]/70 max-w-2xl mx-auto px-4 text-lg">
-            Khám phá bộ sưu tập mứt trái cây từ ba miền Bắc - Trung - Nam, 
-            mỗi sản phẩm là một câu chuyện văn hóa
+            {t.shopDesc}
           </p>
         </motion.div>
       </section>
@@ -123,7 +126,7 @@ export default function ShopPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm sản phẩm..."
+              placeholder={t.searchPlaceholder}
               className="w-full pl-12 pr-12 py-4 rounded-2xl border-2 border-[var(--border)] bg-white focus:border-[var(--color-gold)] focus:outline-none transition-all text-[var(--color-brown)] placeholder:text-[var(--color-brown)]/40 shadow-sm"
             />
             {searchQuery && (
@@ -144,7 +147,7 @@ export default function ShopPage() {
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[var(--border)] text-[var(--color-brown)] shadow-sm"
           >
             <SlidersHorizontal size={18} />
-            Bộ lọc
+            {language === 'vi' ? 'Bộ lọc' : 'Filters'}
             {hasActiveFilters && (
               <span className="w-2 h-2 rounded-full bg-[var(--color-gold)]" />
             )}
@@ -192,7 +195,7 @@ export default function ShopPage() {
             transition={{ delay: 0.4 }}
             className="flex flex-wrap items-center justify-center gap-3 mb-8"
           >
-            <span className="text-sm text-[var(--color-brown)]/60 mr-2">Giá:</span>
+            <span className="text-sm text-[var(--color-brown)]/60 mr-2">{t.price}:</span>
             {pricePresets.map((preset, index) => (
               <button
                 key={index}
@@ -228,7 +231,7 @@ export default function ShopPage() {
               </div>
               <span className="text-[var(--color-brown)]/40">—</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-[var(--color-brown)]/60">Đến</span>
+                <span className="text-sm text-[var(--color-brown)]/60">{language === 'vi' ? 'Đến' : 'To'}</span>
                 <input
                   type="number"
                   value={priceRange[1]}
@@ -245,7 +248,7 @@ export default function ShopPage() {
         {/* Active Filters & Results Count */}
         <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
           <span className="text-[var(--color-brown)]/60">
-            Tìm thấy <span className="font-bold text-[var(--color-gold)]">{filteredProducts.length}</span> sản phẩm
+            {t.resultsCount.replace('{count}', filteredProducts.length.toString())}
           </span>
           {hasActiveFilters && (
             <button
@@ -253,7 +256,7 @@ export default function ShopPage() {
               className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 transition-colors"
             >
               <X size={14} />
-              Xóa bộ lọc
+              {t.clearFilters}
             </button>
           )}
         </div>
@@ -280,12 +283,12 @@ export default function ShopPage() {
             className="text-center py-20"
           >
             <span className="text-6xl mb-4 block">🔍</span>
-            <p className="text-[var(--color-brown)]/70 mb-4">Không tìm thấy sản phẩm phù hợp</p>
+            <p className="text-[var(--color-brown)]/70 mb-4">{t.noResults}</p>
             <button
               onClick={clearAllFilters}
               className="text-[var(--color-gold)] hover:underline font-medium"
             >
-              Xóa bộ lọc để xem tất cả sản phẩm
+              {language === 'vi' ? 'Xóa bộ lọc để xem tất cả sản phẩm' : 'Clear filters to view all products'}
             </button>
           </motion.div>
         )}
@@ -303,13 +306,14 @@ export default function ShopPage() {
               transition={{ duration: 1.5, repeat: Infinity }}
               className="inline-flex flex-col items-center text-[var(--color-brown)]/40"
             >
-              <span className="text-sm mb-1">Kéo để xem thêm</span>
+              <span className="text-sm mb-1">{language === 'vi' ? 'Kéo để xem thêm' : 'Scroll to view more'}</span>
               <ChevronDown size={20} />
             </motion.div>
           </motion.div>
         )}
       </section>
     </div>
+
   );
 }
 

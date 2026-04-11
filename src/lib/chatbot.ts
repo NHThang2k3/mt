@@ -18,13 +18,14 @@ export interface ChatMessage {
 
 // Call Gemini API via Next.js route
 export async function callGeminiAPI(
-  messages: { role: string; content: string }[]
+  messages: { role: string; content: string }[],
+  language: string = 'vi'
 ): Promise<{ response: string; shouldTransfer: boolean; fallback: boolean }> {
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages, language }),
     });
 
     if (!res.ok) {
@@ -35,7 +36,9 @@ export async function callGeminiAPI(
   } catch (error) {
     console.error('Chat API error:', error);
     return {
-      response: 'Xin lỗi, đang có sự cố kết nối. Bạn có thể nhấn **"Chuyển nhân viên"** để được hỗ trợ trực tiếp! 🙏',
+      response: language === 'vi' 
+        ? 'Xin lỗi, đang có sự cố kết nối. Bạn có thể nhấn **"Chuyển nhân viên"** để được hỗ trợ trực tiếp! 🙏'
+        : 'Sorry, there is a connection issue. You can press **"Transfer to staff"** for direct support! 🙏',
       shouldTransfer: true,
       fallback: true,
     };
@@ -59,11 +62,21 @@ export function createMessage(
 }
 
 // Quick suggestion chips
-export const QUICK_SUGGESTIONS = [
-  '🍯 Có những sản phẩm nào?',
-  '💰 Giá bao nhiêu?',
-  '🎁 Combo nào tiết kiệm nhất?',
-  '🌟 Gợi ý cho mình',
-  '🍓 Mứt dâu Đà Lạt có gì đặc biệt?',
-  '🥥 So sánh mứt dừa và mứt sen',
-];
+export const QUICK_SUGGESTIONS = {
+  vi: [
+    '🍯 Có những sản phẩm nào?',
+    '💰 Giá bao nhiêu?',
+    '🎁 Combo nào tiết kiệm nhất?',
+    '🌟 Gợi ý cho mình',
+    '🍓 Mứt dâu Đà Lạt có gì đặc biệt?',
+    '🥥 So sánh mứt dừa và mứt sen',
+  ],
+  en: [
+    '🍯 What products are available?',
+    '💰 What are the prices?',
+    '🎁 Which combo is best?',
+    '🌟 Suggest for me',
+    '🍓 What is special about Da Lat Strawberry?',
+    '🥥 Compare Coconut and Lotus seed jam',
+  ]
+};

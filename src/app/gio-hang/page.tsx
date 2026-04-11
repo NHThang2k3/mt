@@ -7,10 +7,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Package, Sparkles, User, Loader2 } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 import { formatPrice } from '@/data/products';
 
+
 export default function CartPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const [mounted, setMounted] = useState(false);
+
   const [isClearing, setIsClearing] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const router = useRouter();
@@ -28,8 +34,10 @@ export default function CartPage() {
   const finalTotal = rawTotal - discountAmount;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     if (!isInitialized) {
+
       initialize();
     }
   }, [isInitialized, initialize]);
@@ -63,10 +71,10 @@ export default function CartPage() {
             <User size={48} className="text-[var(--color-gold)]" />
           </motion.div>
           <h1 className="text-2xl font-bold text-[var(--color-brown)] mb-4">
-            Vui lòng đăng nhập
+            {t.pleaseLogin}
           </h1>
           <p className="text-[var(--color-brown)]/70 mb-8">
-            Bạn cần đăng nhập để sử dụng giỏ hàng
+            {t.needLoginCart}
           </p>
           <Link href="/dang-nhap">
             <motion.button
@@ -75,9 +83,10 @@ export default function CartPage() {
               className="btn-primary inline-flex items-center gap-2"
             >
               <User size={18} />
-              Đăng Nhập
+              {t.login}
             </motion.button>
           </Link>
+
         </motion.div>
       </div>
     );
@@ -99,10 +108,10 @@ export default function CartPage() {
             🛒
           </motion.div>
           <h1 className="text-2xl font-bold text-[var(--color-brown)] mb-4">
-            Giỏ hàng trống
+            {t.emptyCart}
           </h1>
           <p className="text-[var(--color-brown)]/70 mb-8">
-            Hãy khám phá các sản phẩm mứt tuyệt vời của chúng tôi
+            {language === 'vi' ? 'Hãy khám phá các sản phẩm mứt tuyệt vời của chúng tôi' : 'Let\'s explore our amazing fruit jams'}
           </p>
           <Link href="/cua-hang">
             <motion.button
@@ -111,9 +120,10 @@ export default function CartPage() {
               className="btn-primary inline-flex items-center gap-2"
             >
               <ShoppingBag size={18} />
-              Đến Cửa Hàng
+              {t.store}
             </motion.button>
           </Link>
+
         </motion.div>
       </div>
     );
@@ -138,10 +148,11 @@ export default function CartPage() {
           </div>
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-brown)]">
-              Giỏ Hàng
+              {t.cart}
             </h1>
-            <p className="text-[var(--color-brown)]/60">{items.length} sản phẩm</p>
+            <p className="text-[var(--color-brown)]/60">{items.length} {t.items}</p>
           </div>
+
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -171,13 +182,15 @@ export default function CartPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-[var(--color-brown)]">
-                          {item.product.name} {item.isPack10 ? '(Gói 10 hũ)' : ''}
+                          {item.product.name} {item.isPack10 ? `(${t.pack10})` : ''}
                         </h3>
+
                         {item.selectedSelections && item.selectedSelections.length > 0 && (
                           <p className="text-xs text-[var(--color-brown)]/80 mt-1 mb-1 italic">
-                            Đã chọn: {item.selectedSelections.join(', ')}
+                            {t.selected}: {item.selectedSelections.join(', ')}
                           </p>
                         )}
+
                         <p className="text-sm text-[var(--color-brown)]/60">
                           {item.product.regionName}
                         </p>
@@ -240,12 +253,13 @@ export default function CartPage() {
               {isClearing ? (
                 <>
                   <Loader2 size={14} className="animate-spin" />
-                  Đang xóa...
+                  {t.clearing}
                 </>
               ) : (
-                'Xóa tất cả'
+                t.clearAll
               )}
             </motion.button>
+
           </div>
 
           {/* Order Summary */}
@@ -258,32 +272,33 @@ export default function CartPage() {
             >
               <h2 className="text-xl font-bold text-[var(--color-brown)] mb-6 flex items-center gap-2">
                 <Sparkles size={20} className="text-[var(--color-gold)]" />
-                Tóm Tắt Đơn Hàng
+                {t.cartSummary}
               </h2>
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-[var(--color-brown)]/70">
-                  <span>Tạm tính ({items.reduce((acc, item) => acc + item.quantity, 0)} mục)</span>
+                  <span>{t.subtotal} ({items.reduce((acc, item) => acc + item.quantity, 0)} {t.items})</span>
                   <span>{formatPrice(rawTotal)}</span>
                 </div>
                 
                 {discountPercent > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Giảm giá hạng thẻ ({discountPercent}%)</span>
+                    <span>{t.membershipDiscount} ({discountPercent}%)</span>
                     <span>-{formatPrice(discountAmount)}</span>
                   </div>
                 )}
                 
                 <div className="flex justify-between text-[var(--color-brown)]/70">
-                  <span>Phí vận chuyển</span>
-                  <span className="text-green-600 font-medium">Miễn phí</span>
+                  <span>{t.shipping}</span>
+                  <span className="text-green-600 font-medium">{t.free}</span>
                 </div>
                 <div className="border-t-2 border-dashed border-[var(--border)] pt-4">
                   <div className="flex justify-between text-lg font-bold text-[var(--color-brown)]">
-                    <span>Tổng cộng</span>
+                    <span>{t.total}</span>
                     <span className="text-xl text-[var(--color-gold)]">{formatPrice(finalTotal)}</span>
                   </div>
                 </div>
+
               </div>
 
               <motion.button
@@ -300,11 +315,11 @@ export default function CartPage() {
                 {isCheckingOut ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Đang xử lý...
+                    {t.processing}
                   </>
                 ) : (
                   <>
-                    Thanh Toán
+                    {t.checkoutBtn}
                     <ArrowRight size={18} />
                   </>
                 )}
@@ -314,8 +329,9 @@ export default function CartPage() {
                 href="/cua-hang"
                 className="block text-center mt-4 text-[var(--color-brown)]/70 hover:text-[var(--color-gold)] transition-colors"
               >
-                ← Tiếp tục mua sắm
+                ← {t.continueShopping}
               </Link>
+
             </motion.div>
           </div>
         </div>

@@ -12,8 +12,13 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/components/Toast';
 import { trackProductView, trackAddToCart, trackShare } from '@/lib/analytics';
 import ProductReviews from '@/components/ProductReviews';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 export default function ProductDetailPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
+
   const params = useParams();
   const router = useRouter();
   const productId = params.id as string;
@@ -31,9 +36,11 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (product) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveImage(product.image);
     }
   }, [product?.image]);
+
 
   if (!product) {
     notFound();
@@ -73,15 +80,16 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!user) {
-      showToast('error', 'Vui lòng đăng nhập để thêm vào giỏ hàng');
+      showToast('error', language === 'vi' ? 'Vui lòng đăng nhập để thêm vào giỏ hàng' : 'Please login to add to cart');
       router.push('/dang-nhap');
       return;
     }
     
     if (product.comboChoices && selectedSelections.length !== product.comboChoices) {
-      showToast('error', `Vui lòng chọn đủ ${product.comboChoices} hương vị`);
+      showToast('error', language === 'vi' ? `Vui lòng chọn đủ ${product.comboChoices} hương vị` : `Please choose all ${product.comboChoices} flavors`);
       return;
     }
+
 
     setIsAddingToCart(true);
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -93,7 +101,10 @@ export default function ProductDetailPage() {
     });
     // Track add to cart
     trackAddToCart(product.id, product.name, (isPack10 ? 450000 : product.price) * quantity, user?.id);
-    showToast('cart', `Đã thêm ${quantity} ${isPack10 ? 'Gói 10 hũ ' : ''}${product.name} vào giỏ hàng`);
+    showToast('cart', language === 'vi' 
+      ? `Đã thêm ${quantity} ${isPack10 ? 'Gói 10 hũ ' : ''}${product.name} vào giỏ hàng`
+      : `Added ${quantity} ${isPack10 ? 'Pack of 10 ' : ''}${product.nameEn} to cart`);
+
     setIsAddingToCart(false);
   };
 
@@ -108,8 +119,9 @@ export default function ProductDetailPage() {
           className="inline-flex items-center gap-2 text-[var(--color-brown)]/60 hover:text-[var(--color-gold)] transition-colors"
         >
           <ArrowLeft size={18} />
-          Quay lại Cửa Hàng
+          {t.backToStore}
         </Link>
+
       </div>
 
       {/* Product Section */}
@@ -137,8 +149,9 @@ export default function ProductDetailPage() {
                   />
                   {/* Region Badge */}
                   <div className={`absolute top-6 left-6 px-4 py-2 rounded-full bg-gradient-to-r ${regionColors[product.region].bg} text-white font-semibold shadow-lg`}>
-                    {product.regionName}
+                    {language === 'vi' ? product.regionName : product.regionNameEn}
                   </div>
+
                 </div>
               ) : (
                 /* Fallback with emoji */
@@ -160,8 +173,9 @@ export default function ProductDetailPage() {
 
                   {/* Region Badge */}
                   <div className={`absolute top-6 left-6 px-4 py-2 rounded-full bg-gradient-to-r ${regionColors[product.region].bg} text-white font-semibold shadow-lg`}>
-                    {product.regionName}
+                    {language === 'vi' ? product.regionName : product.regionNameEn}
                   </div>
+
                 </div>
               )}
             </div>
@@ -195,9 +209,12 @@ export default function ProductDetailPage() {
             <span className="text-sm text-[var(--color-brown)]/50 uppercase tracking-wide mb-2">
               {product.nameEn}
             </span>
-            <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-brown)] mb-4">
-              {product.name}
+            <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-brown)] mb-2">
+              {language === 'vi' ? product.name : product.nameEn}
             </h1>
+            <p className="text-lg text-[var(--color-brown)]/50 font-medium mb-4">
+              {language === 'vi' ? product.nameEn : product.name}
+            </p>
             
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <span className="text-3xl font-bold text-[var(--color-gold)]">
@@ -209,30 +226,32 @@ export default function ProductDetailPage() {
                 </span>
               )}
               <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
-                Còn hàng
+                {t.inStock}
               </span>
             </div>
 
             <p className="text-[var(--color-brown)]/70 text-lg leading-relaxed mb-6">
-              {product.description}
+              {language === 'vi' ? product.description : product.descriptionEn}
             </p>
+
 
             {/* Story */}
             <div className="bg-[var(--color-cream)] rounded-2xl p-6 mb-8">
               <h3 className="font-semibold text-[var(--color-brown)] mb-2 flex items-center gap-2">
                 <MapPin size={18} className="text-[var(--color-gold)]" />
-                Câu chuyện sản phẩm
+                {t.productStory}
               </h3>
               <p className="text-[var(--color-brown)]/70 italic">
-                "{product.story}"
+                &quot;{language === 'vi' ? product.story : product.storyEn}&quot;
               </p>
+
             </div>
 
             {/* Options for Combo */}
             {product.comboChoices && (
               <div className="mb-6">
                 <h3 className="font-semibold text-[var(--color-brown)] mb-3">
-                  Chọn {product.comboChoices} hương vị ({selectedSelections.length}/{product.comboChoices}):
+                  {t.chooseFlavors} ({selectedSelections.length}/{product.comboChoices}):
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {products.filter(p => !p.isCombo).map(p => {
@@ -246,7 +265,7 @@ export default function ProductDetailPage() {
                           } else if (selectedSelections.length < product.comboChoices!) {
                             setSelectedSelections(prev => [...prev, p.name]);
                           } else {
-                            showToast('error', `Bạn chỉ được chọn ${product.comboChoices} hương vị`);
+                            showToast('error', t.maxFlavors);
                           }
                         }}
                         className={`p-3 rounded-xl border-2 text-left transition-colors flex items-center gap-2 ${
@@ -267,7 +286,7 @@ export default function ProductDetailPage() {
             {/* Pack of 10 Option for Regular Products */}
             {!product.isCombo && (
               <div className="mb-6">
-                <h3 className="font-semibold text-[var(--color-brown)] mb-3">Tùy chọn mua hàng:</h3>
+                <h3 className="font-semibold text-[var(--color-brown)] mb-3">{t.purchaseOptions}:</h3>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => setIsPack10(false)}
@@ -277,20 +296,21 @@ export default function ProductDetailPage() {
                         : 'border-[var(--border)] hover:border-[var(--color-gold)]/50 text-[var(--color-brown)]/80'
                     }`}
                   >
-                    1 hũ (250g) <br />
+                    {t.singleJar} (250g) <br />
                     <span className="text-[var(--color-gold)] font-bold">{formatPrice(product.price)}</span>
                   </button>
                   <button
-                    onClick={() => setIsPack10(true)}
-                    className={`flex-1 p-3 rounded-xl border-2 text-center transition-colors ${
-                      isPack10 
-                        ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/10 text-[var(--color-brown)] font-bold' 
-                        : 'border-[var(--border)] hover:border-[var(--color-gold)]/50 text-[var(--color-brown)]/80'
-                    }`}
-                  >
-                    10 hũ (2,5kg) <br />
-                    <span className="text-[var(--color-gold)] font-bold">{formatPrice(450000)}</span>
-                  </button>
+                        onClick={() => setIsPack10(!isPack10)}
+                        className={`flex-1 p-3 rounded-xl border-2 transition-all text-left ${
+                          isPack10 
+                            ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5' 
+                            : 'border-[var(--border)] hover:border-[var(--color-gold)]/30'
+                        }`}
+                      >
+                        <p className="font-bold text-[var(--color-brown)]">{t.pack10Option}</p>
+                        <p className="text-sm text-[var(--color-gold)] font-bold">450.000đ</p>
+                      </button>
+
                 </div>
               </div>
             )}
@@ -327,34 +347,38 @@ export default function ProductDetailPage() {
                 {isAddingToCart ? (
                   <>
                     <Loader2 size={20} className="animate-spin" />
-                    <span className="sm:hidden">Đang thêm...</span>
-                    <span className="hidden sm:inline">Đang thêm...</span>
+                    <span className="sm:hidden">{t.adding}</span>
+                    <span className="hidden sm:inline">{t.adding}</span>
                   </>
+
                 ) : (
                   <>
                     <ShoppingCart size={20} />
-                    <span className="sm:hidden">Thêm</span>
-                    <span className="hidden sm:inline">Thêm vào giỏ hàng</span>
+                    <span className="sm:hidden">{t.addToCart}</span>
+                    <span className="hidden sm:inline">{t.addToCart}</span>
                   </>
+
                 )}
               </motion.button>
             </div>
 
             <a 
-              href="https://facebook.com/vietcharm" 
+              href="https://www.facebook.com/Omni9.EM.VietCharm/?rdid=JNezluwJcQ30VNhc" 
               target="_blank"
               rel="noopener noreferrer"
               className="w-full mb-6 btn-secondary text-center flex items-center justify-center gap-2 py-3 border-[var(--color-gold)] text-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-white transition-colors rounded-full"
             >
               <Share2 size={18} />
-              Liên hệ mua số lượng lớn giá sỉ tại Fanpage
+              {t.bulkPurchase}
             </a>
+
 
             <div className="flex gap-4">
               <button className="flex items-center gap-2 text-[var(--color-brown)]/60 hover:text-[var(--color-red)] transition-colors">
                 <Heart size={18} />
-                Yêu thích
+                {t.wishlist}
               </button>
+
               <button 
                 onClick={() => {
                   const url = window.location.href;
@@ -364,8 +388,9 @@ export default function ProductDetailPage() {
                 className="flex items-center gap-2 text-[var(--color-brown)]/60 hover:text-[var(--color-gold)] transition-colors"
               >
                 <Share2 size={18} />
-                Chia sẻ Facebook
+                {t.shareFacebook}
               </button>
+
             </div>
           </motion.div>
         </div>
@@ -378,7 +403,7 @@ export default function ProductDetailPage() {
       {relatedPost && (
         <section className="section">
           <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6">
-            Khám phá văn hóa
+            {t.exploreCulture}
           </h2>
           <Link href={`/blog/${relatedPost.id}`}>
             <motion.div
@@ -390,9 +415,9 @@ export default function ProductDetailPage() {
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-[var(--color-brown)] mb-2 hover:text-[var(--color-gold)] transition-colors">
-                  {relatedPost.title}
+                  {language === 'vi' ? relatedPost.title : relatedPost.titleEn}
                 </h3>
-                <p className="text-[var(--color-brown)]/70">{relatedPost.excerpt}</p>
+                <p className="text-[var(--color-brown)]/70">{language === 'vi' ? relatedPost.excerpt : relatedPost.excerptEn}</p>
               </div>
             </motion.div>
           </Link>
@@ -403,7 +428,7 @@ export default function ProductDetailPage() {
       {relatedProducts.length > 0 && (
         <section className="section">
           <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6">
-            Sản phẩm cùng miền
+            {t.relatedRegions}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {relatedProducts.map((p) => (
@@ -417,9 +442,12 @@ export default function ProductDetailPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-[var(--color-brown)] hover:text-[var(--color-gold)] transition-colors text-sm sm:text-base line-clamp-2">
-                      {p.name}
+                      {language === 'vi' ? p.name : p.nameEn}
                     </h3>
-                    <p className="text-xs sm:text-sm text-[var(--color-brown)]/60">{p.regionName}</p>
+
+
+                    <p className="text-xs sm:text-sm text-[var(--color-brown)]/60">{language === 'vi' ? p.regionName : p.regionNameEn}</p>
+
                     <p className="font-bold text-[var(--color-gold)] mt-1 text-sm sm:text-base">{formatPrice(p.price)}</p>
                   </div>
                 </motion.div>

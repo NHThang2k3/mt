@@ -21,6 +21,8 @@ import {
   QUICK_SUGGESTIONS,
   type ChatMessage,
 } from '@/lib/chatbot';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 // ============================================================
 // VietCharm AI Chatbot Component - Powered by Gemini
@@ -28,6 +30,8 @@ import {
 // ============================================================
 
 export default function ChatBot() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -62,12 +66,12 @@ export default function ChatBot() {
     if (isOpen && messages.length === 0) {
       setMessages([
         createMessage(
-          `Chào bạn! 😊 Mình là **VietCharm AI** – trợ lý tư vấn sản phẩm mứt trái cây 3 miền.\n\nHãy hỏi mình bất cứ điều gì về sản phẩm nhé! 🍯`,
+          t.welcomeMsg,
           'assistant'
         ),
       ]);
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen, messages.length, t.welcomeMsg]);
 
   const handleSendMessage = async (messageText?: string) => {
     const text = messageText || input.trim();
@@ -75,11 +79,14 @@ export default function ChatBot() {
 
     // Add user message
     const userMsg: ChatMessage = {
+      // eslint-disable-next-line react-hooks/purity
       id: `user-${Date.now()}`,
       role: 'user',
       content: text,
+      // eslint-disable-next-line react-hooks/purity
       timestamp: new Date(),
     };
+
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
@@ -95,7 +102,7 @@ export default function ChatBot() {
       }));
 
     // Call Gemini API
-    const result = await callGeminiAPI(conversationHistory);
+    const result = await callGeminiAPI(conversationHistory, language);
 
     const aiResponse = createMessage(
       result.response,
@@ -123,7 +130,7 @@ export default function ChatBot() {
     if (!transferData.name || !transferData.phone) return;
 
     const systemMsg = createMessage(
-      `✅ **Yêu cầu hỗ trợ đã được gửi!**\n\nNhân viên sẽ liên hệ bạn qua số **${transferData.phone}** trong thời gian sớm nhất.\n\nCảm ơn **${transferData.name}** đã liên hệ VietCharm! 🙏`,
+      t.supportSent,
       'system'
     );
 
@@ -191,7 +198,7 @@ export default function ChatBot() {
             )}
             {/* Tooltip */}
             <span className="absolute right-full mr-3 px-3 py-1.5 bg-[#3D2914] text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
-              Tư vấn AI 🍯
+              {t.adviceTooltip}
             </span>
           </motion.button>
         )}
@@ -233,7 +240,7 @@ export default function ChatBot() {
                   </h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    <span className="text-white/80 text-xs">Đang hoạt động</span>
+                    <span className="text-white/80 text-xs">{t.activeNow}</span>
                   </div>
                 </div>
               </div>
@@ -323,7 +330,7 @@ export default function ChatBot() {
                         }}
                       >
                         <Headphones size={16} />
-                        Chuyển đến nhân viên hỗ trợ
+                        {t.transferStaff}
                       </button>
                     )}
 
@@ -333,7 +340,7 @@ export default function ChatBot() {
                         msg.role === 'user' ? 'text-white/60' : 'text-[#8B5A2B]/40'
                       }`}
                     >
-                      {msg.timestamp.toLocaleTimeString('vi-VN', {
+                      {msg.timestamp.toLocaleTimeString(language === 'vi' ? 'vi-VN' : 'en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
@@ -373,7 +380,7 @@ export default function ChatBot() {
                           style={{ animationDelay: '300ms' }}
                         />
                       </div>
-                      <span className="text-xs text-[#8B5A2B]/40 ml-1">Chatbot đang suy nghĩ...</span>
+                      <span className="text-xs text-[#8B5A2B]/40 ml-1">{t.typing}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -395,10 +402,10 @@ export default function ChatBot() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-[#3D2914]">
-                        Chuyển nhân viên hỗ trợ
+                        {t.transferTitle}
                       </p>
                       <p className="text-xs text-[#8B5A2B]/60">
-                        Để lại thông tin, chúng tôi sẽ liên hệ bạn
+                        {t.transferDesc}
                       </p>
                     </div>
                   </div>
@@ -409,8 +416,8 @@ export default function ChatBot() {
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B5A2B]/40"
                       />
                       <input
-                        type="text"
-                        placeholder="Họ và tên *"
+                        inputMode="text"
+                        placeholder={language === 'vi' ? 'Họ và tên *' : 'Full name *'}
                         value={transferData.name}
                         onChange={(e) =>
                           setTransferData((prev) => ({ ...prev, name: e.target.value }))
@@ -425,7 +432,7 @@ export default function ChatBot() {
                       />
                       <input
                         type="tel"
-                        placeholder="Số điện thoại *"
+                        placeholder={language === 'vi' ? 'Số điện thoại *' : 'Phone number *'}
                         value={transferData.phone}
                         onChange={(e) =>
                           setTransferData((prev) => ({ ...prev, phone: e.target.value }))
@@ -439,7 +446,7 @@ export default function ChatBot() {
                         className="absolute left-3 top-3 text-[#8B5A2B]/40"
                       />
                       <textarea
-                        placeholder="Ghi chú (tùy chọn)"
+                        placeholder={t.note}
                         value={transferData.note}
                         onChange={(e) =>
                           setTransferData((prev) => ({ ...prev, note: e.target.value }))
@@ -453,7 +460,7 @@ export default function ChatBot() {
                         onClick={() => setShowTransferForm(false)}
                         className="flex-1 px-3 py-2.5 text-sm rounded-xl border border-[#E8D5B5] text-[#8B5A2B] hover:bg-[#F5E6C8] transition-colors font-medium cursor-pointer"
                       >
-                        Hủy
+                        {t.cancel}
                       </button>
                       <button
                         onClick={handleTransferSubmit}
@@ -463,7 +470,7 @@ export default function ChatBot() {
                           background: 'linear-gradient(135deg, #22C55E, #16A34A)',
                         }}
                       >
-                        Gửi yêu cầu
+                        {t.submit}
                       </button>
                     </div>
                   </div>
@@ -477,10 +484,11 @@ export default function ChatBot() {
             {messages.length <= 1 && (
               <div className="px-4 pb-2 shrink-0">
                 <p className="text-xs text-[#8B5A2B]/50 mb-2 font-medium">
-                  💡 Gợi ý nhanh:
+                  {t.quickSuggestion}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {QUICK_SUGGESTIONS.map((suggestion, i) => (
+                  {(QUICK_SUGGESTIONS as Record<string, string[]>)[language].map((suggestion: string, i: number) => (
+
                     <button
                       key={i}
                       onClick={() => handleSendMessage(suggestion)}
@@ -505,7 +513,7 @@ export default function ChatBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  placeholder="Hỏi VietCharm AI..."
+                  placeholder={t.placeholder}
                   disabled={isTyping}
                   className="flex-1 px-4 py-2.5 text-sm rounded-full border border-[#E8D5B5] bg-white outline-none focus:border-[#D4A84B] focus:ring-2 focus:ring-[#D4A84B]/20 transition-all text-[#3D2914] placeholder:text-[#8B5A2B]/40 disabled:opacity-50"
                   id="chatbot-input"

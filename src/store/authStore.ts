@@ -46,16 +46,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         // First, handle the initial session
         let session = null;
-        let sessionError = null;
+
 
         // Try to get session with more robust retry
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             const { data, error } = await supabase.auth.getSession();
             session = data.session;
-            sessionError = error;
 
             if (!error) break;
+
 
             const isAbort = error.message?.includes('aborted') || error.message?.includes('signal');
             if (isAbort) {
@@ -63,9 +63,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             } else {
               console.error(`Auth initialization: Session fetch error (attempt ${attempt + 1}):`, error);
             }
-          } catch (e: any) {
+          } catch (e: unknown) {
             console.error(`Auth initialization: Caught session exception (attempt ${attempt + 1}):`, e);
           }
+
 
           const delay = (attempt + 1) * 1000;
           await new Promise(r => setTimeout(r, delay));
@@ -148,7 +149,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
 
         // Setup listener if not already set
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (!(window as any).__supabaseAuthListenerSet) {
+
+
           console.log('Auth initialization: Setting up auth listener');
           supabase.auth.onAuthStateChange(async (event, newSession) => {
             console.log('Auth listener event:', event, 'Has session:', !!newSession?.user);
@@ -172,7 +176,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               getCartStore().then(store => store.getState().setUserId(null));
             }
           });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (window as any).__supabaseAuthListenerSet = true;
+
         }
       })();
 
@@ -273,7 +279,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     try {
       // Clear the auth listener flag so it won't auto-restore session
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).__supabaseAuthListenerSet = false;
+
 
       // Clear local state immediately for better UX
       set({ user: null, profile: null, isInitialized: false });
@@ -338,7 +346,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     };
 
     // Retry logic for better reliability
-    let lastError: any = null;
+    let lastError: Error | null = null;
+
 
     for (let attempt = 1; attempt <= 3; attempt++) {
       console.log(`updateProfile: Attempt ${attempt}/3`);
@@ -353,7 +362,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         if (error) {
           console.error(`updateProfile: Supabase error (attempt ${attempt})`, error.message, error.details, error.hint);
-          lastError = error;
+          lastError = new Error(error.message);
+
 
           // Wait before retry
           if (attempt < 3) {
@@ -375,7 +385,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       } catch (networkError) {
         console.error(`updateProfile: Network error (attempt ${attempt})`, networkError);
-        lastError = networkError;
+        lastError = networkError instanceof Error ? networkError : new Error(String(networkError));
+
 
         if (attempt < 3) {
           await new Promise(r => setTimeout(r, 800));
@@ -445,7 +456,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const currentProducts = currentProfile.unlocked_products || [];
 
     // Create a new set of products to avoid duplicates
-    let newProducts = [...currentProducts];
+    const newProducts = [...currentProducts];
+
     let hasNew = false;
 
     for (const id of inputIds) {

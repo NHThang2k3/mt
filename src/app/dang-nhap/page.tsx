@@ -6,10 +6,16 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, LogIn, UserPlus, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
+
 
 type AuthMode = 'login' | 'register';
 
+
 function AuthContent() {
+const { language } = useLanguageStore();
+const t = translations[language];
 const router = useRouter();
 const searchParams = useSearchParams();
 const redirectUrl = searchParams.get('redirect');
@@ -17,6 +23,7 @@ const { user, isLoading, signIn, signUp, initialize, isInitialized } = useAuthSt
 const [mode, setMode] = useState<AuthMode>('login');
 const [showPassword, setShowPassword] = useState(false);
 const [error, setError] = useState<string | null>(null);
+
 
 const [formData, setFormData] = useState({
 name: '',
@@ -49,9 +56,10 @@ setError(null);
 
 
 if (mode === 'register' && formData.password !== formData.confirmPassword) {
-  setError('Mật khẩu xác nhận không khớp');
+  setError(t.passwordMismatch);
   return;
 }
+
 
 if (mode === 'login') {
   const result = await signIn(formData.email, formData.password);
@@ -64,9 +72,10 @@ if (mode === 'login') {
     setError(result.error);
   } else {
     setError(null);
-    alert('Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.');
+    alert(t.registerSuccess);
   }
 }
+
 
 };
 
@@ -86,13 +95,15 @@ className="w-full max-w-md"
   className="w-20 h-20 rounded-full object-cover mx-auto mb-5 shadow-lg"
 />
 <h1 className="text-3xl font-bold text-[var(--color-brown)]">
-{mode === 'login' ? 'Đăng Nhập' : 'Đăng Ký'}
+{mode === 'login' ? t.login : t.register}
 </h1>
+
 <p className="text-[var(--color-brown)]/60 text-sm mt-2">
 {mode === 'login'
-? 'Chào mừng bạn quay trở lại!'
-: 'Tạo tài khoản để bắt đầu hành trình'}
+? t.loginWelcome
+: t.registerWelcome}
 </p>
+
 </div>
 
 
@@ -107,8 +118,9 @@ className="w-full max-w-md"
           }`}
         >
           <LogIn size={16} />
-          Đăng Nhập
+          {t.login}
         </button>
+
         <button
           onClick={() => { setMode('register'); setError(null); }}
           className={`flex-1 py-3 px-4 rounded-full text-sm font-medium transition-all flex items-center justify-center gap-2 ${
@@ -118,8 +130,9 @@ className="w-full max-w-md"
           }`}
         >
           <UserPlus size={16} />
-          Đăng Ký
+          {t.register}
         </button>
+
       </div>
 
       {/* Error Alert */}
@@ -139,8 +152,9 @@ className="w-full max-w-md"
         {mode === 'register' && (
           <div>
             <label className="block text-sm font-semibold text-[var(--color-brown)] mb-3">
-              Họ và Tên
+              {t.fullName}
             </label>
+
             <div className="relative">
               <User size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-brown)]/40" />
               <input
@@ -149,17 +163,19 @@ className="w-full max-w-md"
                 value={formData.name}
                 onChange={handleInputChange}
                 className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-[var(--border)] bg-[var(--color-cream)]/30 focus:border-[var(--color-gold)] focus:bg-white focus:outline-none transition-all text-[var(--color-brown)]"
-                placeholder="Nguyễn Văn A"
+                placeholder={language === 'vi' ? 'Nguyễn Văn A' : 'John Doe'}
                 required
               />
+
             </div>
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-semibold text-[var(--color-brown)] mb-3">
-            Email
-          </label>
+          <div>
+            <label className="block text-sm font-semibold text-[var(--color-brown)] mb-3">
+              {t.email}
+            </label>
+
           <div className="relative">
             <Mail size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-brown)]/40" />
             <input
@@ -174,10 +190,11 @@ className="w-full max-w-md"
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-[var(--color-brown)] mb-3">
-            Mật Khẩu
-          </label>
+          <div>
+            <label className="block text-sm font-semibold text-[var(--color-brown)] mb-3">
+              {t.password}
+            </label>
+
           <div className="relative">
             <Lock size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-brown)]/40" />
             <input
@@ -203,8 +220,9 @@ className="w-full max-w-md"
         {mode === 'register' && (
           <div>
             <label className="block text-sm font-semibold text-[var(--color-brown)] mb-3">
-              Xác Nhận Mật Khẩu
+              {t.confirmPassword}
             </label>
+
             <div className="relative">
               <Lock size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-brown)]/40" />
               <input
@@ -229,18 +247,21 @@ className="w-full max-w-md"
           {isLoading ? (
             <span className="flex items-center justify-center gap-3">
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Đang xử lý...
+              {t.processing}
             </span>
+
           ) : (
-            mode === 'login' ? 'Đăng Nhập' : 'Tạo Tài Khoản'
+            mode === 'login' ? t.login : t.createAccount
           )}
+
         </button>
       </form>
 
       {/* Info */}
       <p className="mt-8 text-center text-sm text-[var(--color-brown)]/50">
-        Bằng việc đăng ký, bạn đồng ý với điều khoản sử dụng của chúng tôi.
+        {t.termsNote}
       </p>
+
     </div>
   </motion.div>
 </div>
@@ -249,16 +270,19 @@ className="w-full max-w-md"
 }
 
 export default function AuthPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center pattern-bg">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[var(--color-brown)]">Đang tải...</p>
+          <p className="text-[var(--color-brown)]">{t.loading || (language === 'vi' ? 'Đang tải...' : 'Loading...')}</p>
         </div>
       </div>
     }>
       <AuthContent />
     </Suspense>
   );
-}
+}

@@ -5,19 +5,26 @@ import { motion } from 'framer-motion';
 import { Calendar, ArrowRight, MapPin } from 'lucide-react';
 import { posts } from '@/data/posts';
 import { products } from '@/data/products';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
+
 
 export default function BlogPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const regionColors = {
+
     bac: 'from-green-500 to-emerald-600',
     trung: 'from-purple-500 to-pink-600',
     nam: 'from-orange-500 to-amber-600'
   };
 
   const regionNames = {
-    bac: 'Miền Bắc',
-    trung: 'Miền Trung',
-    nam: 'Miền Nam'
+    bac: t.north,
+    trung: t.central,
+    nam: t.south
   };
+
 
   const regionEmoji = {
     bac: '🍑',
@@ -54,12 +61,13 @@ export default function BlogPage() {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-4xl md:text-5xl font-bold text-[var(--color-brown)] mb-4">
-            Văn Hóa Vùng Miền
+            {t.cultureTitle}
           </h1>
           <p className="text-[var(--color-brown)]/70 max-w-2xl mx-auto px-4">
-            Khám phá những câu chuyện văn hóa ẩn chứa trong từng hũ mứt VietCharm
+            {t.cultureDesc}
           </p>
         </motion.div>
+
       </section>
 
       {/* Blog Grid */}
@@ -110,21 +118,23 @@ export default function BlogPage() {
                   <div className="p-6">
                     <div className="flex items-center gap-2 text-sm text-[var(--color-brown)]/60 mb-3">
                       <Calendar size={14} />
-                      <span>{new Date(post.createdAt).toLocaleDateString('vi-VN')}</span>
+                      <span>{new Date(post.createdAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}</span>
                     </div>
                     
                     <h2 className="text-lg font-bold text-[var(--color-brown)] mb-2 group-hover:text-[var(--color-gold)] transition-colors line-clamp-2">
-                      {post.title}
+                      {language === 'vi' ? post.title : post.titleEn}
                     </h2>
                     
                     <p className="text-[var(--color-brown)]/70 text-sm line-clamp-3 mb-4">
-                      {post.excerpt}
+                      {language === 'vi' ? post.excerpt : post.excerptEn}
                     </p>
 
+
                     <span className="inline-flex items-center gap-1 text-[var(--color-gold)] font-medium text-sm group-hover:gap-2 transition-all">
-                      Đọc Thêm
+                      {t.readMore}
                       <ArrowRight size={16} />
                     </span>
+
                   </div>
                 </div>
               </Link>

@@ -4,17 +4,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Check, CreditCard, Truck, User, MapPin, Phone, Mail, Package, Loader2 } from 'lucide-react';
+import { Check, CreditCard, Truck, User, MapPin, Phone, Mail, Package, Loader2, Shield } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
 import { formatPrice } from '@/data/products';
 import { trackPurchase } from '@/lib/analytics';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/Toast';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +43,14 @@ export default function CheckoutPage() {
     address: '',
     note: ''
   });
-  const [paymentMethod, setPaymentMethod] = useState<'transfer' | 'vnpay'>('vnpay');
+  const [paymentMethod, setPaymentMethod] = useState<'transfer' | 'visa'>('visa');
+  const [cardData, setCardData] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardName: '',
+    billingAddress: ''
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -52,9 +63,12 @@ export default function CheckoutPage() {
     if (user?.email) {
       setFormData(prev => ({ ...prev, email: user.email || '' }));
     }
+    // Pre-fill name from profile if available
     if (profile?.name) {
       setFormData(prev => ({ ...prev, name: profile.name || '' }));
+
     }
+
   }, [user, profile]);
 
   // Handle redirect in useEffect to avoid setState during render
@@ -82,12 +96,37 @@ export default function CheckoutPage() {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleCardInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    let { value } = e.target;
+    
+    // Simple formatting for card number
+    if (name === 'cardNumber') {
+      value = value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim().slice(0, 19);
+    }
+    // Simple formatting for expiry date (MM/YY)
+    if (name === 'expiryDate') {
+      value = value.replace(/\D/g, '').replace(/(.{2})/, '$1/').trim().slice(0, 5);
+    }
+    // Limit CVV to 3-4 digits
+    if (name === 'cvv') {
+      value = value.replace(/\D/g, '').slice(0, 4);
+    }
+    // Uppercase for cardholder name
+    if (name === 'cardName') {
+      value = value.toUpperCase();
+    }
+
+    setCardData({ ...cardData, [name]: value });
   };
 
   const handleSubmit = async () => {
-    if (paymentMethod === 'vnpay') {
-      handleVNPayPayment();
+    if (paymentMethod === 'visa') {
+      handleVisaPayment();
       return;
     }
 
@@ -95,10 +134,10 @@ export default function CheckoutPage() {
     
     try {
       const orderItems = items.map(item => {
-        let name = item.product.name;
-        if (item.isPack10) name += ' (Gói 10 hũ)';
+        let name = language === 'vi' ? item.product.name : item.product.nameEn;
+        if (item.isPack10) name += ` (${t.packOf10})`;
         if (item.selectedSelections && item.selectedSelections.length > 0) {
-          name += ` [Chọn: ${item.selectedSelections.join(', ')}]`;
+          name += ` [${language === 'vi' ? 'Chọn' : 'Selected'}: ${item.selectedSelections.join(', ')}]`;
         }
         return {
           id: item.id,
@@ -136,7 +175,7 @@ export default function CheckoutPage() {
         const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
         trackPurchase(localOrderId, finalTotal, itemCount, user?.id);
         setStep(3);
-        showToast('success', 'Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
+        showToast('success', t.orderSuccess);
         return;
       }
 
@@ -145,24 +184,24 @@ export default function CheckoutPage() {
       
       setOrderId(orderData.id);
       setStep(3);
-      showToast('success', 'Đặt hàng thành công!');
+      showToast('success', t.orderSuccess);
     } catch (error) {
       console.error('Error:', error);
       setStep(3);
-      showToast('success', 'Đặt hàng thành công! Chúng tôi sẽ liên hệ bạn sớm.');
+      showToast('success', t.orderSuccess);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleVNPayPayment = async () => {
+  const handleVisaPayment = async () => {
     setIsSubmitting(true);
     try {
       const orderItems = items.map(item => {
-        let name = item.product.name;
-        if (item.isPack10) name += ' (Gói 10 hũ)';
+        let name = language === 'vi' ? item.product.name : item.product.nameEn;
+        if (item.isPack10) name += ` (${t.packOf10})`;
         if (item.selectedSelections && item.selectedSelections.length > 0) {
-          name += ` [Chọn: ${item.selectedSelections.join(', ')}]`;
+          name += ` [${language === 'vi' ? 'Chọn' : 'Selected'}: ${item.selectedSelections.join(', ')}]`;
         }
         return {
           id: item.id,
@@ -187,7 +226,7 @@ export default function CheckoutPage() {
             address: formData.address,
             note: formData.note
           },
-          payment_method: 'vnpay',
+          payment_method: 'visa',
           payment_status: 'paid'
         })
         .select()
@@ -200,10 +239,10 @@ export default function CheckoutPage() {
       
       setOrderId(orderData.id);
       setStep(3);
-      showToast('success', 'Thanh toán VNPay giả lập thành công!');
+      showToast('success', t.visaSuccess);
     } catch (error) {
-      console.error('Simulated VNPay error:', error);
-      showToast('error', 'Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.');
+      console.error('Simulated VISA error:', error);
+      showToast('error', t.errorOrder);
     } finally {
       setIsSubmitting(false);
     }
@@ -225,30 +264,34 @@ export default function CheckoutPage() {
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-4 mb-12">
           {[
-            { num: 1, label: 'Thông tin' },
-            { num: 2, label: 'Thanh toán' },
-            { num: 3, label: 'Hoàn tất' }
-          ].map((s, i) => (
-            <div key={s.num} className="flex items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                step >= s.num 
-                  ? 'gradient-gold text-white' 
-                  : 'bg-white text-[var(--color-brown)]/50'
-              }`}>
-                {step > s.num ? <Check size={20} /> : s.num}
+            { num: 1 },
+            { num: 2 },
+            { num: 3 }
+          ].map((s, i) => {
+
+            const label = i === 0 ? t.stepInfo : i === 1 ? t.stepPayment : t.stepComplete;
+            return (
+              <div key={s.num} className="flex items-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                  step >= s.num 
+                    ? 'gradient-gold text-white' 
+                    : 'bg-white text-[var(--color-brown)]/50'
+                }`}>
+                  {step > s.num ? <Check size={20} /> : s.num}
+                </div>
+                <span className={`ml-2 hidden sm:block ${
+                  step >= s.num ? 'text-[var(--color-brown)]' : 'text-[var(--color-brown)]/50'
+                }`}>
+                  {label}
+                </span>
+                {i < 2 && (
+                  <div className={`w-12 h-1 mx-4 rounded ${
+                    step > s.num ? 'bg-[var(--color-gold)]' : 'bg-white'
+                  }`} />
+                )}
               </div>
-              <span className={`ml-2 hidden sm:block ${
-                step >= s.num ? 'text-[var(--color-brown)]' : 'text-[var(--color-brown)]/50'
-              }`}>
-                {s.label}
-              </span>
-              {i < 2 && (
-                <div className={`w-12 h-1 mx-4 rounded ${
-                  step > s.num ? 'bg-[var(--color-gold)]' : 'bg-white'
-                }`} />
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Step 1: Shipping Info */}
@@ -260,13 +303,13 @@ export default function CheckoutPage() {
           >
             <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6 flex items-center gap-2">
               <Truck size={24} />
-              Thông Tin Giao Hàng
+              {t.shippingInfoTitle}
             </h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-[var(--color-brown)] mb-2">
-                  <User size={16} className="inline mr-1" /> Họ và Tên *
+                  <User size={16} className="inline mr-1" /> {t.fullName} *
                 </label>
                 <input
                   type="text"
@@ -274,14 +317,14 @@ export default function CheckoutPage() {
                   value={formData.name}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-[var(--color-gold)] focus:outline-none transition-colors"
-                  placeholder="Nguyễn Văn A"
+                  placeholder={t.fullNamePlaceholder}
                   required
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-[var(--color-brown)] mb-2">
-                  <Phone size={16} className="inline mr-1" /> Số Điện Thoại *
+                  <Phone size={16} className="inline mr-1" /> {t.phoneNumber} *
                 </label>
                 <input
                   type="tel"
@@ -289,14 +332,14 @@ export default function CheckoutPage() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-[var(--color-gold)] focus:outline-none transition-colors"
-                  placeholder="0123 456 789"
+                  placeholder={t.phonePlaceholder}
                   required
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-[var(--color-brown)] mb-2">
-                  <Mail size={16} className="inline mr-1" /> Email
+                  <Mail size={16} className="inline mr-1" /> {t.email}
                 </label>
                 <input
                   type="email"
@@ -310,7 +353,7 @@ export default function CheckoutPage() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-[var(--color-brown)] mb-2">
-                  <MapPin size={16} className="inline mr-1" /> Địa Chỉ Giao Hàng *
+                  <MapPin size={16} className="inline mr-1" /> {t.address} *
                 </label>
                 <input
                   type="text"
@@ -318,14 +361,14 @@ export default function CheckoutPage() {
                   value={formData.address}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-[var(--color-gold)] focus:outline-none transition-colors"
-                  placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                  placeholder={t.addressPlaceholder}
                   required
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-[var(--color-brown)] mb-2">
-                  Ghi Chú
+                  {t.note}
                 </label>
                 <textarea
                   name="note"
@@ -333,7 +376,7 @@ export default function CheckoutPage() {
                   onChange={handleInputChange}
                   rows={3}
                   className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-[var(--color-gold)] focus:outline-none transition-colors resize-none"
-                  placeholder="Ghi chú cho đơn hàng (tùy chọn)"
+                  placeholder={t.notePlaceholder}
                 />
               </div>
             </div>
@@ -343,7 +386,7 @@ export default function CheckoutPage() {
               disabled={!formData.name || !formData.phone || !formData.address}
               className="btn-primary w-full mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Tiếp Tục Thanh Toán
+              {t.continueToPayment}
             </button>
           </motion.div>
         )}
@@ -357,16 +400,16 @@ export default function CheckoutPage() {
           >
             <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6 flex items-center gap-2">
               <CreditCard size={24} />
-              Thanh Toán
+              {t.stepPayment}
             </h2>
 
             {/* Order Summary */}
             <div className="bg-[var(--color-cream)] rounded-xl p-6 mb-6">
-              <h3 className="font-semibold text-[var(--color-brown)] mb-4">Đơn hàng của bạn</h3>
+              <h3 className="font-semibold text-[var(--color-brown)] mb-4">{t.orderSummary}</h3>
               {items.map(item => (
                 <div key={item.id} className="flex justify-between py-2 border-b border-[var(--border)] last:border-0">
                   <span className="text-[var(--color-brown)]/80">
-                    {item.product.name} {item.isPack10 ? '(Gói 10 hũ)' : ''} x {item.quantity}
+                    {language === 'vi' ? item.product.name : item.product.nameEn} {item.isPack10 ? `(${t.packOf10})` : ''} x {item.quantity}
                   </span>
                   <span className="font-medium">{formatPrice((item.isPack10 ? 450000 : item.product.price) * item.quantity)}</span>
                 </div>
@@ -374,13 +417,13 @@ export default function CheckoutPage() {
               
               {discountPercent > 0 && (
                 <div className="flex justify-between py-2 border-b border-[var(--border)]">
-                  <span className="text-green-600 font-medium">Giảm giá hạng thẻ ({discountPercent}%)</span>
+                  <span className="text-green-600 font-medium">{t.membershipDiscount} ({discountPercent}%)</span>
                   <span className="font-medium text-green-600">-{formatPrice(discountAmount)}</span>
                 </div>
               )}
               
               <div className="flex justify-between pt-4 mt-2 border-t-2 border-[var(--color-gold)]">
-                <span className="font-bold text-[var(--color-brown)]">Tổng cộng</span>
+                <span className="font-bold text-[var(--color-brown)]">{t.total}</span>
                 <span className="font-bold text-xl text-[var(--color-gold)]">{formatPrice(finalTotal)}</span>
               </div>
             </div>
@@ -388,19 +431,19 @@ export default function CheckoutPage() {
             {/* Payment Method Selection */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <button
-                onClick={() => setPaymentMethod('vnpay')}
+                onClick={() => setPaymentMethod('visa')}
                 className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
-                  paymentMethod === 'vnpay' 
+                  paymentMethod === 'visa' 
                     ? 'border-[var(--color-gold)] bg-[var(--color-gold)]/5 ring-4 ring-[var(--color-gold)]/10' 
                     : 'border-[var(--border)] hover:border-[var(--color-gold)]/30 bg-white'
                 }`}
               >
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shadow-sm">
-                  <span className="font-bold text-blue-600 text-lg">VNP</span>
+                  <span className="font-bold text-blue-600 text-lg italic">VISA</span>
                 </div>
                 <div className="text-center">
-                  <span className="block font-bold text-[var(--color-brown)]">Cổng VNPay</span>
-                  <span className="text-[10px] text-[var(--color-brown)]/50 uppercase tracking-wider">Tự động xát nhận</span>
+                  <span className="block font-bold text-[var(--color-brown)]">{t.visaCard}</span>
+                  <span className="text-[10px] text-[var(--color-brown)]/50 uppercase tracking-wider">{t.autoConfirm}</span>
                 </div>
               </button>
 
@@ -416,27 +459,100 @@ export default function CheckoutPage() {
                   <CreditCard className="text-amber-600" size={24} />
                 </div>
                 <div className="text-center">
-                  <span className="block font-bold text-[var(--color-brown)]">Chuyển khoản</span>
-                  <span className="text-[10px] text-[var(--color-brown)]/50 uppercase tracking-wider">Xác nhận thủ công</span>
+                  <span className="block font-bold text-[var(--color-brown)]">{t.bankTransfer}</span>
+                  <span className="text-[10px] text-[var(--color-brown)]/50 uppercase tracking-wider">{t.manualConfirm}</span>
                 </div>
               </button>
             </div>
 
             {/* Payment Details Content */}
             <div className="mb-10">
-              {paymentMethod === 'vnpay' ? (
+              {paymentMethod === 'visa' ? (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center py-10 bg-blue-50/30 rounded-3xl border border-blue-100"
+                  className="bg-white rounded-3xl p-8 border border-blue-100 shadow-sm"
                 >
-                  <div className="w-20 h-20 bg-white text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md">
-                    <CreditCard size={40} />
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-bold text-lg text-[var(--color-brown)]">{t.visaInfo}</h3>
+                    <div className="flex gap-2">
+                      <div className="w-10 h-6 bg-gray-100 rounded flex items-center justify-center text-[8px] font-bold text-gray-400">VISA</div>
+                      <div className="w-10 h-6 bg-gray-100 rounded flex items-center justify-center text-[8px] font-bold text-gray-400">MC</div>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-lg text-[var(--color-brown)] mb-2">Thanh toán qua VNPay</h3>
-                  <p className="text-[var(--color-brown)]/60 text-sm max-w-xs mx-auto px-4">
-                    Hệ thống sẽ kết nối với cổng VNPay. Để thuận tiện, chúng tôi đã giả lập luồng thanh toán thành công.
-                  </p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--color-brown)]/50 uppercase mb-2">{t.cardHolder}</label>
+                      <input
+                        type="text"
+                        name="cardName"
+                        value={cardData.cardName}
+                        onChange={handleCardInputChange}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-blue-500 focus:outline-none transition-colors font-medium"
+                        placeholder="NGUYEN VAN A"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--color-brown)]/50 uppercase mb-2">{t.cardNumberLabel}</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="cardNumber"
+                          value={cardData.cardNumber}
+                          onChange={handleCardInputChange}
+                          className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-blue-500 focus:outline-none transition-colors font-mono text-lg"
+                          placeholder="0000 0000 0000 0000"
+                        />
+                        <CreditCard size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-[var(--color-brown)]/50 uppercase mb-2">{t.expiryDateLabel}</label>
+                        <input
+                          type="text"
+                          name="expiryDate"
+                          value={cardData.expiryDate}
+                          onChange={handleCardInputChange}
+                          className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-blue-500 focus:outline-none transition-colors"
+                          placeholder="MM/YY"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[var(--color-brown)]/50 uppercase mb-2">{t.cvvLabel}</label>
+                        <input
+                          type="password"
+                          name="cvv"
+                          value={cardData.cvv}
+                          onChange={handleCardInputChange}
+                          className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-blue-500 focus:outline-none transition-colors"
+                          placeholder="***"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--color-brown)]/50 uppercase mb-2">{t.billingAddressLabel}</label>
+                      <input
+                        type="text"
+                        name="billingAddress"
+                        value={cardData.billingAddress}
+                        onChange={handleCardInputChange}
+                        className="w-full px-4 py-3 rounded-xl border border-[var(--border)] focus:border-blue-500 focus:outline-none transition-colors"
+                        placeholder={t.addressPlaceholder}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-blue-50 rounded-2xl flex items-start gap-3">
+                    <Shield size={16} className="text-blue-500 mt-1 flex-shrink-0" />
+                    <p className="text-[11px] text-blue-600/80 leading-relaxed italic">
+                      {t.securityNote}
+                    </p>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div 
@@ -459,13 +575,13 @@ export default function CheckoutPage() {
 
                     <div className="flex-1 max-w-xs space-y-4">
                       <div className="text-center md:text-left">
-                        <h3 className="font-bold text-[var(--color-brown)] text-lg mb-1">Quét mã để thanh toán</h3>
-                        <p className="text-sm text-[var(--color-brown)]/60">Vui lòng nhập đúng nội dung chuyển khoản bên dưới để đơn hàng được duyệt nhanh nhất.</p>
+                        <h3 className="font-bold text-[var(--color-brown)] text-lg mb-1">{t.scanToPay}</h3>
+                        <p className="text-sm text-[var(--color-brown)]/60">{t.transferNote}</p>
                       </div>
                       
                       {transferCode && (
                         <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-[var(--color-gold)]/30 text-center md:text-left">
-                          <p className="text-[10px] font-bold text-[var(--color-brown)]/40 uppercase mb-1">Nội dung chuyển khoản</p>
+                          <p className="text-[10px] font-bold text-[var(--color-brown)]/40 uppercase mb-1">{t.transferContentLabel}</p>
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-mono font-black text-xl text-[var(--color-gold)] tracking-wider">
                               {transferCode}
@@ -473,10 +589,10 @@ export default function CheckoutPage() {
                             <button 
                               onClick={() => {
                                 navigator.clipboard.writeText(transferCode);
-                                showToast('success', 'Đã sao chép mã!');
+                                showToast('success', t.copyCodeSuccess);
                               }}
                               className="p-2 hover:bg-[var(--color-cream)] rounded-lg transition-colors text-[var(--color-gold)]"
-                              title="Sao chép"
+                              title={language === 'vi' ? 'Sao chép' : 'Copy'}
                             >
                               <Package size={18} />
                             </button>
@@ -494,22 +610,22 @@ export default function CheckoutPage() {
                 onClick={() => setStep(1)}
                 className="btn-secondary flex-1 py-4"
               >
-                Quay Lại
+                {t.back}
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || (paymentMethod === 'visa' && (!cardData.cardNumber || !cardData.expiryDate || !cardData.cvv || !cardData.cardName))}
                 className="btn-primary flex-1 py-4 disabled:opacity-50 flex items-center justify-center gap-3 text-lg"
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 size={24} className="animate-spin" />
-                    Đang xử lý...
+                    {t.processing}
                   </>
                 ) : (
                   <>
                     <Check size={20} />
-                    Xác Nhận
+                    {t.confirmPayment}
                   </>
                 )}
               </button>
@@ -528,17 +644,16 @@ export default function CheckoutPage() {
               <Check size={40} className="text-white" />
             </div>
             <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-4">
-              Đặt Hàng Thành Công!
+              {t.orderSuccess}
             </h2>
             {orderId && (
-              <p className="text-sm text-[var(--color-brown)]/60 mb-2">
-                Mã đơn hàng: <span className="font-mono font-bold">#{orderId.slice(0, 8).toUpperCase()}</span>
+                <p className="text-sm text-[var(--color-brown)]/60 mb-2">
+                {t.orderId}: <span className="font-mono font-bold">#{orderId.slice(0, 8).toUpperCase()}</span>
               </p>
+
             )}
-            <p className="text-[var(--color-brown)]/70 mb-8">
-              Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ xác nhận trong thời gian sớm nhất.
-              <br />
-              Đừng quên quét mã QR trên sản phẩm để thắp sáng Bản Đồ Di Sản!
+            <p className="text-[var(--color-brown)]/70 mb-8 whitespace-pre-line">
+              {t.orderSuccessDesc}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -548,12 +663,13 @@ export default function CheckoutPage() {
                   className="btn-secondary inline-flex items-center justify-center gap-2"
                 >
                   <Package size={18} />
-                  Xem Đơn Hàng
+                  {t.viewOrders}
                 </button>
               )}
               <button onClick={handleComplete} className="btn-primary">
-                Về Trang Chủ
+                {t.backHome}
               </button>
+
             </div>
           </motion.div>
         )}

@@ -21,9 +21,12 @@ import {
   Package,
   Shield
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 import { ADMIN_EMAIL } from '@/types/database';
+import { useAuthStore } from '@/store/authStore';
+import { supabase } from '@/lib/supabase';
+
 import { formatPrice } from '@/data/products';
 import type { Profile, Order } from '@/types/database';
 import { badgeInfo } from '@/store/userStore';
@@ -52,6 +55,8 @@ interface ShippingInfo {
 
 export default function AdminUsersPage() {
   const router = useRouter();
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const { user, isInitialized, initialize, isLoading: authLoading } = useAuthStore();
   const [users, setUsers] = useState<UserWithStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -149,7 +154,7 @@ export default function AdminUsersPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <Loader2 size={40} className="animate-spin text-amber-500 mb-4" />
-        <p className="text-gray-500 animate-pulse">Đang kiểm tra quyền truy cập...</p>
+        <p className="text-gray-500 animate-pulse">{t.checkingAccess}</p>
       </div>
     );
   }
@@ -158,10 +163,10 @@ export default function AdminUsersPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
         <Shield size={64} className="text-red-500 mb-4" />
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Truy cập bị từ chối</h1>
-        <p className="text-gray-500 text-center mb-6">Bạn không có quyền quản lý người dùng.</p>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.accessDenied}</h1>
+        <p className="text-gray-500 text-center mb-6">{t.noAdminPermission}</p>
         <Link href="/" className="btn-primary">
-          Quay về trang chủ
+          {t.backToHome}
         </Link>
       </div>
     );
@@ -184,8 +189,8 @@ export default function AdminUsersPage() {
               <ArrowLeft size={20} className="text-gray-600" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Quản Lý Người Dùng</h1>
-              <p className="text-gray-500">Xem thông tin và thống kê người dùng</p>
+              <h1 className="text-3xl font-bold text-gray-800">{t.manageUsers}</h1>
+              <p className="text-gray-500">{t.usersDesc}</p>
             </div>
           </div>
 
@@ -195,7 +200,7 @@ export default function AdminUsersPage() {
             className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
           >
             <Loader2 size={18} className={isLoading ? 'animate-spin' : ''} />
-            Làm mới
+            {t.refresh}
           </button>
         </motion.div>
 
@@ -211,7 +216,7 @@ export default function AdminUsersPage() {
                 <Users size={24} className="text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Tổng người dùng</p>
+                <p className="text-sm text-gray-500">{t.totalUsers}</p>
                 <p className="text-2xl font-bold text-gray-800">{totalUsers}</p>
               </div>
             </div>
@@ -223,7 +228,7 @@ export default function AdminUsersPage() {
                 <DollarSign size={24} className="text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Tổng doanh thu</p>
+                <p className="text-sm text-gray-500">{t.totalRevenue}</p>
                 <p className="text-2xl font-bold text-gray-800">{formatPrice(totalRevenue)}</p>
               </div>
             </div>
@@ -235,7 +240,7 @@ export default function AdminUsersPage() {
                 <ShoppingBag size={24} className="text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Tổng đơn hàng</p>
+                <p className="text-sm text-gray-500">{t.ordersCount}</p>
                 <p className="text-2xl font-bold text-gray-800">{totalOrders}</p>
               </div>
             </div>
@@ -252,7 +257,7 @@ export default function AdminUsersPage() {
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Tìm theo tên hoặc email..."
+              placeholder={t.searchUsersPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:outline-none transition-colors"
@@ -272,9 +277,11 @@ export default function AdminUsersPage() {
             className="bg-white rounded-2xl p-12 text-center shadow-lg"
           >
             <Users size={64} className="text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-700 mb-2">Không có người dùng</h2>
+            <h2 className="text-xl font-bold text-gray-700 mb-2">{t.noUsersFoundTitle}</h2>
             <p className="text-gray-500">
-              {searchTerm ? 'Không tìm thấy người dùng phù hợp' : 'Chưa có người dùng nào đăng ký'}
+              {searchTerm 
+                ? t.noMatchingUsers
+                : t.noUsersFound}
             </p>
           </motion.div>
         ) : (
@@ -305,7 +312,7 @@ export default function AdminUsersPage() {
                         </div>
                         <div>
                           <h3 className="font-bold text-gray-800 text-lg">
-                            {userData.name || 'Chưa có tên'}
+                            {userData.name || t.unnamedUser}
                           </h3>
                           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mt-1">
                             <span className="flex items-center gap-1">
@@ -320,7 +327,7 @@ export default function AdminUsersPage() {
                             )}
                             <span className="flex items-center gap-1">
                               <Calendar size={14} />
-                              {new Date(userData.created_at).toLocaleDateString('vi-VN')}
+                              {new Date(userData.created_at).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
                             </span>
                           </div>
                           {/* Badges */}
@@ -346,15 +353,15 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-6">
                         <div className="text-center">
                           <p className="text-2xl font-bold text-amber-600">{formatPrice(userData.totalSpent)}</p>
-                          <p className="text-xs text-gray-500">Tổng chi tiêu</p>
+                          <p className="text-xs text-gray-500">{t.totalSpent}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-2xl font-bold text-purple-600">{userData.orderCount}</p>
-                          <p className="text-xs text-gray-500">Đơn hàng</p>
+                          <p className="text-xs text-gray-500">{t.orders}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-2xl font-bold text-blue-600">{userData.productCount}</p>
-                          <p className="text-xs text-gray-500">Sản phẩm</p>
+                          <p className="text-xs text-gray-500">{t.products}</p>
                         </div>
                         {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                       </div>
@@ -376,7 +383,7 @@ export default function AdminUsersPage() {
                             <div>
                               <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                                 <Users size={18} />
-                                Thông tin người dùng
+                                {t.userInfoTitle}
                               </h4>
                               <div className="space-y-3 text-sm">
                                 <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
@@ -390,7 +397,7 @@ export default function AdminUsersPage() {
                                   <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                                     <Phone size={16} className="text-gray-400 mt-0.5" />
                                     <div>
-                                      <p className="text-gray-500 text-xs">Số điện thoại</p>
+                                      <p className="text-gray-500 text-xs">{t.phoneNumber}</p>
                                       <p className="text-gray-800">{shippingInfo.phone}</p>
                                     </div>
                                   </div>
@@ -399,7 +406,7 @@ export default function AdminUsersPage() {
                                   <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                                     <MapPin size={16} className="text-gray-400 mt-0.5" />
                                     <div>
-                                      <p className="text-gray-500 text-xs">Địa chỉ gần nhất</p>
+                                      <p className="text-gray-500 text-xs">{t.lastAddress}</p>
                                       <p className="text-gray-800">{shippingInfo.address}</p>
                                     </div>
                                   </div>
@@ -407,11 +414,11 @@ export default function AdminUsersPage() {
                                 <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                                   <Award size={16} className="text-gray-400 mt-0.5" />
                                   <div>
-                                    <p className="text-gray-500 text-xs">Danh hiệu</p>
+                                    <p className="text-gray-500 text-xs">{t.badges}</p>
                                     <p className="text-gray-800">
                                       {userData.badges && userData.badges.length > 0 
                                         ? userData.badges.map(b => badgeInfo[b as keyof typeof badgeInfo]?.name || b).join(', ')
-                                        : 'Chưa có danh hiệu'
+                                        : t.noBadges
                                       }
                                     </p>
                                   </div>
@@ -419,9 +426,9 @@ export default function AdminUsersPage() {
                                 <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
                                   <Package size={16} className="text-gray-400 mt-0.5" />
                                   <div>
-                                    <p className="text-gray-500 text-xs">Sản phẩm đã mở khóa</p>
+                                    <p className="text-gray-500 text-xs">{t.unlockedProducts}</p>
                                     <p className="text-gray-800">
-                                      {userData.unlocked_products?.length || 0} sản phẩm
+                                      {userData.unlocked_products?.length || 0} {t.itemsCount}
                                     </p>
                                   </div>
                                 </div>
@@ -432,11 +439,11 @@ export default function AdminUsersPage() {
                             <div>
                               <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                                 <ShoppingBag size={18} />
-                                Đơn hàng gần đây
+                                {t.recentOrders}
                               </h4>
                               {userData.orders.length === 0 ? (
                                 <div className="text-center py-8 text-gray-500">
-                                  Chưa có đơn hàng nào
+                                  {t.noOrdersYet}
                                 </div>
                               ) : (
                                 <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -453,15 +460,15 @@ export default function AdminUsersPage() {
                                             order.status === 'shipped' ? 'bg-purple-100 text-purple-700' :
                                             'bg-yellow-100 text-yellow-700'
                                           }`}>
-                                            {order.status === 'delivered' ? 'Đã giao' :
-                                             order.status === 'shipped' ? 'Đang giao' : 'Chờ xử lý'}
+                                            {order.status === 'delivered' ? t.delivered :
+                                             order.status === 'shipped' ? t.shipped : t.pending}
                                           </span>
                                         </div>
                                         <p className="text-sm text-gray-800 font-medium">
                                           {formatPrice(order.total)}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                          {items.length} sản phẩm • {new Date(order.created_at).toLocaleDateString('vi-VN')}
+                                          {items.length} {t.itemsCount} • {new Date(order.created_at).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
                                         </p>
                                       </div>
                                     );

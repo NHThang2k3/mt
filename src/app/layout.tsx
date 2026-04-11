@@ -26,6 +26,10 @@ export const metadata: Metadata = {
     description: "Khám phá hương vị mứt truyền thống từ ba miền Bắc - Trung - Nam với trải nghiệm văn hóa số qua QR code",
     type: "website",
   },
+  icons: {
+    icon: "/images/logo.jpg",
+    apple: "/images/logo.jpg",
+  },
 };
 
 export default function RootLayout({

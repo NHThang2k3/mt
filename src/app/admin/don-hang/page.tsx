@@ -23,11 +23,14 @@ import {
   Shield
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 import { ADMIN_EMAIL } from '@/types/database';
 import { formatPrice } from '@/data/products';
 import type { Order } from '@/types/database';
 import { useToast } from '@/components/Toast';
+import { useAuthStore } from '@/store/authStore';
+
 
 interface OrderItem {
   id: string;
@@ -46,6 +49,8 @@ interface ShippingInfo {
 
 export default function AdminOrdersPage() {
   const router = useRouter();
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const { showToast } = useToast();
   const { user, isInitialized, initialize, isLoading: authLoading } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -105,14 +110,16 @@ export default function AdminOrdersPage() {
       setOrders(data || []);
       setIsLoading(false);
       fetchRef.current = false;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Admin fetchOrders error (Attempt ${retryCount + 1}):`, error);
       
-      const errorMessage = error.message || '';
-      const isAbortError = error.name === 'AbortError' || 
+      const errorMessage = error instanceof Error ? error.message : '';
+
+      const isAbortError = error instanceof Error && (
+                         error.name === 'AbortError' || 
                          errorMessage.includes('aborted') || 
                          errorMessage.includes('AbortError') ||
-                         errorMessage.includes('signal is aborted');
+                         errorMessage.includes('signal is aborted'));
 
       if (isAbortError && retryCount < 3) {
         const delay = (retryCount + 1) * 1500;
@@ -128,11 +135,11 @@ export default function AdminOrdersPage() {
         setIsLoading(false);
         
         if (isAbortError) {
-          setFetchError('Kết nối bị gián đoạn do phản hồi từ máy chủ bị hết hạn. Vui lòng bấm "Làm mới" hoặc tải lại trang.');
-          showToast('error', 'Lỗi kết nối: Yêu cầu bị hủy');
+          setFetchError(t.connectionInterrupted);
+          showToast('error', t.connectionError);
         } else {
-          setFetchError(`Lỗi hệ thống: ${error.message || 'Không thể tải danh sách đơn hàng'}`);
-          showToast('error', 'Không thể tải danh sách đơn hàng');
+          setFetchError(`${t.systemError}: ${error instanceof Error ? error.message : t.cannotLoadOrders}`);
+          showToast('error', t.cannotLoadOrders);
         }
       }
     }
@@ -148,7 +155,7 @@ export default function AdminOrdersPage() {
 
       if (error) {
         console.error('Error updating order:', error);
-        showToast('error', 'Không thể cập nhật trạng thái đơn hàng');
+        showToast('error', t.cannotUpdateStatus);
         return;
       }
 
@@ -158,16 +165,16 @@ export default function AdminOrdersPage() {
       ));
 
       const statusLabels: Record<Order['status'], string> = {
-        pending: 'Chờ xác nhận',
-        confirmed: 'Đã xác nhận',
-        shipped: 'Đang giao hàng',
-        delivered: 'Đã giao hàng'
+        pending: t.pending,
+        confirmed: t.confirmed,
+        shipped: t.shipped,
+        delivered: t.delivered
       };
 
-      showToast('success', `Đã cập nhật trạng thái: ${statusLabels[newStatus]}`);
+      showToast('success', `${t.statusUpdated}: ${statusLabels[newStatus]}`);
     } catch (error) {
       console.error('Error:', error);
-      showToast('error', 'Có lỗi xảy ra');
+      showToast('error', t.anErrorOccurred);
     } finally {
       setUpdatingOrderId(null);
     }
@@ -177,31 +184,31 @@ export default function AdminOrdersPage() {
     switch (status) {
       case 'pending':
         return { 
-          label: 'Chờ xác nhận', 
+          label: t.pending, 
           color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
           icon: <Clock size={16} />
         };
       case 'confirmed':
         return { 
-          label: 'Đã xác nhận', 
+          label: t.confirmed, 
           color: 'bg-blue-100 text-blue-700 border-blue-200',
           icon: <CheckCircle size={16} />
         };
       case 'shipped':
         return { 
-          label: 'Đang giao hàng', 
+          label: t.shipped, 
           color: 'bg-purple-100 text-purple-700 border-purple-200',
           icon: <Truck size={16} />
         };
       case 'delivered':
         return { 
-          label: 'Đã giao hàng', 
+          label: t.delivered, 
           color: 'bg-green-100 text-green-700 border-green-200',
           icon: <CheckCircle size={16} />
         };
       default:
         return { 
-          label: 'Không xác định', 
+          label: t.unknown, 
           color: 'bg-gray-100 text-gray-700 border-gray-200',
           icon: <Package size={16} />
         };
@@ -232,7 +239,7 @@ export default function AdminOrdersPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <Loader2 size={40} className="animate-spin text-amber-500 mb-4" />
-        <p className="text-gray-500 animate-pulse">Đang kiểm tra quyền truy cập...</p>
+        <p className="text-gray-500 animate-pulse">{t.checkingAccess}</p>
       </div>
     );
   }
@@ -241,10 +248,10 @@ export default function AdminOrdersPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
         <Shield size={64} className="text-red-500 mb-4" />
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Truy cập bị từ chối</h1>
-        <p className="text-gray-500 text-center mb-6">Bạn không có quyền quản lý đơn hàng.</p>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.accessDenied}</h1>
+        <p className="text-gray-500 text-center mb-6">{t.noAdminPermission}</p>
         <Link href="/" className="btn-primary">
-          Quay về trang chủ
+          {t.backToHome}
         </Link>
       </div>
     );
@@ -267,8 +274,8 @@ export default function AdminOrdersPage() {
               <ArrowLeft size={20} className="text-gray-600" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Quản Lý Đơn Hàng</h1>
-              <p className="text-gray-500">Xem và xử lý đơn hàng của khách hàng</p>
+              <h1 className="text-3xl font-bold text-gray-800">{t.manageOrders}</h1>
+              <p className="text-gray-500">{t.ordersDesc}</p>
             </div>
           </div>
 
@@ -278,7 +285,7 @@ export default function AdminOrdersPage() {
             className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
           >
             <Loader2 size={18} className={isLoading ? 'animate-spin' : ''} />
-            Làm mới
+            {t.refresh}
           </button>
         </motion.div>
 
@@ -289,10 +296,10 @@ export default function AdminOrdersPage() {
           className="flex flex-wrap gap-2 mb-6"
         >
           {[
-            { key: 'all', label: 'Tất cả' },
-            { key: 'pending', label: 'Chờ xác nhận' },
-            { key: 'shipped', label: 'Đang giao' },
-            { key: 'delivered', label: 'Đã giao' },
+            { key: 'all', label: t.allStatuses },
+            { key: 'pending', label: t.pending },
+            { key: 'shipped', label: t.shipped },
+            { key: 'delivered', label: t.delivered },
           ].map(tab => (
             <button
               key={tab.key}
@@ -321,7 +328,7 @@ export default function AdminOrdersPage() {
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Tìm theo mã đơn, tên, SĐT..."
+              placeholder={t.searchOrders}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:outline-none transition-colors"
@@ -341,9 +348,9 @@ export default function AdminOrdersPage() {
             className="bg-white rounded-2xl p-12 text-center shadow-lg"
           >
             <Package size={64} className="text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-700 mb-2">Không có đơn hàng</h2>
+            <h2 className="text-xl font-bold text-gray-700 mb-2">{t.noOrdersFound}</h2>
             <p className="text-gray-500">
-              {filterStatus !== 'all' ? 'Không có đơn hàng nào ở trạng thái này' : 'Chưa có đơn hàng nào'}
+              {filterStatus !== 'all' ? t.noOrdersInStatus : t.noOrdersFound}
             </p>
           </motion.div>
         ) : (
@@ -394,7 +401,7 @@ export default function AdminOrdersPage() {
                             </span>
                             <span className="flex items-center gap-1">
                               <Calendar size={14} />
-                              {new Date(order.created_at).toLocaleDateString('vi-VN')}
+                              {new Date(order.created_at).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
                             </span>
                           </div>
                         </div>
@@ -402,7 +409,7 @@ export default function AdminOrdersPage() {
 
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <p className="text-sm text-gray-500">{items.length} sản phẩm</p>
+                          <p className="text-sm text-gray-500">{items.length} {t.itemsCount}</p>
                           <p className="text-xl font-bold text-amber-600">{formatPrice(order.total)}</p>
                         </div>
                         {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -422,7 +429,7 @@ export default function AdminOrdersPage() {
                         <div className="p-6 grid lg:grid-cols-3 gap-6">
                           {/* Products */}
                           <div>
-                            <h4 className="font-semibold text-gray-800 mb-3">Sản phẩm</h4>
+                            <h4 className="font-semibold text-gray-800 mb-3">{t.products}</h4>
                             <div className="space-y-2">
                               {items.map((item, idx) => (
                                 <div key={idx} className="flex justify-between text-sm">
@@ -431,7 +438,7 @@ export default function AdminOrdersPage() {
                                 </div>
                               ))}
                               <div className="pt-2 border-t border-gray-100 flex justify-between font-semibold">
-                                <span>Tổng cộng</span>
+                                <span>{t.total}</span>
                                 <span className="text-amber-600">{formatPrice(order.total)}</span>
                               </div>
                             </div>
@@ -439,7 +446,7 @@ export default function AdminOrdersPage() {
 
                           {/* Shipping Info */}
                           <div>
-                            <h4 className="font-semibold text-gray-800 mb-3">Thông tin giao hàng</h4>
+                            <h4 className="font-semibold text-gray-800 mb-3">{t.shippingInfo}</h4>
                             <div className="space-y-2 text-sm text-gray-600">
                               <p className="flex items-center gap-2">
                                 <User size={14} />
@@ -460,14 +467,14 @@ export default function AdminOrdersPage() {
                                 {shipping.address}
                               </p>
                               {shipping.note && (
-                                <p className="italic text-gray-500">Ghi chú: {shipping.note}</p>
+                                <p className="italic text-gray-500">{t.note}: {shipping.note}</p>
                               )}
                             </div>
                           </div>
 
                           {/* Actions */}
                           <div>
-                            <h4 className="font-semibold text-gray-800 mb-3">Cập nhật trạng thái</h4>
+                            <h4 className="font-semibold text-gray-800 mb-3">{t.updateStatus}</h4>
                             <div className="space-y-2">
                               {order.status === 'pending' && (
                                 <button
@@ -480,7 +487,7 @@ export default function AdminOrdersPage() {
                                   ) : (
                                     <Truck size={18} />
                                   )}
-                                  Xác nhận & Giao hàng
+                                  {t.confirmAndShip}
                                 </button>
                               )}
                               
@@ -488,7 +495,7 @@ export default function AdminOrdersPage() {
                                 <div className="text-center py-4 px-4 bg-purple-50 rounded-xl">
                                   <Truck size={24} className="text-purple-500 mx-auto mb-2" />
                                   <p className="text-sm text-purple-700">
-                                    Đang chờ khách hàng xác nhận đã nhận hàng
+                                    {t.waitingCustomer}
                                   </p>
                                 </div>
                               )}
@@ -497,7 +504,7 @@ export default function AdminOrdersPage() {
                                 <div className="text-center py-4 px-4 bg-green-50 rounded-xl">
                                   <CheckCircle size={24} className="text-green-500 mx-auto mb-2" />
                                   <p className="text-sm text-green-700">
-                                    Đơn hàng đã hoàn thành
+                                    {t.orderCompleted}
                                   </p>
                                 </div>
                               )}

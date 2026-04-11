@@ -9,8 +9,14 @@ import { products } from '@/data/products';
 import { trackShare } from '@/lib/analytics';
 import { useAuthStore } from '@/store/authStore';
 
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
+
 export default function BlogDetailPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const params = useParams();
+
   const postId = params.id as string;
   const post = posts.find(p => p.id === postId);
   const { user } = useAuthStore();
@@ -28,10 +34,11 @@ export default function BlogDetailPage() {
   };
 
   const regionNames = {
-    bac: 'Miền Bắc',
-    trung: 'Miền Trung',
-    nam: 'Miền Nam'
+    bac: t.north,
+    trung: t.central,
+    nam: t.south
   };
+
 
   const regionEmoji = {
     bac: '🌸',
@@ -51,14 +58,15 @@ export default function BlogDetailPage() {
     trackShare('blog', post.id, 'generic', user?.id);
     if (navigator.share) {
       navigator.share({
-        title: post.title,
-        text: post.excerpt,
+        title: language === 'vi' ? post.title : post.titleEn,
+        text: language === 'vi' ? post.excerpt : post.excerptEn,
         url: url
       });
     } else {
       navigator.clipboard.writeText(url);
-      alert('Đã sao chép link!');
+      alert(language === 'vi' ? 'Đã sao chép link!' : 'Link copied!');
     }
+
   };
 
   // Parse markdown-like content
@@ -125,8 +133,10 @@ export default function BlogDetailPage() {
               className="inline-flex items-center gap-2 text-[var(--color-brown)]/60 hover:text-[var(--color-brown)] transition-colors"
             >
               <ArrowLeft size={18} />
-              Quay lại Văn Hóa
+              {t.backToCulture || (language === 'vi' ? 'Quay lại Văn Hóa' : 'Back to Culture')}
             </Link>
+
+
           </motion.div>
 
           <motion.div
@@ -147,14 +157,15 @@ export default function BlogDetailPage() {
 
             {/* Title */}
             <h1 className="text-3xl md:text-5xl font-bold text-[var(--color-brown)] mb-6 leading-tight">
-              {post.title}
+              {language === 'vi' ? post.title : post.titleEn}
             </h1>
+
 
             {/* Meta */}
             <div className="flex flex-wrap items-center gap-6 text-[var(--color-brown)]/60">
               <div className="flex items-center gap-2">
                 <Calendar size={16} />
-                <span>{new Date(post.createdAt).toLocaleDateString('vi-VN', {
+                <span>{new Date(post.createdAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US', {
                   weekday: 'long',
                   day: 'numeric',
                   month: 'long',
@@ -166,14 +177,17 @@ export default function BlogDetailPage() {
                 className="flex items-center gap-2 hover:text-[var(--color-gold)] transition-colors"
               >
                 <Share2 size={16} />
-                Chia sẻ Facebook
+                {language === 'vi' ? 'Chia sẻ Facebook' : 'Share on Facebook'}
               </button>
               <button
                 onClick={() => handleShare('generic')}
                 className="flex items-center gap-2 hover:text-[var(--color-gold)] transition-colors"
               >
-                <span className="text-sm">Khác</span>
+                <span className="text-sm">{language === 'vi' ? 'Khác' : 'Other'}</span>
               </button>
+
+
+
             </div>
           </motion.div>
         </div>
@@ -219,8 +233,9 @@ export default function BlogDetailPage() {
             transition={{ delay: 0.4 }}
             className="prose prose-lg max-w-none"
           >
-            {renderContent(post.content)}
+            {renderContent(language === 'vi' ? post.content : post.contentEn)}
           </motion.article>
+
 
           {/* Excerpt Box */}
           <motion.div
@@ -230,8 +245,10 @@ export default function BlogDetailPage() {
             className={`mt-12 p-8 rounded-2xl ${regionColors[post.region].light} border-l-4 border-current ${regionColors[post.region].text}`}
           >
             <p className="text-lg italic text-[var(--color-brown)]/80">
-              "{post.excerpt}"
+              &quot;{language === 'vi' ? post.excerpt : post.excerptEn}&quot;
             </p>
+
+
           </motion.div>
         </div>
       </section>
@@ -247,8 +264,10 @@ export default function BlogDetailPage() {
             >
               <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6 flex items-center gap-3">
                 <ShoppingBag size={24} className="text-[var(--color-gold)]" />
-                Sản Phẩm Liên Quan
+                {t.relatedProducts || (language === 'vi' ? 'Sản Phẩm Liên Quan' : 'Related Products')}
               </h2>
+
+
 
               <Link href={`/san-pham/${relatedProduct.id}`}>
                 <div className="card p-6 flex flex-col sm:flex-row gap-6 group hover:shadow-xl transition-shadow">
@@ -257,18 +276,22 @@ export default function BlogDetailPage() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-[var(--color-brown)] group-hover:text-[var(--color-gold)] transition-colors mb-2">
-                      {relatedProduct.name}
+                      {language === 'vi' ? relatedProduct.name : relatedProduct.nameEn}
                     </h3>
+
                     <p className="text-[var(--color-brown)]/70 mb-4 line-clamp-2">
-                      {relatedProduct.description}
+                      {language === 'vi' ? relatedProduct.description : relatedProduct.descriptionEn}
                     </p>
+
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-[var(--color-gold)]">
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(relatedProduct.price)}
                       </span>
                       <span className={`px-4 py-2 rounded-full bg-gradient-to-r ${regionColors[post.region].gradient} text-white text-sm font-medium`}>
-                        Xem sản phẩm
+                        {t.viewProduct || (language === 'vi' ? 'Xem sản phẩm' : 'View product')}
                       </span>
+
+
                     </div>
                   </div>
                 </div>
@@ -288,8 +311,10 @@ export default function BlogDetailPage() {
               transition={{ delay: 0.7 }}
             >
               <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-6">
-                Bài Viết Khác
+                {t.otherPosts || (language === 'vi' ? 'Bài Viết Khác' : 'Other Posts')}
               </h2>
+
+
 
               <div className="grid sm:grid-cols-3 gap-6">
                 {otherPosts.map((otherPost) => {
@@ -314,11 +339,13 @@ export default function BlogDetailPage() {
                           {regionNames[otherPost.region]}
                         </span>
                         <h3 className="font-bold text-[var(--color-brown)] group-hover:text-[var(--color-gold)] transition-colors line-clamp-2">
-                          {otherPost.title}
+                          {language === 'vi' ? otherPost.title : otherPost.titleEn}
                         </h3>
+
                         <p className="text-sm text-[var(--color-brown)]/60 mt-2">
-                          {new Date(otherPost.createdAt).toLocaleDateString('vi-VN')}
+                          {new Date(otherPost.createdAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
                         </p>
+
                       </div>
                     </Link>
                   );
@@ -338,8 +365,10 @@ export default function BlogDetailPage() {
             className="btn-secondary inline-flex items-center gap-2"
           >
             <ArrowLeft size={18} />
-            Xem Tất Cả Bài Viết
+            {t.viewAllPosts || (language === 'vi' ? 'Xem Tất Cả Bài Viết' : 'View All Posts')}
           </motion.button>
+
+
         </Link>
       </section>
     </div>

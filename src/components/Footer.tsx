@@ -1,7 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import { Facebook, Phone, Mail } from 'lucide-react';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 export default function Footer() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
+
   return (
     <footer className="bg-[var(--color-brown)] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -16,13 +23,11 @@ export default function Footer() {
               />
               <div>
                 <h3 className="text-2xl font-bold text-[var(--color-gold-light)]">VietCharm</h3>
-                <p className="text-sm text-white/70">Mứt Trái Cây 3 Miền</p>
+                <p className="text-sm text-white/70">{language === 'vi' ? 'Mứt Trái Cây 3 Miền' : 'Heritage Fruit Jams'}</p>
               </div>
             </div>
             <p className="text-white/80 leading-relaxed mb-6 max-w-md">
-              Mang đến những hương vị mứt truyền thống từ ba miền Bắc - Trung - Nam, 
-              kết hợp câu chuyện văn hóa vùng miền trong từng sản phẩm. Mỗi hũ mứt là một 
-              trải nghiệm văn hóa số độc đáo qua QR code định danh.
+              {t.footerDesc}
             </p>
             <div className="flex gap-4">
               <a
@@ -50,16 +55,16 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold text-[var(--color-gold-light)] mb-4">Liên Kết Nhanh</h4>
+            <h4 className="text-lg font-semibold text-[var(--color-gold-light)] mb-4">{t.quickLinks}</h4>
             <nav className="flex flex-col gap-3">
               <Link href="/cua-hang" className="text-white/80 hover:text-[var(--color-gold-light)] transition-colors">
-                Cửa Hàng
+                {t.store}
               </Link>
               <Link href="/ban-do" className="text-white/80 hover:text-[var(--color-gold-light)] transition-colors">
-                Bản Đồ Di Sản
+                {t.heritageMapTitle}
               </Link>
               <Link href="/blog" className="text-white/80 hover:text-[var(--color-gold-light)] transition-colors">
-                Văn Hóa Vùng Miền
+                {t.culture}
               </Link>
              
             </nav>
@@ -67,7 +72,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-lg font-semibold text-[var(--color-gold-light)] mb-4">Liên Hệ</h4>
+            <h4 className="text-lg font-semibold text-[var(--color-gold-light)] mb-4">{t.contact}</h4>
             <div className="flex flex-col gap-3">
               <a href="tel:0363386787" className="flex items-center gap-2 text-white/80 hover:text-[var(--color-gold-light)] transition-colors">
                 <Phone size={16} />
@@ -104,10 +109,11 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-12 pt-8 border-t border-white/10 text-center">
           <p className="text-white/60 text-sm">
-            © 2026 VietCharm - Mứt Trái Cây 3 Miền. Dự án Marketing Điện Tử.
+            {t.copyright}
           </p>
         </div>
       </div>
     </footer>
   );
 }
+

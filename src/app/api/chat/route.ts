@@ -9,15 +9,23 @@ import { buildSystemPrompt } from '@/data/chatbot-knowledge';
 // ============================================================
 
 export async function POST(request: NextRequest) {
+  let language = 'vi';
   try {
-    const { messages } = await request.json();
+    const body = await request.json();
+    language = body.language || 'vi';
+    const { messages } = body;
+
 
     const apiKey = process.env.GEMINI_API_KEY;
 
     // Không có API key → trả lỗi rõ ràng
     if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
+      const errorMsg = language === 'en' 
+        ? '⚠️ Chatbot is not configured with an API key. Please contact admin or press **"Transfer to staff"** for direct support! 🙏'
+        : '⚠️ Chatbot hiện chưa được cấu hình API key. Vui lòng liên hệ quản trị viên hoặc nhấn **"Chuyển nhân viên"** để được hỗ trợ trực tiếp! 🙏';
+        
       return NextResponse.json({
-        response: '⚠️ Chatbot hiện chưa được cấu hình API key. Vui lòng liên hệ quản trị viên hoặc nhấn **"Chuyển nhân viên"** để được hỗ trợ trực tiếp! 🙏',
+        response: errorMsg,
         shouldTransfer: true,
         fallback: true,
       });
@@ -26,7 +34,7 @@ export async function POST(request: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
 
     // System prompt đã bao gồm toàn bộ chatbot knowledge
-    const SYSTEM_PROMPT = buildSystemPrompt();
+    const SYSTEM_PROMPT = buildSystemPrompt(language as 'vi' | 'en');
 
     // Try multiple models in order (fallback nếu model bị rate limit)
     const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash'];
@@ -41,7 +49,8 @@ export async function POST(request: NextRequest) {
       }));
 
     // Đảm bảo history bắt đầu bằng 'user' và xen kẽ đúng
-    let chatHistory = [...rawHistory];
+    const chatHistory = [...rawHistory];
+
     while (chatHistory.length > 0 && chatHistory[0].role !== 'user') {
       chatHistory.shift();
     }
@@ -96,8 +105,12 @@ export async function POST(request: NextRequest) {
 
     // Tất cả model đều thất bại
     if (!succeeded) {
+      const overloadedMsg = language === 'en'
+        ? 'Sorry, the system is temporarily overloaded. 😓 Please try again in a moment or press **"Transfer to staff"** for direct support! 🙏'
+        : 'Xin lỗi, hệ thống đang tạm thời quá tải. 😓 Bạn vui lòng thử lại sau giây lát hoặc nhấn **"Chuyển nhân viên"** để được hỗ trợ trực tiếp nhé! 🙏';
+
       return NextResponse.json({
-        response: 'Xin lỗi, hệ thống đang tạm thời quá tải. 😓 Bạn vui lòng thử lại sau giây lát hoặc nhấn **"Chuyển nhân viên"** để được hỗ trợ trực tiếp nhé! 🙏',
+        response: overloadedMsg,
         shouldTransfer: true,
         fallback: true,
       });
@@ -116,8 +129,12 @@ export async function POST(request: NextRequest) {
     const errMessage = error instanceof Error ? error.message : String(error);
     console.error('Gemini API Error:', errMessage);
 
+    const generalErrorMsg = language === 'en'
+      ? 'An error occurred while processing your message. Please try again or press **"Transfer to staff"** for support! 🙏'
+      : 'Đã xảy ra lỗi khi xử lý tin nhắn. Bạn vui lòng thử lại hoặc nhấn **"Chuyển nhân viên"** để được hỗ trợ! 🙏';
+
     return NextResponse.json({
-      response: 'Đã xảy ra lỗi khi xử lý tin nhắn. Bạn vui lòng thử lại hoặc nhấn **"Chuyển nhân viên"** để được hỗ trợ! 🙏',
+      response: generalErrorMsg,
       shouldTransfer: true,
       fallback: true,
       error: true,
@@ -131,6 +148,8 @@ function checkShouldTransfer(response: string): boolean {
     'liên hệ nhân viên', 'liên hệ trực tiếp', 'hỗ trợ trực tiếp',
     'chuyển nhân viên', 'hotline', 'tổng đài', 'vượt quá phạm vi',
     'không thể hỗ trợ', 'khiếu nại', 'hoàn tiền', 'đổi trả',
+    'contact staff', 'human support', 'transfer to human', 'agent',
+    'talk to human', 'customer service', 'refund', 'complaint'
   ];
   const normalizedResponse = response.toLowerCase();
   return transferKeywords.some(kw => normalizedResponse.includes(kw));

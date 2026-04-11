@@ -16,23 +16,41 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { translations } from '@/data/translations';
+import { useLanguageStore } from '@/store/languageStore';
 import { useAuthStore } from '@/store/authStore';
-import { getProductFromCode } from '@/data/products';
+import { type Product, getProductFromCode } from '@/data/products';
 import { badgeInfo } from '@/store/userStore';
-import confetti from 'canvas-confetti';
+import * as confetti from 'canvas-confetti';
+
+
+
+interface ScanResult {
+
+  code: string;
+  isSpecial?: boolean;
+  product?: Product;
+}
 
 export default function QRScanPage() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const router = useRouter();
   const { user, profile, isInitialized, isLoading, unlockProduct } = useAuthStore();
+
   
   const [status, setStatus] = useState<'idle' | 'scanning' | 'success' | 'invalid' | 'already' | 'error'>('idle');
-  const [scanResult, setScanResult] = useState<any>(null);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+
+
   const [errorMessage, setErrorMessage] = useState('');
   const [cameraError, setCameraError] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   const [newBadge, setNewBadge] = useState<string | null>(null);
   
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const scannerRef = useRef<any>(null);
+
 
   // Sound effects (optional, can be added later)
   const playSuccessSound = () => {
@@ -79,9 +97,10 @@ export default function QRScanPage() {
     if (!isValidSystemQR(decodedText)) {
       console.log('QR Scanner: Invalid QR code');
       setStatus('invalid');
-      setErrorMessage('Mã QR này không thuộc hệ thống VietCharm');
+      setErrorMessage(t.qrInvalid);
       return;
     }
+
 
     // Extract the actual code from URL if needed
     const code = extractCodeFromQR(decodedText);
@@ -106,15 +125,18 @@ export default function QRScanPage() {
       try {
         await unlockProduct(allProductIds);
         setStatus('success');
-        confetti({
+        const confettiFn = (confetti as any).default || confetti;
+        confettiFn({
           particleCount: 200,
           spread: 100,
           origin: { y: 0.5 }
         });
-      } catch (err: any) {
+
+      } catch (err: unknown) {
         console.error('QR Scanner: Error unlocking all products:', err);
         setStatus('error');
-        setErrorMessage(err?.message || 'Có lỗi xảy ra khi lưu tiến độ');
+        setErrorMessage(err instanceof Error ? err.message : 'Có lỗi xảy ra khi lưu tiến độ');
+
       }
       return;
     }
@@ -123,9 +145,10 @@ export default function QRScanPage() {
     const product = getProductFromCode(code);
     if (!product) {
       setStatus('invalid');
-      setErrorMessage('Không tìm thấy thông tin sản phẩm');
+      setErrorMessage(t.productNotFound);
       return;
     }
+
 
     // Check if already unlocked locally using product ID
     if (profile?.unlocked_products?.includes(product.id)) {
@@ -146,33 +169,39 @@ export default function QRScanPage() {
       playSuccessSound();
       
       // Check for new badge
-      const currentProfile = useAuthStore.getState().profile;
-      const currentBadges = currentProfile?.badges || [];
-      const newBadges = currentBadges.filter(b => !previousBadges.includes(b));
+      const currentAuthProfile = useAuthStore.getState().profile;
+      const currentBadges = currentAuthProfile?.badges || [];
+      const newBadges = (currentBadges as string[]).filter((b: string) => !previousBadges.includes(b));
+
       
       if (newBadges.length > 0) {
         // Prioritize dai-su
-        const badgeToShow = newBadges.includes('dai-su') ? 'dai-su' : newBadges[0];
+        const badgeToShow = (newBadges as string[]).includes('dai-su') ? 'dai-su' : (newBadges[0] as string);
         setNewBadge(badgeToShow);
         
-        confetti({
+        const confettiFn = (confetti as any).default || confetti;
+        confettiFn({
           particleCount: badgeToShow === 'dai-su' ? 200 : 150,
           spread: badgeToShow === 'dai-su' ? 100 : 70,
           origin: { y: 0.5 }
         });
       } else {
         // Trigger small confetti
-        confetti({
+        const confettiFn = (confetti as any).default || confetti;
+        confettiFn({
           particleCount: 80,
           spread: 60,
           origin: { y: 0.6 }
         });
       }
-    } catch (err: any) {
+
+    } catch (err: unknown) {
       console.error('QR Scanner: Unlock error:', err);
       setStatus('error');
-      setErrorMessage(err?.message || 'Có lỗi xảy ra khi lưu tiến độ. Vui lòng thử lại.');
+      setErrorMessage(err instanceof Error ? err.message : (language === 'vi' ? 'Có lỗi xảy ra khi lưu tiến độ. Vui lòng thử lại.' : 'Error saving progress. Please try again.'));
+
     }
+
   }, [isValidSystemQR, extractCodeFromQR, profile, unlockProduct]);
 
   // Start scanning
@@ -210,11 +239,12 @@ export default function QRScanPage() {
         }
 
         if (!readerElement) {
-          setCameraError('Lỗi khởi tạo: Không tìm thấy khung quét. Vui lòng thử lại.');
+          setCameraError(language === 'vi' ? 'Lỗi khởi tạo: Không tìm thấy khung quét. Vui lòng thử lại.' : 'Init error: Reader element not found. Please try again.');
           setStatus('idle');
           setIsScanning(false);
           return;
         }
+
 
         const { Html5Qrcode } = await import('html5-qrcode');
         if (!active) return;
@@ -233,16 +263,19 @@ export default function QRScanPage() {
           },
           () => {} // Ignore errors
         );
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!active) return;
         console.error('Camera error:', err);
         setIsScanning(false);
-        setCameraError(err.message?.includes('Permission') 
-          ? 'Vui lòng cho phép truy cập camera.' 
-          : `Lỗi: ${err.message || 'Không thể khởi động camera'}`);
+        const errorMessage = err instanceof Error ? err.message : '';
+        setCameraError(errorMessage.includes('Permission') 
+          ? t.camPermission 
+          : `${t.camError}: ${errorMessage || ''}`);
+
         setStatus('idle');
         scannerRef.current = null;
       }
+
     };
 
     initCamera();
@@ -280,9 +313,10 @@ export default function QRScanPage() {
       <div className="min-h-screen flex items-center justify-center pattern-bg">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-[var(--color-gold)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[var(--color-brown)]">Đang tải...</p>
+          <p className="text-[var(--color-brown)]">{t.loading}</p>
         </div>
       </div>
+
     );
   }
 
@@ -299,20 +333,21 @@ export default function QRScanPage() {
             <QrCode size={40} />
           </div>
           <h1 className="text-2xl font-bold text-[var(--color-brown)] mb-4">
-            Tham Gia Hành Trình Di Sản
+            {t.loginRequiredTitle}
           </h1>
           <p className="text-[var(--color-brown)]/70 mb-8">
-            Vui lòng đăng nhập để lưu trữ bộ sưu tập quà tặng ba miền và mở khóa bản đồ của bạn.
+            {t.loginRequiredDesc}
           </p>
           <div className="flex flex-col gap-4">
             <Link href="/dang-nhap" className="btn-primary w-full py-4 text-center">
-              Đăng Nhập Ngay
+              {t.loginAction}
             </Link>
             <Link href="/" className="text-sm text-[var(--color-brown)]/60 hover:text-[var(--color-gold)] transition-colors">
-              Quay về trang chủ
+              {t.backHome}
             </Link>
           </div>
         </motion.div>
+
       </div>
     );
   }
@@ -330,12 +365,13 @@ export default function QRScanPage() {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-[var(--color-brown)]">
-              Quét Mã QR
+              {t.qrScanTitle}
             </h1>
             <p className="text-sm text-[var(--color-brown)]/60">
-              Quét mã QR sản phẩm để thắp sáng bản đồ
+              {t.qrScanDesc}
             </p>
           </div>
+
         </div>
 
         {/* Main Card */}
@@ -368,7 +404,7 @@ export default function QRScanPage() {
               
               <p className="text-[var(--color-brown)] mb-6 flex items-center justify-center gap-2">
                 <RefreshCw size={18} className="animate-spin text-[var(--color-gold)]" />
-                Đang tìm mã QR...
+                {t.findingQR}
               </p>
 
               <button
@@ -376,8 +412,9 @@ export default function QRScanPage() {
                 className="btn-secondary inline-flex items-center gap-2 px-8"
               >
                 <X size={20} />
-                Hủy Quét
+                {t.cancelScan}
               </button>
+
             </div>
           </div>
 
@@ -396,11 +433,12 @@ export default function QRScanPage() {
                 </div>
                 
                 <h2 className="text-xl font-bold text-[var(--color-brown)] mb-2">
-                  Sẵn Sàng Quét
+                  {t.readyToScan}
                 </h2>
                 <p className="text-[var(--color-brown)]/70 mb-8">
-                  Nhấn nút bên dưới để mở camera và quét mã QR trên sản phẩm VietCharm
+                  {t.readyToScanDesc}
                 </p>
+
 
                 {cameraError && (
                   <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
@@ -414,19 +452,21 @@ export default function QRScanPage() {
                   className="btn-primary inline-flex items-center gap-3 text-lg px-10 py-5 shadow-lg shadow-[var(--color-gold)]/20"
                 >
                   <Camera size={24} />
-                  Mở Camera & Quét
+                  {t.openCamera}
                 </button>
+
 
                 <div className="mt-8 p-4 rounded-xl bg-[var(--color-cream)] border border-[var(--color-gold)]/20">
                   <h3 className="font-semibold text-[var(--color-brown)] mb-2 text-sm uppercase tracking-wider">
-                    💡 Hướng dẫn quét
+                    💡 {t.scanGuide}
                   </h3>
                   <ul className="text-sm text-[var(--color-brown)]/70 text-left space-y-1">
-                    <li>• Đưa mã QR vào chính giữa khung hình.</li>
-                    <li>• Đảm bảo môi trường đủ ánh sáng.</li>
-                    <li>• Giữ điện thoại cố định trong vài giây.</li>
+                    <li>• {t.guide1}</li>
+                    <li>• {t.guide2}</li>
+                    <li>• {t.guide3}</li>
                   </ul>
                 </div>
+
               </motion.div>
             )}
 
@@ -444,16 +484,18 @@ export default function QRScanPage() {
                 </div>
                 
                 <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-2">
-                  {scanResult?.isSpecial ? '🎉 Mở Khóa Tuyệt Đỉnh!' : '🎉 Tuyệt Vời!'}
+                  {scanResult?.isSpecial ? t.scanUnlockAll : t.scanSuccess}
                 </h2>
+
                 
                 <p className="text-[var(--color-brown)]/70 mb-6">
                   {scanResult?.isSpecial ? (
-                    <span>Bạn đã thắp sáng <strong className="text-[var(--color-gold)] underline">toàn bộ 6 sản phẩm</strong> di sản!</span>
+                    <span>{language === 'vi' ? 'Bạn đã thắp sáng ' : 'You have lit up '} <strong className="text-[var(--color-gold)] underline">{language === 'vi' ? 'toàn bộ 6 sản phẩm' : 'all 6 heritage products'}</strong> {language === 'vi' ? ' di sản!' : '!'}</span>
                   ) : (
-                    <span>Bạn đã thắp sáng hương vị <strong className="text-[var(--color-gold)] underline">{scanResult?.product?.name}</strong>!</span>
+                    <span>{t.unlockedMsg} <strong className="text-[var(--color-gold)] underline">{scanResult?.product?.name}</strong>!</span>
                   )}
                 </p>
+
 
                 {scanResult?.product && (
                   <div className="mb-8 p-4 rounded-2xl bg-[var(--color-cream)] border-2 border-[var(--color-gold)]/10 flex items-center gap-4 shadow-sm">
@@ -470,26 +512,33 @@ export default function QRScanPage() {
                 )}
 
                 {/* New Badge Alert */}
-                {newBadge && badgeInfo[newBadge as keyof typeof badgeInfo] && (
+                {newBadge && (badgeInfo as any)[newBadge] && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-[var(--color-gold)]/20 to-orange-500/10 border-2 border-[var(--color-gold)]"
                   >
                     <span className="text-4xl mb-2 block">
-                      {badgeInfo[newBadge as keyof typeof badgeInfo].icon}
+                      {(badgeInfo as any)[newBadge].icon}
                     </span>
                     <p className="text-sm font-bold text-[var(--color-brown)] uppercase tracking-wider">
-                      Danh Hiệu Mới!
+                      {t.newBadgeTitle}
                     </p>
                     <p className="text-xl font-bold text-[var(--color-gold)]">
-                      {badgeInfo[newBadge as keyof typeof badgeInfo].name}
+                      {language === 'vi' 
+                        ? (badgeInfo as any)[newBadge].name 
+                        : (badgeInfo as any)[newBadge].nameEn}
                     </p>
+
                     <p className="text-xs text-[var(--color-brown)]/70 mt-1 max-w-[200px] mx-auto">
-                      {badgeInfo[newBadge as keyof typeof badgeInfo].description}
+                      {language === 'vi' 
+                        ? (badgeInfo as any)[newBadge].description 
+                        : (badgeInfo as any)[newBadge].descriptionEn}
                     </p>
                   </motion.div>
                 )}
+
+
 
                 <div className="flex flex-col gap-3 max-w-[280px] mx-auto">
                   <Link 
@@ -497,14 +546,15 @@ export default function QRScanPage() {
                     className="btn-primary inline-flex items-center justify-center gap-2 py-4"
                   >
                     <MapPin size={20} />
-                    Xem Bản Đồ Di Sản
+                    {t.viewMap}
                   </Link>
                   <button 
                     onClick={resetScanner}
                     className="btn-secondary py-3"
                   >
-                    Quét Sản Phẩm Khác
+                    {t.scanOther}
                   </button>
+
                 </div>
               </motion.div>
             )}
@@ -523,12 +573,13 @@ export default function QRScanPage() {
                 </div>
                 
                 <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-2">
-                  Đã Khám Phá
+                  {t.alreadyExplored}
                 </h2>
                 
                 <p className="text-[var(--color-brown)]/70 mb-6">
-                  Hương vị <strong>{scanResult?.product?.name}</strong> đã được bạn thắp sáng trước đó rồi.
+                  {language === 'vi' ? 'Hương vị ' : 'Flavor '} <strong>{scanResult?.product?.name}</strong> {t.alreadyExploredMsg}
                 </p>
+
 
                 <div className="flex flex-col gap-3 max-w-[280px] mx-auto">
                   <Link 
@@ -536,14 +587,16 @@ export default function QRScanPage() {
                     className="btn-primary inline-flex items-center justify-center gap-2 py-4 shadow-md bg-blue-600 hover:bg-blue-700"
                   >
                     <MapPin size={20} />
-                    Vào Bản Đồ Di Sản
+                    {t.viewMap}
                   </Link>
+
                   <button 
                     onClick={resetScanner}
                     className="btn-secondary py-3 italic"
                   >
-                    Thử quét mã khác
+                    {t.scanOther}
                   </button>
+
                 </div>
               </motion.div>
             )}
@@ -562,8 +615,9 @@ export default function QRScanPage() {
                 </div>
                 
                 <h2 className="text-2xl font-bold text-[var(--color-brown)] mb-2">
-                  Chưa Thành Công
+                  {t.scanFailed}
                 </h2>
+
                 <p className="text-[var(--color-brown)]/70 mb-8 max-w-xs mx-auto">
                   {errorMessage || 'Rất tiếc, mã QR này không thể xử lý được lúc này.'}
                 </p>
@@ -572,8 +626,9 @@ export default function QRScanPage() {
                   onClick={resetScanner}
                   className="btn-primary px-12"
                 >
-                  Thử Lại
+                  {t.scanRetry}
                 </button>
+
               </motion.div>
             )}
           </AnimatePresence>
@@ -589,16 +644,17 @@ export default function QRScanPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-semibold text-[var(--color-brown)] flex items-center gap-2">
-                🏠 Tiến độ bộ sưu tập
+                🏠 {t.collectionProgress}
               </span>
               <span className="text-sm font-bold text-[var(--color-gold)]">
-                {Math.min(profile.unlocked_products?.filter(id => id !== 'combo-6-vi').length || 0, 6)} / 6
+
+                {Math.min(profile.unlocked_products?.filter((id: string) => id !== 'combo-6-vi').length || 0, 6)} / 6
               </span>
             </div>
             <div className="w-full h-3 bg-[var(--color-cream)] rounded-full overflow-hidden shadow-inner p-[2px]">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${(Math.min(profile.unlocked_products?.filter(id => id !== 'combo-6-vi').length || 0, 6) / 6) * 100}%` }}
+                animate={{ width: `${(Math.min(profile.unlocked_products?.filter((id: string) => id !== 'combo-6-vi').length || 0, 6) / 6) * 100}%` }}
                 className="h-full gradient-gold rounded-full"
               />
             </div>

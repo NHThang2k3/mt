@@ -5,8 +5,12 @@ import { motion } from 'framer-motion';
 import { ArrowRight, MapPin, Sparkles, Gift } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { products } from '@/data/products';
+import { useLanguageStore } from '@/store/languageStore';
+import { translations } from '@/data/translations';
 
 export default function Home() {
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const featuredProducts = products.slice(0, 3);
 
   return (
@@ -27,29 +31,27 @@ export default function Home() {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-gold)]/10 text-[var(--color-gold)] text-sm font-medium mb-6">
                 <Sparkles size={16} />
-                Khám phá di sản ẩm thực Việt
+                {t.heroSparkle}
               </span>
               
               <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
                 <span className="text-gradient">VietCharm</span>
                 <br />
-                <span className="text-[var(--color-brown)]">Mứt Trái Cây 3 Miền</span>
+                <span className="text-[var(--color-brown)]">{t.heroTitle}</span>
               </h1>
               
               <p className="text-lg text-[var(--color-brown)]/80 mb-8 max-w-lg leading-relaxed">
-                Hành trình khám phá hương vị truyền thống từ Bắc vào Nam. 
-                Mỗi hũ mứt là một câu chuyện văn hóa, được gìn giữ bằng phương pháp thủ công 
-                và trải nghiệm số hiện đại qua QR code định danh.
+                {t.heroDesc}
               </p>
               
               <div className="flex flex-wrap gap-4">
                 <Link href="/blog" className="btn-primary flex items-center gap-2">
-                  Khám Phá Ngay
+                  {t.exploreNow}
                   <ArrowRight size={18} />
                 </Link>
                 <Link href="/ban-do" className="btn-secondary flex items-center gap-2">
                   <MapPin size={18} />
-                  Bản Đồ Di Sản
+                  {t.heritageMapTitle}
                 </Link>
               </div>
             </motion.div>
@@ -67,7 +69,7 @@ export default function Home() {
                 <div className="absolute inset-4 rounded-full bg-[var(--color-cream)] flex items-center justify-center">
                   <div className="text-center">
                     <span className="text-8xl">🍯</span>
-                    <p className="mt-4 text-[var(--color-brown)] font-medium">Di Sản Hương Vị</p>
+                    <p className="mt-4 text-[var(--color-brown)] font-medium">{t.heritageFlavor}</p>
                   </div>
                 </div>
                 
@@ -109,11 +111,10 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-brown)] mb-4">
-                Hương Vị 3 Miền
+                {t.regionsTitle}
               </h2>
               <p className="text-[var(--color-brown)]/70 max-w-3xl mx-auto">
-                Từ vị chua thanh, ngọt dịu của đất trời phía Bắc, đến vị ngọt thanh mộc mạc của nắng gió miền Trung, 
-                và vị ngọt đậm phóng khoáng của miệt vườn sông nước Nam Bộ.
+                {t.regionsDesc}
               </p>
             </motion.div>
           </div>
@@ -121,24 +122,24 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                region: 'Miền Bắc',
+                region: t.north,
                 icon: '🏔️',
-                products: 'Mứt Mận Mộc Châu, Mứt Mơ Ba Vì',
-                description: 'Vị chua thanh, ngọt dịu của đất trời phía Bắc. Nhịp sống chậm, ký ức được gìn giữ qua từng nếp sinh hoạt đời thường.',
+                products: language === 'vi' ? 'Mứt Mận Mộc Châu, Mứt Mơ Ba Vì' : 'Moc Chau Plum Jam, Ba Vi Apricot Jam',
+                description: language === 'vi' ? 'Vị chua thanh, ngọt dịu của đất trời phía Bắc. Nhịp sống chậm, ký ức được gìn giữ qua từng nếp sinh hoạt đời thường.' : 'The fresh and subtle sweet taste of the North. A slow pace of life where memories are preserved through daily activities.',
                 color: 'from-green-500 to-emerald-600'
               },
               {
-                region: 'Miền Trung',
+                region: t.central,
                 icon: '🌸',
-                products: 'Mứt Hạt Sen Huế, Mứt Dâu Tây Đà Lạt',
-                description: 'Vị ngọt thanh, mộc mạc của nắng gió. Vùng đất khắc nghiệt nhưng giàu chiều sâu, con người chắt chiu từng sản vật.',
+                products: language === 'vi' ? 'Mứt Hạt Sen Huế, Mứt Dâu Tây Đà Lạt' : 'Hue Lotus Seed Jam, Da Lat Strawberry Jam',
+                description: language === 'vi' ? 'Vị ngọt thanh, mộc mạc của nắng gió. Vùng đất khắc nghiệt nhưng giàu chiều sâu, con người chắt chiu từng sản vật.' : 'Rustic and subtle sweetness of sun and wind. A harsh yet deep land where people cherish every natural product.',
                 color: 'from-purple-500 to-pink-600'
               },
               {
-                region: 'Miền Nam',
+                region: t.south,
                 icon: '🌴',
-                products: 'Mứt Dừa Bến Tre, Mứt Mãng Cầu Tiền Giang',
-                description: 'Vị ngọt đậm, phóng khoáng của miệt vườn sông nước. Con người hiền hòa, những khu vườn trĩu quả mang cảm giác đủ đầy.',
+                products: language === 'vi' ? 'Mứt Dừa Bến Tre, Mứt Mãng Cầu Tiền Giang' : 'Ben Tre Coconut Jam, Tien Giang Custard Apple Jam',
+                description: language === 'vi' ? 'Vị ngọt đậm, phóng khoáng của miệt vườn sông nước. Con người hiền hòa, những khu vườn trĩu quả mang cảm giác đủ đầy.' : 'Bold and generous sweetness of river orchards. Gentle people and fruit-laden gardens bringing a sense of abundance.',
                 color: 'from-orange-500 to-amber-600'
               }
             ].map((item, index) => (
@@ -174,19 +175,20 @@ export default function Home() {
             {[
               {
                 icon: '🗺️',
-                title: 'Bản Đồ Di Sản',
-                description: 'Thắp sáng bản đồ Việt Nam qua từng sản phẩm bạn sở hữu'
+                title: t.heritageMapTitle,
+                description: t.featuresHeritageMap
               },
               {
                 icon: '📱',
-                title: 'QR Code Định Danh',
-                description: 'Mỗi hũ mứt đều có QR code để khám phá câu chuyện văn hóa vùng miền'
+                title: t.featuresQrCode.split(' ')[0] + ' ' + t.featuresQrCode.split(' ')[1], // Simplifying Title
+                description: t.featuresQrCode
               },
               {
                 icon: '🌿',
-                title: 'Thủ Công Truyền Thống',
-                description: 'Chế biến thủ công, không chất bảo quản, giữ nguyên hương vị tự nhiên'
+                title: t.featuresHandcraftedTitle,
+                description: t.featuresHandcrafted
               }
+
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -220,13 +222,13 @@ export default function Home() {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-gold)]/10 text-[var(--color-gold)] text-sm font-medium mb-4">
                 <Gift size={16} />
-                Sản phẩm nổi bật
+                {t.featuredProducts}
               </span>
               <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-brown)] mb-4">
-                Khám Phá Hương Vị VietCharm
+                {t.discoverVietCharm}
               </h2>
               <p className="text-[var(--color-brown)]/70 max-w-2xl mx-auto">
-                6 loại mứt đặc sản từ 3 miền, mỗi loại mang một câu chuyện văn hóa và hương vị truyền thống độc đáo
+                {t.featuredDesc}
               </p>
             </motion.div>
           </div>
@@ -239,7 +241,7 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <Link href="/cua-hang" className="btn-primary inline-flex items-center gap-2">
-              Xem Tất Cả 6 Sản Phẩm
+              {t.viewAllProducts}
               <ArrowRight size={18} />
             </Link>
           </div>
@@ -255,17 +257,16 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Sẵn Sàng Khám Phá?
+              {t.readyToExplore}
             </h2>
             <p className="text-white/90 max-w-2xl mx-auto mb-8">
-              Bắt đầu hành trình thắp sáng bản đồ di sản Việt Nam ngay hôm nay. 
-              Mỗi hũ mứt VietCharm là một trải nghiệm văn hóa số độc đáo!
+              {t.ctaDesc}
             </p>
             <Link 
               href="/cua-hang" 
               className="inline-flex items-center gap-2 bg-white text-[var(--color-brown)] px-8 py-4 rounded-full font-semibold hover:bg-[var(--color-cream)] transition-colors"
             >
-              Bắt Đầu Ngay
+              {t.startNow}
               <ArrowRight size={18} />
             </Link>
           </motion.div>
