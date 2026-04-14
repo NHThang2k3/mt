@@ -119,15 +119,15 @@ export default function Header() {
             </button>
 
 
-            {/* {mounted && user && (
+            {mounted && user && (
               <>
-                <Link
+                {/* <Link
                   href="/quet-ma"
                   className="p-2 rounded-full bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-red)] hover:opacity-90 transition-opacity shadow-md"
                   title="Quét mã QR"
                 >
                   <QrCode size={22} className="text-white" />
-                </Link>
+                </Link> */}
                 <Link
                   href="/gio-hang"
                   className="relative p-2 rounded-full hover:bg-[var(--color-cream-dark)] transition-colors"
@@ -140,7 +140,7 @@ export default function Header() {
                   )}
                 </Link>
               </>
-            )} */}
+            )}
             
             {mounted && user ? (
               <div className="hidden sm:flex items-center gap-3">
