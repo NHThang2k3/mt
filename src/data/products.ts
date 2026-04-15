@@ -248,7 +248,7 @@ When enjoyed, the tartness touches the tongue lightly then fades into a gentle s
     id: 'combo-trai-nghiem',
     name: 'Combo Trải Nghiệm 2 Món',
     nameEn: 'Experience 2-Flavor Combo',
-    price: 98000,
+    price: 89000,
     weight: '2 hũ x 250g',
     region: 'combo',
     regionName: 'Combo đặc biệt',

@@ -166,8 +166,8 @@ export const CHATBOT_KNOWLEDGE = {
     {
       id: 'combo-trai-nghiem',
       name: 'Combo Trải Nghiệm 2 Món',
-      price: 98000,
-      priceFormatted: '98.000₫',
+      price: 89000,
+      priceFormatted: '89.000₫',
       weight: '2 hũ x 250g',
       description: 'Chọn 2 trong 6 hương vị mứt đặc sản',
       highlight: 'Phù hợp dùng thử, trải nghiệm ngẫu hứng',
@@ -752,7 +752,7 @@ export function buildSystemPrompt(language: 'vi' | 'en' = 'vi'): string {
   const k = CHATBOT_KNOWLEDGE;
 
   let prompt = '';
-  
+
   if (language === 'en') {
     prompt = `You are VietCharm AI – product advisor for the brand ${k.brand.fullName}.
 VietCharm is a handcrafted fruit jam brand, bringing traditional flavors from the North, Central, and South of Vietnam.
