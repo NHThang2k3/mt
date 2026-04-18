@@ -20,7 +20,7 @@ export default function Home() {
         {/* Decorative Elements */}
         <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-[var(--color-gold)]/10 blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-[var(--color-red)]/10 blur-3xl" />
-        
+
         <div className="section w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Text Content */}
@@ -33,17 +33,17 @@ export default function Home() {
                 <Sparkles size={16} />
                 {t.heroSparkle}
               </span>
-              
+
               <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
                 <span className="text-gradient">VietCharm</span>
                 <br />
                 <span className="text-[var(--color-brown)]">{t.heroTitle}</span>
               </h1>
-              
+
               <p className="text-lg text-[var(--color-brown)]/80 mb-8 max-w-lg leading-relaxed">
                 {t.heroDesc}
               </p>
-              
+
               <div className="flex flex-wrap gap-4">
                 <Link href="/blog" className="btn-primary flex items-center gap-2">
                   {t.exploreNow}
@@ -72,7 +72,7 @@ export default function Home() {
                     <p className="mt-4 text-[var(--color-brown)] font-medium">{t.heritageFlavor}</p>
                   </div>
                 </div>
-                
+
                 {/* Floating Elements */}
                 <motion.div
                   animate={{ y: [0, -15, 0] }}
@@ -180,7 +180,7 @@ export default function Home() {
               },
               {
                 icon: '📱',
-                title: t.featuresQrCode.split(' ')[0] + ' ' + t.featuresQrCode.split(' ')[1], // Simplifying Title
+                title: 'QR Code', // Simplifying Title
                 description: t.featuresQrCode
               },
               {
@@ -262,8 +262,8 @@ export default function Home() {
             <p className="text-white/90 max-w-2xl mx-auto mb-8">
               {t.ctaDesc}
             </p>
-            <Link 
-              href="/cua-hang" 
+            <Link
+              href="/cua-hang"
               className="inline-flex items-center gap-2 bg-white text-[var(--color-brown)] px-8 py-4 rounded-full font-semibold hover:bg-[var(--color-cream)] transition-colors"
             >
               {t.startNow}

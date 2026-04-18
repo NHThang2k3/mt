@@ -360,8 +360,8 @@ Each 150g jar is exquisitely packaged, suitable as a meaningful gift for relativ
     album: [
       '/images/combo6.JPG',
       '/images/combo1.JPG',
-      '/images/combo2.JPG',
-      '/images/combo3.JPG'
+      // '/images/combo2.JPG',
+      // '/images/combo3.JPG'
     ]
   }
 ];

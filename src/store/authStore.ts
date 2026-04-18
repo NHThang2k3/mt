@@ -226,8 +226,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           });
         }
 
-        // Optionally set state here, though session change might trigger listener
-        set({ user: data.user });
+        // Only set user if a session is returned (e.g., if email confirm is disabled)
+        if (data.session) {
+          set({ user: data.user });
+        }
       }
 
       set({ isLoading: false });

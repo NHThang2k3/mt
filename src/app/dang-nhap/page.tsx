@@ -73,6 +73,7 @@ if (mode === 'login') {
   } else {
     setError(null);
     alert(t.registerSuccess);
+    setMode('login');
   }
 }
 
